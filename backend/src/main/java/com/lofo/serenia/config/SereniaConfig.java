@@ -56,4 +56,10 @@ public interface SereniaConfig {
      */
     @WithName("system-prompt")
     String systemPrompt();
+
+    /**
+     * URL of the server
+     */
+    @WithName("url")
+    String url();
 }

@@ -20,10 +20,12 @@ public class TokenServiceImpl implements TokenService {
     @ConfigProperty(name = "serenia.auth.expiration-time")
     Long duration;
 
+    @Override
     public String generateToken(UserResponseDTO user) {
         return buildToken(user);
     }
 
+    @Override
     public String generateToken(User user) {
         return buildToken(toView(user));
     }

@@ -61,6 +61,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Transactional
+    @Override
     public UserResponseDTO register(RegistrationRequestDTO dto) {
         LOG.infof("Registering user with email=%s", dto.email());
 
@@ -103,6 +104,7 @@ public class AuthServiceImpl implements AuthService {
         return userMapper.toView(user);
     }
 
+    @Override
     public UserResponseDTO login(LoginRequestDTO dto) {
         LOG.infof("Login attempt for email=%s", dto.email());
         User user = userRepository.find("email", dto.email())
@@ -122,6 +124,7 @@ public class AuthServiceImpl implements AuthService {
         return userMapper.toView(user);
     }
 
+    @Override
     public UserResponseDTO getByEmail(String email) {
         LOG.debugf("Fetching user by email=%s", email);
         return userRepository.find("email", email).firstResultOptional()
@@ -129,6 +132,7 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new WebApplicationException("User not found", Response.Status.NOT_FOUND));
     }
 
+    @Override
     @Transactional
     public void deleteAccount(String email) {
         LOG.infof("Deleting account for email=%s", email);
@@ -151,7 +155,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private String buildActivationLink(String activationToken) {
-        return "http://localhost:8080/api/auth/activate?token=" + activationToken;
+        return sereniaConfig.url() + "/api/auth/activate?token=" + activationToken;
     }
 
     private AuthenticationFailedException invalidCredentials(String email) {
