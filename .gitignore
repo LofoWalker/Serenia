@@ -1,0 +1,37 @@
+# IDE & editor artifacts
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+*.swp
+*.swo
+*.tmp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Maven / Quarkus build outputs
+backend/target/
+backend/.quarkus/
+backend/.local-cache/
+
+# Logs & reports
+backend/logs/
+backend/*.log
+backend/surefire-reports/
+backend/failsafe-reports/
+
+# Environment & secrets
+backend/.env
+backend/.env.*
+
+# Dependency downloads
+backend/.mvn/wrapper/maven-wrapper.jar
+backend/.mvn/wrapper/maven-wrapper.properties
+backend/mvnw
+backend/mvnw.cmd
+
+.github
+

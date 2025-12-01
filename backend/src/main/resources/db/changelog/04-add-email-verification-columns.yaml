@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: 04-add-email-verification-columns
+      author: lofo
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: is_account_activated
+                  type: boolean
+                  constraints:
+                    nullable: false
+                  defaultValue: false
+              - column:
+                  name: activation_token
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: token_expiration_date
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: true
+

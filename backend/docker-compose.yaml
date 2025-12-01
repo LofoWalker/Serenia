@@ -1,0 +1,42 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: serenia-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: serenia
+      POSTGRES_USER: serenia
+      POSTGRES_PASSWORD: serenia
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - serenia_db_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "serenia", "-U", "serenia"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: serenia-mailhog
+    restart: unless-stopped
+
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "1025"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+volumes:
+  serenia_db_data:
