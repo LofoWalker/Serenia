@@ -1,0 +1,24 @@
+package com.lofo.serenia.repository;
+
+import com.lofo.serenia.domain.user.User;
+import com.lofo.serenia.dto.out.UserResponseDTO;
+import com.lofo.serenia.mapper.UserMapper;
+import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import jakarta.enterprise.context.ApplicationScoped;
+
+import java.util.UUID;
+
+@ApplicationScoped
+public class UserRepository implements PanacheRepository<User> {
+
+    public void deleteById(UUID userId) {
+        delete("id", userId);
+    }
+
+    public UserResponseDTO findViewByEmail(String email, UserMapper mapper) {
+        return find("email", email).project(User.class)
+                .firstResultOptional()
+                .map(mapper::toView)
+                .orElse(null);
+    }
+}

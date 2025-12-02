@@ -1,0 +1,32 @@
+# Build outputs
+/target/
+/.quarkus/
+/.local-cache/
+
+# IDE artifacts
+/.idea/
+*.iml
+*.ipr
+*.iws
+/.vscode/
+
+# Logs & reports
+/logs/
+*.log
+/surefire-reports/
+/failsafe-reports/
+
+# Environment & secrets
+/.env
+/.env.*
+/src/main/resources/keys/
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Maven wrapper cache
+/.mvn/
+/mvnw
+/mvnw.cmd
+

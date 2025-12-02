@@ -1,0 +1,517 @@
+{
+  "info": {
+    "_postman_id": "serenia-api-collection",
+    "name": "Serenia API",
+    "description": "Collection de test pour l'API Serenia - Authentification et Conversations",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "protocolProfileBehavior": {},
+  "item": [
+    {
+      "name": "Authentication",
+      "description": "Endpoints d'authentification",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('user_id', response.user.id);",
+                  "    pm.environment.set('user_email', response.user.email);",
+                  "    pm.environment.set('jwt_token', response.token);",
+                  "    ",
+                  "    pm.test('Status code is 200', function() {",
+                  "        pm.expect(pm.response.code).to.equal(200);",
+                  "    });",
+                  "    ",
+                  "    pm.test('Response has user and token', function() {",
+                  "        pm.expect(response).to.have.property('user');",
+                  "        pm.expect(response).to.have.property('token');",
+                  "    });",
+                  "    ",
+                  "    pm.test('User has required fields', function() {",
+                  "        pm.expect(response.user).to.have.property('id');",
+                  "        pm.expect(response.user).to.have.property('email');",
+                  "        pm.expect(response.user).to.have.property('firstName');",
+                  "        pm.expect(response.user).to.have.property('lastName');",
+                  "    });",
+                  "    ",
+                  "    console.log('✓ Registration successful - Variables stored:');",
+                  "    console.log('  - user_id: ' + response.user.id);",
+                  "    console.log('  - user_email: ' + response.user.email);",
+                  "    console.log('  - jwt_token: ' + response.token.substring(0, 20) + '...');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\",\n  \"email\": \"test-{{$timestamp}}@serenia.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('user_id', response.user.id);",
+                  "    pm.environment.set('user_email', response.user.email);",
+                  "    pm.environment.set('jwt_token', response.token);",
+                  "    ",
+                  "    pm.test('Status code is 200', function() {",
+                  "        pm.expect(pm.response.code).to.equal(200);",
+                  "    });",
+                  "    ",
+                  "    pm.test('Response has user and token', function() {",
+                  "        pm.expect(response).to.have.property('user');",
+                  "        pm.expect(response).to.have.property('token');",
+                  "    });",
+                  "    ",
+                  "    console.log('✓ Login successful - JWT Token stored:');",
+                  "    console.log('  - jwt_token: ' + response.token.substring(0, 20) + '...');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{user_email}}\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Current User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has user data', function() {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('id');",
+                  "    pm.expect(response).to.have.property('email');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Account",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 204 (No Content)', function() {",
+                  "    pm.expect(pm.response.code).to.equal(204);",
+                  "});",
+                  "",
+                  "console.log('✓ Account deleted successfully');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Conversations",
+      "description": "Endpoints pour les conversations et les messages",
+      "item": [
+        {
+          "name": "Send Message",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    ",
+                  "    pm.test('Status code is 200', function() {",
+                  "        pm.expect(pm.response.code).to.equal(200);",
+                  "    });",
+                  "    ",
+                  "    pm.test('Response has message data', function() {",
+                  "        pm.expect(response).to.have.property('role');",
+                  "        pm.expect(response).to.have.property('content');",
+                  "    });",
+                  "    ",
+                  "    pm.test('Message has valid role', function() {",
+                  "        pm.expect(['ASSISTANT', 'USER']).to.include(response.role);",
+                  "    });",
+                  "    ",
+                  "    console.log('✓ Message sent successfully');",
+                  "    console.log('  - Role: ' + response.role);",
+                  "    console.log('  - Content: ' + response.content.substring(0, 50) + '...');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Optional: Set default message if not already set",
+                  "if (!pm.environment.get('message_content')) {",
+                  "    pm.environment.set('message_content', 'Hello, how are you?');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"{{message_content}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/conversations/add-message",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "conversations",
+                "add-message"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Conversation Messages",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Note: conversation_id should be obtained after the first message is sent",
+                  "if (!pm.environment.get('conversation_id')) {",
+                  "    console.log('⚠ conversation_id not set. Send a message first to get the conversation ID.'):",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const messages = pm.response.json();",
+                  "    ",
+                  "    pm.test('Status code is 200', function() {",
+                  "        pm.expect(pm.response.code).to.equal(200);",
+                  "    });",
+                  "    ",
+                  "    pm.test('Response is an array', function() {",
+                  "        pm.expect(Array.isArray(messages)).to.be.true;",
+                  "    });",
+                  "    ",
+                  "    if (messages.length > 0) {",
+                  "        pm.test('Messages have required fields', function() {",
+                  "            messages.forEach(function(msg) {",
+                  "                pm.expect(msg).to.have.property('role');",
+                  "                pm.expect(msg).to.have.property('content');",
+                  "            });",
+                  "        });",
+                  "        ",
+                  "        console.log('✓ Retrieved ' + messages.length + ' messages');",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/conversations/{{conversation_id}}/messages",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "conversations",
+                "{{conversation_id}}",
+                "messages"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Complete Workflow",
+      "description": "Scénario complet: Enregistrement -> Envoi de messages -> Consultation",
+      "item": [
+        {
+          "name": "1. Register New User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('user_id', response.user.id);",
+                  "    pm.environment.set('user_email', response.user.email);",
+                  "    pm.environment.set('jwt_token', response.token);",
+                  "    console.log('✓ Step 1: User registered successfully');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Demo\",\n  \"lastName\": \"User\",\n  \"email\": \"demo-{{$timestamp}}@serenia.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2. Send First Message",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    console.log('✓ Step 2: First message sent');",
+                  "    console.log('  Response: ' + response.content.substring(0, 60) + '...');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"What is the capital of France?\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/conversations/add-message",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "conversations",
+                "add-message"
+              ]
+            }
+          }
+        },
+        {
+          "name": "3. Send Follow-up Message",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    console.log('✓ Step 3: Follow-up message sent');",
+                  "    console.log('  Response: ' + response.content.substring(0, 60) + '...');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Tell me more about this city\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/conversations/add-message",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "conversations",
+                "add-message"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_email",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "conversation_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "message_content",
+      "value": "Hello! How are you?",
+      "type": "string"
+    }
+  ]
+}
+
