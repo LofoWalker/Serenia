@@ -12,6 +12,13 @@ import jakarta.ws.rs.core.Response;
 @ApplicationScoped
 public class WebApplicationExceptionHandler implements ExceptionHandler {
 
+    private static final String BAD_REQUEST = "BAD_REQUEST";
+    private static final String NOT_FOUND = "NOT_FOUND";
+    private static final String CONFLICT = "CONFLICT";
+    private static final String UNPROCESSABLE_ENTITY = "UNPROCESSABLE_ENTITY";
+    private static final String SERVER_ERROR = "SERVER_ERROR";
+    private static final String HTTP_ERROR = "HTTP_ERROR";
+
     @Override
     public boolean canHandle(Throwable exception) {
         return exception instanceof WebApplicationException;
@@ -45,12 +52,12 @@ public class WebApplicationExceptionHandler implements ExceptionHandler {
 
     private String getErrorType(int statusCode) {
         return switch (statusCode) {
-            case 400 -> "BAD_REQUEST";
-            case 404 -> "NOT_FOUND";
-            case 409 -> "CONFLICT";
-            case 422 -> "UNPROCESSABLE_ENTITY";
-            case 500, 502, 503, 504 -> "SERVER_ERROR";
-            default -> "HTTP_ERROR";
+            case 400 -> BAD_REQUEST;
+            case 404 -> NOT_FOUND;
+            case 409 -> CONFLICT;
+            case 422 -> UNPROCESSABLE_ENTITY;
+            case 500, 502, 503, 504 -> SERVER_ERROR;
+            default -> HTTP_ERROR;
         };
     }
 

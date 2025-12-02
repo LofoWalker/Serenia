@@ -13,12 +13,13 @@ import io.quarkus.test.junit.TestProfile;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mindrot.jbcrypt.BCrypt;
+
+import java.util.Set;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
@@ -52,12 +53,6 @@ class AuthResourceTest {
     @Transactional
     protected void persistUser(User user) {
         userRepository.persist(user);
-        em.flush();
-    }
-
-    @Transactional
-    protected void persistRole(Role role) {
-        roleRepository.persist(role);
         em.flush();
     }
 

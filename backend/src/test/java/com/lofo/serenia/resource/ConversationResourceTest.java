@@ -6,13 +6,8 @@ import com.lofo.serenia.domain.conversation.Conversation;
 import com.lofo.serenia.domain.conversation.MessageRole;
 import com.lofo.serenia.domain.user.Role;
 import com.lofo.serenia.domain.user.User;
-import com.lofo.serenia.dto.out.UserResponseDTO;
-import com.lofo.serenia.repository.ConversationRepository;
-import com.lofo.serenia.repository.RoleRepository;
-import com.lofo.serenia.repository.UserRepository;
-import com.lofo.serenia.repository.UserTokenQuotaRepository;
-import com.lofo.serenia.repository.UserTokenUsageRepository;
-import com.lofo.serenia.service.token.TokenService;
+import com.lofo.serenia.dto.in.LoginRequestDTO;
+import com.lofo.serenia.repository.*;
 import com.lofo.serenia.service.chat.ChatCompletionService;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -25,6 +20,7 @@ import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.List;
 import java.util.Set;
@@ -44,12 +40,10 @@ import static org.mockito.Mockito.when;
 class ConversationResourceTest {
 
     private static final String EMAIL = "user@example.com";
+    private static final String PASSWORD = "Password123!";
 
     @InjectMock
     ChatCompletionService chatCompletionService;
-
-    @Inject
-    TokenService tokenService;
 
     @Inject
     UserRepository userRepository;
@@ -61,49 +55,66 @@ class ConversationResourceTest {
     UserTokenUsageRepository userTokenUsageRepository;
 
     @Inject
-    ConversationRepository conversationRepository;
-    @Inject
     RoleRepository roleRepository;
+
+    @Inject
+    ConversationRepository conversationRepository;
+
     @Inject
     ConversationTestHelper conversationTestHelper;
 
     private String bearerToken;
     private User currentUser;
-    private Role testRole;
 
     @BeforeEach
-    @Transactional
     void setUpIdentity() {
+        setupDatabase();
+        obtainToken();
+    }
+
+    @Transactional
+    void setupDatabase() {
         userTokenUsageRepository.deleteAll();
         userTokenQuotaRepository.deleteAll();
         conversationRepository.deleteAll();
         userRepository.deleteAll();
 
         roleRepository.deleteAll();
-        testRole = Role.builder().name("USER").build();
+        Role testRole = Role.builder().name("USER").build();
         roleRepository.persist(testRole);
 
+        String hashedPassword = BCrypt.hashpw(PASSWORD, BCrypt.gensalt());
         User user = new User();
         user.setEmail(EMAIL);
         user.setFirstName("John");
         user.setLastName("Doe");
-        user.setPassword("password");
+        user.setPassword(hashedPassword);
+        user.setAccountActivated(true);
         user.setRoles(Set.of(testRole));
         userRepository.persist(user);
         userRepository.flush();
         this.currentUser = user;
+    }
 
-        UserResponseDTO userResponseDto = new UserResponseDTO(currentUser.getId(), "Doe", "John", EMAIL, Set.of("USER"));
-        bearerToken = tokenService.generateToken(userResponseDto);
+    void obtainToken() {
+        bearerToken = given()
+                .contentType(ContentType.JSON)
+                .body(new LoginRequestDTO(EMAIL, PASSWORD))
+                .when()
+                .post("/api/auth/login")
+                .then()
+                .statusCode(Response.Status.OK.getStatusCode())
+                .extract()
+                .path("token");
     }
 
     @Test
-    @DisplayName("POST /conversations/add-message returns assistant reply when payload valid")
-    void addMessage_shouldReturnAssistantReply_whenContentValid() {
+    @DisplayName("POST /conversations/add-message returns assistant reply with conversation ID when payload valid")
+    void addMessage_shouldReturnAssistantReplyWithConversationId_whenContentValid() {
         when(chatCompletionService.generateReply(any(), any())).thenReturn("Bonjour, comment puis-je aider ?");
 
         given()
-            .auth().oauth2(bearerToken)
+            .header("Authorization", "Bearer " + bearerToken)
             .contentType(ContentType.JSON)
             .body("{\"content\":\"Bonjour\"}")
             .when()
@@ -111,14 +122,15 @@ class ConversationResourceTest {
             .then()
             .statusCode(Response.Status.OK.getStatusCode())
             .body("role", equalTo(MessageRole.ASSISTANT.name()))
-            .body("content", equalTo("Bonjour, comment puis-je aider ?"));
+            .body("content", equalTo("Bonjour, comment puis-je aider ?"))
+            .body("conversationId", org.hamcrest.Matchers.notNullValue());
     }
 
     @Test
     @DisplayName("POST /conversations/add-message returns 400 when content blank")
     void addMessage_shouldReturnBadRequest_whenContentBlank() {
         given()
-            .auth().oauth2(bearerToken)
+            .header("Authorization", "Bearer " + bearerToken)
             .contentType(ContentType.JSON)
             .body("{\"content\":\" \"}")
             .when()
@@ -131,22 +143,20 @@ class ConversationResourceTest {
     @Test
     @DisplayName("GET /conversations/{id}/messages returns messages for authenticated user")
     void getConversationMessages_shouldReturnMessages_whenUserAuthorized() {
-        // Create and persist conversation in a transactional context
         Conversation conversation = conversationTestHelper.createPersistedConversation(currentUser.getId());
 
         when(chatCompletionService.generateReply(any(), any())).thenReturn("Salut !");
 
         given()
-            .auth().oauth2(bearerToken)
+            .header("Authorization", "Bearer " + bearerToken)
             .when()
             .get("/api/conversations/" + conversation.getId() + "/messages")
             .then()
             .statusCode(Response.Status.OK.getStatusCode())
-            .body("", hasSize(0)); // No messages persisted yet
+            .body("", hasSize(0));
 
-        // Now, let's add a message and see if it's returned
         given()
-            .auth().oauth2(bearerToken)
+            .header("Authorization", "Bearer " + bearerToken)
             .contentType(ContentType.JSON)
             .body("{\"content\":\"Salut\"}")
             .when()
@@ -155,7 +165,7 @@ class ConversationResourceTest {
             .statusCode(Response.Status.OK.getStatusCode());
 
         List<ChatMessage> messages = given()
-            .auth().oauth2(bearerToken)
+            .header("Authorization", "Bearer " + bearerToken)
             .when()
             .get("/api/conversations/" + conversation.getId() + "/messages")
             .then()

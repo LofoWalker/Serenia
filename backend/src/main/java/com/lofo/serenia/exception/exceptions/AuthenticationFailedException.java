@@ -1,4 +1,4 @@
-package com.lofo.serenia.exception;
+package com.lofo.serenia.exception.exceptions;
 
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;

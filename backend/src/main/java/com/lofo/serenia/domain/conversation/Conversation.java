@@ -1,12 +1,16 @@
 package com.lofo.serenia.domain.conversation;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.Instant;
 import java.util.UUID;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Setter
 @Getter
 @Entity
@@ -28,8 +32,6 @@ public class Conversation {
 
     @Column(name = "last_activity_at", nullable = false)
     private Instant lastActivityAt;
-
-    public Conversation() {}
 
     @PrePersist
     void onCreate() {

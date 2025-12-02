@@ -3,30 +3,26 @@ package com.lofo.serenia.service.chat.impl;
 import com.lofo.serenia.domain.conversation.ChatMessage;
 import com.lofo.serenia.domain.conversation.Message;
 import com.lofo.serenia.domain.conversation.MessageRole;
+import com.lofo.serenia.mapper.MessageMapper;
 import com.lofo.serenia.repository.ConversationRepository;
 import com.lofo.serenia.repository.MessageRepository;
 import com.lofo.serenia.service.encryption.EncryptionService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+@AllArgsConstructor
 @ApplicationScoped
 public class MessageService {
 
     private final MessageRepository messageRepository;
     private final EncryptionService encryptionService;
     private final ConversationRepository conversationRepository;
-
-    public MessageService(MessageRepository messageRepository,
-            EncryptionService encryptionService,
-            ConversationRepository conversationRepository) {
-        this.messageRepository = messageRepository;
-        this.encryptionService = encryptionService;
-        this.conversationRepository = conversationRepository;
-    }
+    private final MessageMapper messageMapper;
 
     @Transactional
     public void persistUserMessage(UUID userId, UUID conversationId, String content) {
@@ -41,7 +37,7 @@ public class MessageService {
     public List<ChatMessage> decryptConversationMessages(UUID userId, UUID conversationId) {
         List<Message> messages = messageRepository.findByConversation(conversationId);
         return messages.stream()
-                .map(message -> new ChatMessage(message.getRole(),
+                .map(message -> messageMapper.toChatMessage(message,
                         encryptionService.decryptForUser(userId, message.getEncryptedContent())))
                 .toList();
     }

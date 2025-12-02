@@ -1,8 +1,8 @@
 package com.lofo.serenia.config;
 
 import io.smallrye.config.ConfigMapping;
-import io.smallrye.config.WithName;
 import io.smallrye.config.WithDefault;
+import io.smallrye.config.WithName;
 
 @ConfigMapping(prefix = "openai")
 public interface OpenAIConfig {

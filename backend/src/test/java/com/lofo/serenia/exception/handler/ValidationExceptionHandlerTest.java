@@ -1,11 +1,11 @@
 package com.lofo.serenia.exception.handler;
 
 import com.lofo.serenia.exception.model.ErrorResponse;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.ws.rs.core.Response;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

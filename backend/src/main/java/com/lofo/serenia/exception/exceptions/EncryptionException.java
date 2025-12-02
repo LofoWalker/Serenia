@@ -1,4 +1,4 @@
-package com.lofo.serenia.exception;
+package com.lofo.serenia.exception.exceptions;
 
 public class EncryptionException extends RuntimeException {
 

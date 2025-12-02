@@ -1,17 +1,14 @@
 package com.lofo.serenia.exception.service;
 
-import com.lofo.serenia.exception.AuthenticationFailedException;
-import com.lofo.serenia.exception.ForbiddenAccessException;
-import com.lofo.serenia.exception.handler.AuthenticationFailedHandler;
-import com.lofo.serenia.exception.handler.ExceptionHandler;
-import com.lofo.serenia.exception.handler.ForbiddenAccessHandler;
-import com.lofo.serenia.exception.handler.GenericExceptionHandler;
-import com.lofo.serenia.exception.handler.ValidationExceptionHandler;
+import com.lofo.serenia.exception.exceptions.AuthenticationFailedException;
+import com.lofo.serenia.exception.exceptions.ForbiddenAccessException;
+import com.lofo.serenia.exception.handler.*;
 import com.lofo.serenia.exception.model.ErrorResponse;
+import jakarta.enterprise.inject.Instance;
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import jakarta.validation.ConstraintViolationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -26,19 +23,18 @@ class ExceptionHandlerServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new ExceptionHandlerService();
+        @SuppressWarnings("unchecked")
+        Instance<ExceptionHandler> handlers = mock(Instance.class);
+        service = new ExceptionHandlerService(handlers);
     }
 
     @Test
     @DisplayName("Should route AuthenticationFailedException to correct handler")
     void shouldRouteAuthenticationFailedExceptionCorrectly() {
-        // Arrange
         AuthenticationFailedException exception = new AuthenticationFailedException("Token invalid");
 
-        // Act - We're testing the routing logic (manually since we can't inject Instance in unit test)
         AuthenticationFailedHandler handler = new AuthenticationFailedHandler();
 
-        // Assert
         assertThat(handler.canHandle(exception)).isTrue();
         assertThat(handler.getStatus().getStatusCode()).isEqualTo(401);
     }

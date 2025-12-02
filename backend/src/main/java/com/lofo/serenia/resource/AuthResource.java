@@ -6,9 +6,11 @@ import com.lofo.serenia.dto.out.ActivationResponseDTO;
 import com.lofo.serenia.dto.out.AuthResponseDTO;
 import com.lofo.serenia.dto.out.RegistrationResponseDTO;
 import com.lofo.serenia.dto.out.UserResponseDTO;
-import com.lofo.serenia.service.auth.AuthService;
 import com.lofo.serenia.service.auth.EmailVerificationService;
+import com.lofo.serenia.service.auth.UserAuthenticationService;
+import com.lofo.serenia.service.auth.UserRegistrationService;
 import com.lofo.serenia.service.token.TokenService;
+import com.lofo.serenia.service.user.UserLifecycleService;
 import io.quarkus.security.Authenticated;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.validation.Valid;
@@ -32,13 +34,22 @@ public class AuthResource {
 
     private static final Logger LOG = Logger.getLogger(AuthResource.class);
 
-    private final AuthService authService;
+    private final UserRegistrationService userRegistrationService;
+    private final UserAuthenticationService userAuthenticationService;
+    private final UserLifecycleService userLifecycleService;
     private final SecurityIdentity securityIdentity;
     private final TokenService tokenService;
     private final EmailVerificationService emailVerificationService;
 
-    public AuthResource(AuthService authService, SecurityIdentity securityIdentity, TokenService tokenService, EmailVerificationService emailVerificationService) {
-        this.authService = authService;
+    public AuthResource(UserRegistrationService userRegistrationService,
+            UserAuthenticationService userAuthenticationService,
+            UserLifecycleService userLifecycleService,
+            SecurityIdentity securityIdentity,
+            TokenService tokenService,
+            EmailVerificationService emailVerificationService) {
+        this.userRegistrationService = userRegistrationService;
+        this.userAuthenticationService = userAuthenticationService;
+        this.userLifecycleService = userLifecycleService;
         this.securityIdentity = securityIdentity;
         this.tokenService = tokenService;
         this.emailVerificationService = emailVerificationService;
@@ -47,16 +58,17 @@ public class AuthResource {
     @POST
     @Path("/register")
     @Operation(summary = "Register user", description = "Creates a user and sends an activation email.")
-    @RequestBody(required = true, content = @Content(schema = @Schema(implementation = RegistrationRequestDTO.class)))
+    @RequestBody(content = @Content(schema = @Schema(implementation = RegistrationRequestDTO.class)))
     @APIResponses({
             @APIResponse(responseCode = "201", description = "User registered", content = @Content(schema = @Schema(implementation = RegistrationResponseDTO.class))),
             @APIResponse(responseCode = "400", description = "Invalid payload")
     })
     public Response register(@Valid RegistrationRequestDTO dto) {
         LOG.infof("REST register called for email=%s", dto.email());
-        authService.register(dto);
+        userRegistrationService.register(dto);
         return Response.status(Response.Status.CREATED)
-                .entity(new RegistrationResponseDTO("Inscription réussie. Un lien d'activation a été envoyé à votre email."))
+                .entity(new RegistrationResponseDTO(
+                        "Inscription réussie. Un lien d'activation a été envoyé à votre email."))
                 .build();
     }
 
@@ -67,7 +79,8 @@ public class AuthResource {
             @APIResponse(responseCode = "200", description = "Account activated", content = @Content(schema = @Schema(implementation = ActivationResponseDTO.class))),
             @APIResponse(responseCode = "400", description = "Invalid or missing token")
     })
-    public Response activate(@QueryParam("token") @Parameter(description = "Activation token", required = true) String token) {
+    public Response activate(
+            @QueryParam("token") @Parameter(description = "Activation token", required = true) String token) {
         LOG.infof("REST activate called with token=%s", maskToken(token));
         if (token == null || token.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
@@ -75,13 +88,15 @@ public class AuthResource {
                     .build();
         }
         emailVerificationService.activateAccount(token);
-        return Response.ok(new ActivationResponseDTO("Compte activé avec succès. Vous pouvez maintenant vous connecter.")).build();
+        return Response
+                .ok(new ActivationResponseDTO("Compte activé avec succès. Vous pouvez maintenant vous connecter."))
+                .build();
     }
 
     @POST
     @Path("/login")
     @Operation(summary = "Login", description = "Authenticates the user and returns a JWT plus profile info.")
-    @RequestBody(required = true, content = @Content(schema = @Schema(implementation = LoginRequestDTO.class)))
+    @RequestBody(content = @Content(schema = @Schema(implementation = LoginRequestDTO.class)))
     @APIResponses({
             @APIResponse(responseCode = "200", description = "Authenticated", content = @Content(schema = @Schema(implementation = AuthResponseDTO.class))),
             @APIResponse(responseCode = "401", description = "Invalid credentials"),
@@ -89,7 +104,7 @@ public class AuthResource {
     })
     public Response login(@Valid LoginRequestDTO dto) {
         LOG.infof("REST login called for email=%s", dto.email());
-        UserResponseDTO view = authService.login(dto);
+        UserResponseDTO view = userAuthenticationService.login(dto);
         String token = tokenService.generateToken(view);
         LOG.debugf("JWT generated for email=%s", dto.email());
         return Response.ok(new AuthResponseDTO(view, token)).build();
@@ -106,7 +121,7 @@ public class AuthResource {
     public Response me() {
         String email = securityIdentity.getPrincipal().getName();
         LOG.debugf("REST me called for email=%s", email);
-        UserResponseDTO view = authService.getByEmail(email);
+        UserResponseDTO view = userAuthenticationService.getByEmail(email);
         return Response.ok(view).build();
     }
 
@@ -120,7 +135,7 @@ public class AuthResource {
     })
     public Response deleteMe() {
         String email = securityIdentity.getPrincipal().getName();
-        authService.deleteAccount(email);
+        userLifecycleService.deleteAccountAndAssociatedData(email);
         return Response.noContent().build();
     }
 
