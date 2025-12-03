@@ -5,6 +5,8 @@ import com.lofo.serenia.exception.model.ErrorResponse;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+import lombok.AllArgsConstructor;
+
 import java.util.Comparator;
 import java.util.stream.StreamSupport;
 
@@ -13,10 +15,10 @@ import java.util.stream.StreamSupport;
  * Discovers and manages all ExceptionHandler implementations.
  * Routes exceptions to appropriate handlers based on priority and type.
  */
+@AllArgsConstructor
 @ApplicationScoped
 public class ExceptionHandlerService {
 
-    @Inject
     Instance<ExceptionHandler> handlers;
 
     /**

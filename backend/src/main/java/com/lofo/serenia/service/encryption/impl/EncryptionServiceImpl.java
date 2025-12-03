@@ -1,7 +1,7 @@
 package com.lofo.serenia.service.encryption.impl;
 
 import com.lofo.serenia.config.SereniaConfig;
-import com.lofo.serenia.exception.EncryptionException;
+import com.lofo.serenia.exception.exceptions.EncryptionException;
 import com.lofo.serenia.service.encryption.EncryptionService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -31,12 +31,6 @@ public class EncryptionServiceImpl implements EncryptionService {
     public EncryptionServiceImpl(SereniaConfig sereniaConfig) {
         Objects.requireNonNull(sereniaConfig, "sereniaConfig must not be null");
         this.masterKey = initMasterKey(sereniaConfig.securityKey());
-    }
-
-    @Override
-    public void createUserKeyIfAbsent(UUID userId) {
-        // Clé unique globale : aucune action nécessaire, on garde la méthode pour compatibilité API
-        Objects.requireNonNull(userId, "userId must not be null");
     }
 
     @Override
@@ -130,10 +124,8 @@ public class EncryptionServiceImpl implements EncryptionService {
         byte[] keyBytes;
         try {
             if (trimmed.startsWith("0x") || trimmed.startsWith("0X")) {
-                // Hex string without the 0x prefix
                 keyBytes = hexStringToBytes(trimmed.substring(2));
             } else {
-                // Assume Base64 by default
                 keyBytes = java.util.Base64.getDecoder().decode(trimmed);
             }
         } catch (IllegalArgumentException e) {

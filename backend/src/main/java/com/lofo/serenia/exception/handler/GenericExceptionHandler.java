@@ -11,6 +11,9 @@ import jakarta.ws.rs.core.Response;
 @ApplicationScoped
 public class GenericExceptionHandler implements ExceptionHandler {
 
+    private static final String INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR";
+    private static final String AN_UNEXPECTED_ERROR_OCCURRED_PLEASE_CONTACT_SUPPORT_IF_THE_PROBLEM_PERSISTS = "An unexpected error occurred. Please contact support if the problem persists.";
+
     @Override
     public boolean canHandle(Throwable exception) {
         return true;
@@ -20,8 +23,8 @@ public class GenericExceptionHandler implements ExceptionHandler {
     public ErrorResponse handle(Throwable exception, String path, String traceId) {
         return ErrorResponse.of(
                 getStatus().getStatusCode(),
-                "INTERNAL_SERVER_ERROR",
-                "An unexpected error occurred. Please contact support if the problem persists.",
+                INTERNAL_SERVER_ERROR,
+                AN_UNEXPECTED_ERROR_OCCURRED_PLEASE_CONTACT_SUPPORT_IF_THE_PROBLEM_PERSISTS,
                 path,
                 traceId
         );

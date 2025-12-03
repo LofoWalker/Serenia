@@ -4,6 +4,7 @@ import com.lofo.serenia.domain.conversation.ChatMessage;
 import com.lofo.serenia.domain.conversation.Conversation;
 import com.lofo.serenia.domain.conversation.Message;
 import com.lofo.serenia.domain.conversation.MessageRole;
+import com.lofo.serenia.mapper.MessageMapper;
 import com.lofo.serenia.repository.ConversationRepository;
 import com.lofo.serenia.repository.MessageRepository;
 import com.lofo.serenia.service.encryption.EncryptionService;
@@ -21,7 +22,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("MessageService tests")
@@ -39,11 +41,14 @@ class MessageServiceTest {
     @Mock
     private ConversationRepository conversationRepository;
 
+    @Mock
+    private MessageMapper messageMapper;
+
     private MessageService messageService;
 
     @BeforeEach
     void setUp() {
-        messageService = new MessageService(messageRepository, encryptionService, conversationRepository);
+        messageService = new MessageService(messageRepository, encryptionService, conversationRepository, messageMapper);
     }
 
     @Test
@@ -98,6 +103,8 @@ class MessageServiceTest {
         when(messageRepository.findByConversation(FIXED_CONV_ID)).thenReturn(List.of(message));
         when(encryptionService.decryptForUser(FIXED_USER_ID, message.getEncryptedContent()))
                 .thenReturn("Answer");
+        when(messageMapper.toChatMessage(message, "Answer"))
+                .thenReturn(new ChatMessage(MessageRole.ASSISTANT, "Answer"));
 
         List<ChatMessage> decrypted = messageService.decryptConversationMessages(FIXED_USER_ID, FIXED_CONV_ID);
 

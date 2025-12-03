@@ -62,4 +62,17 @@ public interface SereniaConfig {
      */
     @WithName("url")
     String url();
+
+    /**
+     * JWT issuer for token generation and validation.
+     */
+    @WithName("auth.jwt-issuer")
+    String jwtIssuer();
+
+    /**
+     * Token expiration time in seconds.
+     */
+    @WithName("auth.expiration-time")
+    @WithDefault("3600")
+    Long tokenExpirationTime();
 }

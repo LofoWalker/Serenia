@@ -6,8 +6,6 @@ import jakarta.ws.rs.core.Response;
 /**
  * Strategy interface for handling specific exception types.
  * Implementations should be application-scoped beans to enable auto-discovery.
- *
- * Follows the Strategy Pattern for flexible exception handling.
  * Each exception type can have its own handler without modifying the global handler.
  */
 public interface ExceptionHandler {

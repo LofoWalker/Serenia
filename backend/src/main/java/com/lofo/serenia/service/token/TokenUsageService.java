@@ -76,11 +76,26 @@ public class TokenUsageService {
     public void consumeTokens(UUID userId, long inputTokens, long outputTokens, String usageType) {
         LOG.infof("Consuming tokens for user %s: input=%d, output=%d", userId, inputTokens, outputTokens);
 
-        UserTokenQuota quota = tokenQuotaRepository.findByUserId(userId)
+        UserTokenQuota userQuota = getUserTokenQuotaNotFound(userId);
+
+        throwExceptionIfTokenLimitExceeded(userId, inputTokens, outputTokens, userQuota);
+
+        userQuota.addInputTokens(inputTokens);
+        userQuota.addOutputTokens(outputTokens);
+        tokenQuotaRepository.persist(userQuota);
+
+        recordTokenUsage(userQuota.getUser(), inputTokens, outputTokens, usageType);
+        LOG.infof("Tokens consumed for user %s - Total used: %d", userId, userQuota.getTotalTokensUsed());
+    }
+
+    private UserTokenQuota getUserTokenQuotaNotFound(UUID userId) {
+        return tokenQuotaRepository.findByUserId(userId)
                 .orElseThrow(() -> new WebApplicationException(
                         "User token quota not found",
                         Response.Status.NOT_FOUND));
+    }
 
+    private static void throwExceptionIfTokenLimitExceeded(UUID userId, long inputTokens, long outputTokens, UserTokenQuota quota) {
         if (!quota.canConsumeTokens(inputTokens, outputTokens)) {
             LOG.warnf("Token limit exceeded for user %s", userId);
             throw new WebApplicationException(
@@ -90,20 +105,10 @@ public class TokenUsageService {
                                       quota.getRemainingTotalTokens()),
                     Response.Status.PAYMENT_REQUIRED);
         }
-
-        quota.addInputTokens(inputTokens);
-        quota.addOutputTokens(outputTokens);
-        tokenQuotaRepository.persist(quota);
-
-        recordTokenUsage(quota.getUser(), inputTokens, outputTokens, usageType);
-        LOG.infof("Tokens consumed for user %s - Total used: %d", userId, quota.getTotalTokensUsed());
     }
 
     public UserTokenQuota getUserTokenQuota(UUID userId) {
-        return tokenQuotaRepository.findByUserId(userId)
-                .orElseThrow(() -> new WebApplicationException(
-                        "User token quota not found",
-                        Response.Status.NOT_FOUND));
+        return getUserTokenQuotaNotFound(userId);
     }
 
     public List<UserTokenUsage> getUserTokenUsageByDateRange(UUID userId, LocalDateTime startDate, LocalDateTime endDate) {

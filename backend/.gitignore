@@ -20,6 +20,9 @@
 /.env
 /.env.*
 /src/main/resources/keys/
+/src/test/resources/keys/
+
+*.pem
 
 # OS noise
 .DS_Store

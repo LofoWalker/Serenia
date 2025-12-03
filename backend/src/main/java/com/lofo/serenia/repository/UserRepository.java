@@ -11,8 +11,8 @@ import java.util.UUID;
 @ApplicationScoped
 public class UserRepository implements PanacheRepository<User> {
 
-    public void deleteById(UUID userId) {
-        delete("id", userId);
+    public long deleteById(UUID userId) {
+        return delete("id", userId);
     }
 
     public UserResponseDTO findViewByEmail(String email, UserMapper mapper) {

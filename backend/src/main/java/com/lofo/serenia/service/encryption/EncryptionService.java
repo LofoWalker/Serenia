@@ -9,5 +9,4 @@ public interface EncryptionService {
 
     String decryptForUser(UUID userId, byte[] ciphertext);
 
-    void createUserKeyIfAbsent(UUID userId);
 }

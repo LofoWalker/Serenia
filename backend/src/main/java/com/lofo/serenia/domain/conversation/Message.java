@@ -1,6 +1,7 @@
 package com.lofo.serenia.domain.conversation;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,11 +11,12 @@ import org.hibernate.type.SqlTypes;
 import java.time.Instant;
 import java.util.UUID;
 
-@NoArgsConstructor
+@AllArgsConstructor
 @Setter
 @Getter
 @Entity
 @Table(name = "messages")
+@NoArgsConstructor
 public class Message {
 
     /**

@@ -1,7 +1,10 @@
 package com.lofo.serenia.service.token.impl;
 
+import com.lofo.serenia.config.SereniaConfig;
 import com.lofo.serenia.domain.user.Role;
 import com.lofo.serenia.domain.user.User;
+import com.lofo.serenia.dto.out.UserResponseDTO;
+import com.lofo.serenia.mapper.UserMapper;
 import com.lofo.serenia.service.token.TokenService;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -9,10 +12,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Set;
@@ -22,22 +27,39 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 @DisplayName("TokenService unit tests")
 @Tag("unit")
 class TokenServiceTest {
 
     private static final String ISSUER = "serenia";
-    private static final long EXPIRATION_SECONDS = 3600L;
     private static final AtomicLong ROLE_ID_GENERATOR = new AtomicLong(1);
 
     private TokenService tokenService;
 
+    @Mock
+    private SereniaConfig sereniaConfig;
+
+    @Mock
+    private UserMapper userMapper;
+
     @BeforeEach
-    void setUp() throws Exception {
-        tokenService = new TokenServiceImpl();
-        setField(tokenService, "issuer", ISSUER);
-        setField(tokenService, "duration", EXPIRATION_SECONDS);
+    void setUp() {
+        when(sereniaConfig.jwtIssuer()).thenReturn(ISSUER);
+        when(sereniaConfig.tokenExpirationTime()).thenReturn(3600L);
+
+        when(userMapper.toView(any(User.class))).thenAnswer(invocation -> {
+            User user = invocation.getArgument(0);
+            Set<String> roles = user.getRoles().stream()
+                    .map(Role::getName)
+                    .collect(Collectors.toSet());
+            return new UserResponseDTO(user.getId(), user.getLastName(), user.getFirstName(), user.getEmail(), roles);
+        });
+
+        tokenService = new TokenServiceImpl(sereniaConfig, userMapper);
     }
 
     @Test
@@ -95,11 +117,5 @@ class TokenServiceTest {
         assertEquals(3, chunks.length, "JWT must contain header, payload and signature");
         byte[] payloadBytes = Base64.getUrlDecoder().decode(chunks[1]);
         return new JsonObject(new String(payloadBytes, StandardCharsets.UTF_8));
-    }
-
-    private static void setField(Object target, String fieldName, Object value) throws Exception {
-        Field field = TokenServiceImpl.class.getDeclaredField(fieldName);
-        field.setAccessible(true);
-        field.set(target, value);
     }
 }

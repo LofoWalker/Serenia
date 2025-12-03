@@ -11,6 +11,9 @@ import jakarta.ws.rs.core.Response;
 @ApplicationScoped
 public class ValidationExceptionHandler implements ExceptionHandler {
 
+    private static final String VALIDATION_ERROR = "VALIDATION_ERROR";
+    private static final String REQUEST_VALIDATION_FAILED_PLEASE_CHECK_YOUR_INPUT_PARAMETERS = "Request validation failed. Please check your input parameters.";
+
     @Override
     public boolean canHandle(Throwable exception) {
         return exception instanceof ConstraintViolationException;
@@ -20,8 +23,8 @@ public class ValidationExceptionHandler implements ExceptionHandler {
     public ErrorResponse handle(Throwable exception, String path, String traceId) {
         return ErrorResponse.of(
                 getStatus().getStatusCode(),
-                "VALIDATION_ERROR",
-                "Request validation failed. Please check your input parameters.",
+                VALIDATION_ERROR,
+                REQUEST_VALIDATION_FAILED_PLEASE_CHECK_YOUR_INPUT_PARAMETERS,
                 path,
                 traceId
         );

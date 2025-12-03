@@ -2,11 +2,13 @@ package com.lofo.serenia.service.chat.impl;
 
 import com.lofo.serenia.config.OpenAIConfig;
 import com.lofo.serenia.domain.conversation.ChatMessage;
+import com.lofo.serenia.mapper.ChatMessageMapper;
 import com.lofo.serenia.service.chat.ChatCompletionService;
 import com.openai.client.OpenAIClient;
 import com.openai.client.okhttp.OpenAIOkHttpClient;
 import com.openai.models.chat.completions.*;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -17,9 +19,12 @@ public class OpenAIChatCompletionService implements ChatCompletionService {
 
     private final OpenAIClient client;
     private final OpenAIConfig config;
+    private final ChatMessageMapper chatMessageMapper;
 
-    public OpenAIChatCompletionService(OpenAIConfig config) {
+    @Inject
+    public OpenAIChatCompletionService(OpenAIConfig config, ChatMessageMapper chatMessageMapper) {
         this.config = config;
+        this.chatMessageMapper = chatMessageMapper;
         this.client = OpenAIOkHttpClient.builder()
                 .apiKey(this.config.apiKey())
                 .build();
@@ -31,7 +36,6 @@ public class OpenAIChatCompletionService implements ChatCompletionService {
 
         addSystemInstructionsToRequest(systemPrompt, messages);
         addMessagesToRequest(conversationMessages, messages);
-
 
         ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
                 .model(this.config.model())
@@ -55,12 +59,12 @@ public class OpenAIChatCompletionService implements ChatCompletionService {
         return client.chat().completions().create(params);
     }
 
-    private static void addMessagesToRequest(List<ChatMessage> conversationMessages, List<ChatCompletionMessageParam> messages) {
+    private void addMessagesToRequest(List<ChatMessage> conversationMessages, List<ChatCompletionMessageParam> messages) {
         if (conversationMessages == null)
             return;
 
         for (ChatMessage content : conversationMessages) {
-            addChatMessageToRequest(content, messages);
+            messages.add(chatMessageMapper.toChatCompletionMessageParam(content));
         }
     }
 
@@ -72,28 +76,5 @@ public class OpenAIChatCompletionService implements ChatCompletionService {
                             .build()
             ));
         }
-    }
-
-    private static void addChatMessageToRequest(ChatMessage content, List<ChatCompletionMessageParam> messages) {
-        switch (content.role()) {
-            case ASSISTANT -> messages.add(toAssistantMessageParam(content));
-            case USER -> messages.add(toUserMessageParam(content));
-        }
-    }
-
-    private static @NotNull ChatCompletionMessageParam toUserMessageParam(ChatMessage content) {
-        return ChatCompletionMessageParam.ofUser(
-                ChatCompletionUserMessageParam.builder()
-                        .content(content.content())
-                        .build()
-        );
-    }
-
-    private static @NotNull ChatCompletionMessageParam toAssistantMessageParam(ChatMessage content) {
-        return ChatCompletionMessageParam.ofAssistant(
-                ChatCompletionAssistantMessageParam.builder()
-                        .content(content.content())
-                        .build()
-        );
     }
 }

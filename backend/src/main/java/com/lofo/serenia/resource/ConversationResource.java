@@ -2,7 +2,10 @@ package com.lofo.serenia.resource;
 
 import com.lofo.serenia.domain.conversation.ChatMessage;
 import com.lofo.serenia.dto.in.MessageRequestDTO;
+import com.lofo.serenia.dto.out.MessageResponseDTO;
+import com.lofo.serenia.service.chat.ChatOrchestrator;
 import com.lofo.serenia.service.chat.ConversationService;
+import com.lofo.serenia.service.chat.ProcessedMessageResult;
 import io.quarkus.security.Authenticated;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.ws.rs.*;
@@ -29,25 +32,29 @@ import java.util.UUID;
 public class ConversationResource {
 
     private final ConversationService conversationService;
+    private final ChatOrchestrator chatOrchestrator;
     private final SecurityIdentity securityIdentity;
     private final JsonWebToken jwt;
 
-    public ConversationResource(ConversationService conversationService, SecurityIdentity securityIdentity, JsonWebToken jwt) {
+    public ConversationResource(ConversationService conversationService, ChatOrchestrator chatOrchestrator,
+            SecurityIdentity securityIdentity, JsonWebToken jwt) {
         this.conversationService = conversationService;
+        this.chatOrchestrator = chatOrchestrator;
         this.securityIdentity = securityIdentity;
         this.jwt = jwt;
     }
 
     /**
-     * Add a user message to the active conversation. If no conversation exists, create one.
+     * Add a user message to the active conversation. If no conversation exists,
+     * create one.
      * Returns the assistant's reply.
      */
     @POST
     @Path("/add-message")
-    @Operation(summary = "Send a user message", description = "Appends a user message to the active conversation and returns the assistant reply.")
-    @RequestBody(required = true, content = @Content(schema = @Schema(implementation = MessageRequestDTO.class)))
+    @Operation(summary = "Send a user message", description = "Appends a user message to the active conversation and returns the assistant reply with conversation ID.")
+    @RequestBody(content = @Content(schema = @Schema(implementation = MessageRequestDTO.class)))
     @APIResponses({
-            @APIResponse(responseCode = "200", description = "Assistant reply returned", content = @Content(schema = @Schema(implementation = ChatMessage.class))),
+            @APIResponse(responseCode = "200", description = "Assistant reply returned with conversation ID", content = @Content(schema = @Schema(implementation = MessageResponseDTO.class))),
             @APIResponse(responseCode = "400", description = "Missing or blank content"),
             @APIResponse(responseCode = "401", description = "User not authenticated")
     })
@@ -58,8 +65,9 @@ public class ConversationResource {
                     .entity("content must be provided").build();
         }
 
-        ChatMessage assistantMessage = conversationService.addUserMessage(userId, request.content());
-        return Response.ok(assistantMessage).build();
+        ProcessedMessageResult result = chatOrchestrator.processUserMessage(userId, request.content());
+        MessageResponseDTO response = MessageResponseDTO.from(result.conversationId(), result.assistantMessage());
+        return Response.ok(response).build();
     }
 
     /**
@@ -73,7 +81,8 @@ public class ConversationResource {
             @APIResponse(responseCode = "401", description = "User not authenticated"),
             @APIResponse(responseCode = "403", description = "Conversation does not belong to the user")
     })
-    public Response getConversationMessages(@PathParam("conversationId") @Parameter(description = "Conversation identifier", required = true) UUID conversationId) {
+    public Response getConversationMessages(
+            @PathParam("conversationId") @Parameter(description = "Conversation identifier", required = true) UUID conversationId) {
         UUID userId = getAuthenticatedUserId();
         List<ChatMessage> messages = conversationService.getConversationMessages(conversationId, userId);
         return Response.ok(messages).build();

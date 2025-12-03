@@ -1,7 +1,7 @@
 package com.lofo.serenia.service.encryption.impl;
 
 import com.lofo.serenia.config.SereniaConfig;
-import com.lofo.serenia.exception.EncryptionException;
+import com.lofo.serenia.exception.exceptions.EncryptionException;
 import com.lofo.serenia.service.encryption.EncryptionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,12 +13,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,7 +25,6 @@ import static org.mockito.Mockito.when;
 class EncryptionServiceImplTest {
 
     private static final UUID FIXED_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
-    private static final UUID ANOTHER_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000002");
     private static final String TEST_PLAINTEXT = "Hello, World!";
     private static final int GCM_IV_LENGTH_BYTES = 12;
     private static final String DEFAULT_HEX_KEY = "0x7956703D86068BA71F75486CFBEE87AC5978E60AE57501573B7C09A49F7F6734";
@@ -85,42 +79,6 @@ class EncryptionServiceImplTest {
     }
 
     @Nested
-    @DisplayName("Gestion des clés utilisateurs")
-    class KeyManagementTests {
-
-        @Test
-        @DisplayName("Doit créer une clé utilisateur")
-        void should_create_user_key() {
-            assertDoesNotThrow(() -> encryptionService.createUserKeyIfAbsent(FIXED_USER_ID));
-        }
-
-        @Test
-        @DisplayName("Doit réutiliser la même clé sans erreur")
-        void should_handle_duplicate_key_creation() {
-            encryptionService.createUserKeyIfAbsent(FIXED_USER_ID);
-            assertDoesNotThrow(() -> encryptionService.createUserKeyIfAbsent(FIXED_USER_ID));
-        }
-
-        @Test
-        @DisplayName("Doit refuser un userId null")
-        void should_reject_null_user_id() {
-            assertThrows(NullPointerException.class, () -> encryptionService.createUserKeyIfAbsent(null));
-        }
-
-        @Test
-        @DisplayName("Doit fournir des contextes indépendants pour plusieurs utilisateurs")
-        void should_isolate_multiple_users() {
-            encryptionService.createUserKeyIfAbsent(FIXED_USER_ID);
-            encryptionService.createUserKeyIfAbsent(ANOTHER_USER_ID);
-
-            byte[] encryptedForFirst = encrypt(FIXED_USER_ID, TEST_PLAINTEXT);
-            byte[] encryptedForSecond = encrypt(ANOTHER_USER_ID, TEST_PLAINTEXT);
-
-            assertFalse(Arrays.equals(encryptedForFirst, encryptedForSecond));
-        }
-    }
-
-    @Nested
     @DisplayName("Chiffrement")
     class EncryptionTests {
 
@@ -128,8 +86,6 @@ class EncryptionServiceImplTest {
         @DisplayName("Doit assurer un aller-retour pour plusieurs textes")
         @ValueSource(strings = {"", "Short", "Line 1\nLine 2", "Emoji: 😊", "日本語テキスト"})
         void should_round_trip_various_plaintexts(String plaintext) {
-            encryptionService.createUserKeyIfAbsent(FIXED_USER_ID);
-
             byte[] encrypted = encrypt(FIXED_USER_ID, plaintext);
             assertNotNull(encrypted);
             assertTrue(encrypted.length > GCM_IV_LENGTH_BYTES);
@@ -141,8 +97,6 @@ class EncryptionServiceImplTest {
         @Test
         @DisplayName("Doit inclure un IV de 12 octets dans le payload")
         void should_prefix_iv() {
-            encryptionService.createUserKeyIfAbsent(FIXED_USER_ID);
-
             byte[] encrypted = encrypt(FIXED_USER_ID, TEST_PLAINTEXT);
 
             assertEquals(GCM_IV_LENGTH_BYTES, Arrays.copyOfRange(encrypted, 0, GCM_IV_LENGTH_BYTES).length);
@@ -152,8 +106,6 @@ class EncryptionServiceImplTest {
         @Test
         @DisplayName("Doit générer des payloads différents pour un même plaintext")
         void should_generate_unique_payloads_per_encrypt() {
-            encryptionService.createUserKeyIfAbsent(FIXED_USER_ID);
-
             byte[] first = encrypt(FIXED_USER_ID, TEST_PLAINTEXT);
             byte[] second = encrypt(FIXED_USER_ID, TEST_PLAINTEXT);
 
@@ -164,8 +116,6 @@ class EncryptionServiceImplTest {
         @ValueSource(strings = {"", " ", "\t"})
         @DisplayName("Doit autoriser le chiffrement de textes vides ou blancs")
         void should_encrypt_empty_like_texts(String text) {
-            encryptionService.createUserKeyIfAbsent(FIXED_USER_ID);
-
             byte[] encrypted = encrypt(FIXED_USER_ID, text);
 
             assertNotNull(encrypted);
@@ -181,7 +131,6 @@ class EncryptionServiceImplTest {
         @Test
         @DisplayName("Doit signaler un plaintext null")
         void should_throw_when_encrypt_plaintext_null() {
-            encryptionService.createUserKeyIfAbsent(FIXED_USER_ID);
             assertThrows(NullPointerException.class, () -> encryptionService.encryptForUser(FIXED_USER_ID, null));
         }
     }
@@ -193,7 +142,6 @@ class EncryptionServiceImplTest {
         @Test
         @DisplayName("Doit retrouver le texte original")
         void should_decrypt_valid_encryption() {
-            encryptionService.createUserKeyIfAbsent(FIXED_USER_ID);
             byte[] encrypted = encrypt(FIXED_USER_ID, TEST_PLAINTEXT);
 
             String decrypted = encryptionService.decryptForUser(FIXED_USER_ID, encrypted);
@@ -204,7 +152,6 @@ class EncryptionServiceImplTest {
         @Test
         @DisplayName("Doit signaler un payload trop court")
         void should_throw_when_payload_too_short() {
-            encryptionService.createUserKeyIfAbsent(FIXED_USER_ID);
             byte[] triple = new byte[GCM_IV_LENGTH_BYTES - 1];
 
             assertThrows(EncryptionException.class, () -> encryptionService.decryptForUser(FIXED_USER_ID, triple));
@@ -213,7 +160,6 @@ class EncryptionServiceImplTest {
         @Test
         @DisplayName("Doit refuser un tableau exactement de la longueur de l'IV")
         void should_throw_when_payload_exact_iv_length() {
-            encryptionService.createUserKeyIfAbsent(FIXED_USER_ID);
             byte[] ivOnly = new byte[GCM_IV_LENGTH_BYTES];
 
             assertThrows(EncryptionException.class, () -> encryptionService.decryptForUser(FIXED_USER_ID, ivOnly));
@@ -222,9 +168,8 @@ class EncryptionServiceImplTest {
         @Test
         @DisplayName("Doit détecter un IV corrompu")
         void should_throw_when_iv_corrupted() {
-            encryptionService.createUserKeyIfAbsent(FIXED_USER_ID);
             byte[] encrypted = encrypt(FIXED_USER_ID, TEST_PLAINTEXT);
-            encrypted[0] ^= 0xFF;
+            encrypted[0] ^= (byte) 0xFF;
 
             assertThrows(EncryptionException.class, () -> encryptionService.decryptForUser(FIXED_USER_ID, encrypted));
         }
@@ -232,7 +177,6 @@ class EncryptionServiceImplTest {
         @Test
         @DisplayName("Doit détecter un ciphertext corrompu")
         void should_throw_when_ciphertext_corrupted() {
-            encryptionService.createUserKeyIfAbsent(FIXED_USER_ID);
             byte[] encrypted = encrypt(FIXED_USER_ID, TEST_PLAINTEXT);
             if (encrypted.length > GCM_IV_LENGTH_BYTES) {
                 encrypted[GCM_IV_LENGTH_BYTES] ^= 0x0F;
@@ -251,7 +195,6 @@ class EncryptionServiceImplTest {
         @Test
         @DisplayName("Doit refuser des octets null")
         void should_throw_when_encrypted_bytes_null() {
-            encryptionService.createUserKeyIfAbsent(FIXED_USER_ID);
             assertThrows(NullPointerException.class, () -> encryptionService.decryptForUser(FIXED_USER_ID, null));
         }
     }
@@ -263,7 +206,6 @@ class EncryptionServiceImplTest {
         @Test
         @DisplayName("Doit gérer plusieurs cycles de chiffrement/déchiffrement")
         void should_handle_multiple_cycles() {
-            encryptionService.createUserKeyIfAbsent(FIXED_USER_ID);
             List<String> plaintexts = Stream.of("First", "Second", "Third", "Fourth", "Fifth").toList();
             List<byte[]> encrypted = new ArrayList<>();
             plaintexts.forEach(text -> encrypted.add(encrypt(FIXED_USER_ID, text)));
@@ -276,7 +218,6 @@ class EncryptionServiceImplTest {
         @Test
         @DisplayName("Doit conserver le texte long")
         void should_handle_long_text() {
-            encryptionService.createUserKeyIfAbsent(FIXED_USER_ID);
             StringBuilder builder = new StringBuilder();
             builder.append("Long text ".repeat(1000));
 

@@ -65,6 +65,12 @@ databaseChangeLog:
                   type: TIMESTAMP
                   constraints:
                     nullable: false
+              - column:
+                  name: version
+                  type: BIGINT
+                  defaultValue: 0
+                  constraints:
+                    nullable: false
         - createIndex:
             tableName: user_token_quotas
             indexName: idx_user_token_quotas_user_id
