@@ -4,22 +4,7 @@ import { RouterOutlet, RouterLink } from '@angular/router';
   selector: 'app-auth-layout',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterOutlet, RouterLink],
-  template: `
-    <div class="min-h-screen flex flex-col items-center justify-center px-4 py-12 bg-primary-950">
-      <div class="w-full max-w-md">
-        <div class="text-center mb-8">
-          <a 
-            routerLink="/"
-            class="inline-block text-3xl font-bold text-primary-50 hover:text-primary-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 rounded"
-          >
-            Serenia
-          </a>
-        </div>
-        <div class="bg-primary-900 border border-primary-800 rounded-xl p-8 shadow-xl">
-          <router-outlet />
-        </div>
-      </div>
-    </div>
-  `
+  templateUrl: './auth-layout.component.html',
+  styleUrl: './auth-layout.component.css'
 })
 export class AuthLayoutComponent {}

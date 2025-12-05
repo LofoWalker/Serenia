@@ -3,16 +3,8 @@ import { ChatMessage } from '../../../../core/models/chat.model';
 @Component({
   selector: 'app-chat-message',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div 
-      [class]="containerClasses()"
-      [attr.aria-label]="ariaLabel()"
-    >
-      <div [class]="bubbleClasses()">
-        <p class="text-sm sm:text-base whitespace-pre-wrap break-words">{{ message().content }}</p>
-      </div>
-    </div>
-  `
+  templateUrl: './chat-message.component.html',
+  styleUrl: './chat-message.component.css'
 })
 export class ChatMessageComponent {
   readonly message = input.required<ChatMessage>();

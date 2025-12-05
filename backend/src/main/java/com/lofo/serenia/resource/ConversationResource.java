@@ -1,7 +1,9 @@
 package com.lofo.serenia.resource;
 
 import com.lofo.serenia.domain.conversation.ChatMessage;
+import com.lofo.serenia.domain.conversation.Conversation;
 import com.lofo.serenia.dto.in.MessageRequestDTO;
+import com.lofo.serenia.dto.out.ConversationMessagesResponseDTO;
 import com.lofo.serenia.dto.out.MessageResponseDTO;
 import com.lofo.serenia.service.chat.ChatOrchestrator;
 import com.lofo.serenia.service.chat.ConversationService;
@@ -86,6 +88,40 @@ public class ConversationResource {
         UUID userId = getAuthenticatedUserId();
         List<ChatMessage> messages = conversationService.getConversationMessages(conversationId, userId);
         return Response.ok(messages).build();
+    }
+
+    @GET
+    @Path("/my-messages")
+    @Operation(summary = "Get current user messages", description = "Returns the conversation ID and decrypted messages for the authenticated user's active conversation.")
+    @APIResponses({
+            @APIResponse(responseCode = "200", description = "Conversation with messages returned", content = @Content(schema = @Schema(implementation = ConversationMessagesResponseDTO.class))),
+            @APIResponse(responseCode = "204", description = "No active conversation found for the user"),
+            @APIResponse(responseCode = "401", description = "User not authenticated")
+    })
+    public Response getUserMessages() {
+        UUID userId = getAuthenticatedUserId();
+        Conversation conversation = conversationService.getActiveConversationByUserId(userId);
+
+        if (conversation == null) {
+            return Response.noContent().build();
+        }
+
+        List<ChatMessage> messages = conversationService.getConversationMessages(conversation.getId(), userId);
+        ConversationMessagesResponseDTO response = new ConversationMessagesResponseDTO(conversation.getId(), messages);
+        return Response.ok(response).build();
+    }
+
+    @DELETE
+    @Path("/my-conversations")
+    @Operation(summary = "Delete user conversations", description = "Deletes all conversations belonging to the authenticated user.")
+    @APIResponses({
+            @APIResponse(responseCode = "204", description = "Conversations successfully deleted"),
+            @APIResponse(responseCode = "401", description = "User not authenticated")
+    })
+    public Response deleteUserConversations() {
+        UUID userId = getAuthenticatedUserId();
+        conversationService.deleteUserConversations(userId);
+        return Response.noContent().build();
     }
 
     private UUID getAuthenticatedUserId() {

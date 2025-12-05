@@ -14,3 +14,8 @@ export interface ChatMessage {
   timestamp?: string;
 }
 
+export interface ConversationMessagesResponse {
+  conversationId: string;
+  messages: ChatMessage[];
+}
+

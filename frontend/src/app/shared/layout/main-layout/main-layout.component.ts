@@ -5,13 +5,7 @@ import { HeaderComponent } from '../header/header.component';
   selector: 'app-main-layout',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterOutlet, HeaderComponent],
-  template: `
-    <div class="min-h-screen flex flex-col">
-      <app-header />
-      <main class="flex-1 pt-16">
-        <router-outlet />
-      </main>
-    </div>
-  `
+  templateUrl: './main-layout.component.html',
+  styleUrl: './main-layout.component.css'
 })
 export class MainLayoutComponent {}

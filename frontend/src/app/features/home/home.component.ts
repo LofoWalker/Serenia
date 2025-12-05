@@ -6,67 +6,8 @@ import { ButtonComponent } from '../../shared/ui/button/button.component';
   selector: 'app-home',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, ButtonComponent],
-  template: `
-    <div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center px-4 py-12">
-      <div class="max-w-3xl text-center">
-        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary-50 mb-6 leading-tight">
-          Bienvenue sur <span class="text-primary-300">Serenia</span>
-        </h1>
-        <p class="text-lg sm:text-xl text-primary-400 mb-8 max-w-2xl mx-auto">
-          Votre assistant IA personnel. Posez vos questions, explorez vos idées, et laissez-vous guider vers de nouvelles perspectives.
-        </p>
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-          @if (authState.isAuthenticated()) {
-            <a routerLink="/chat">
-              <app-button size="lg">
-                Accéder au chat
-              </app-button>
-            </a>
-          } @else {
-            <a routerLink="/register">
-              <app-button size="lg">
-                Commencer gratuitement
-              </app-button>
-            </a>
-            <a routerLink="/login">
-              <app-button size="lg" variant="secondary">
-                Se connecter
-              </app-button>
-            </a>
-          }
-        </div>
-        <div class="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-8">
-          <div class="p-6 bg-primary-900/50 border border-primary-800 rounded-xl">
-            <div class="w-12 h-12 mb-4 mx-auto rounded-lg bg-primary-800 flex items-center justify-center">
-              <svg class="w-6 h-6 text-primary-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-            <h3 class="text-lg font-semibold text-primary-100 mb-2">Rapide</h3>
-            <p class="text-primary-400 text-sm">Réponses instantanées à vos questions.</p>
-          </div>
-          <div class="p-6 bg-primary-900/50 border border-primary-800 rounded-xl">
-            <div class="w-12 h-12 mb-4 mx-auto rounded-lg bg-primary-800 flex items-center justify-center">
-              <svg class="w-6 h-6 text-primary-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-            </div>
-            <h3 class="text-lg font-semibold text-primary-100 mb-2">Sécurisé</h3>
-            <p class="text-primary-400 text-sm">Vos données restent privées et protégées.</p>
-          </div>
-          <div class="p-6 bg-primary-900/50 border border-primary-800 rounded-xl">
-            <div class="w-12 h-12 mb-4 mx-auto rounded-lg bg-primary-800 flex items-center justify-center">
-              <svg class="w-6 h-6 text-primary-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
-            </div>
-            <h3 class="text-lg font-semibold text-primary-100 mb-2">Bienveillant</h3>
-            <p class="text-primary-400 text-sm">Un assistant à l'écoute de vos besoins.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  `
+  templateUrl: './home.component.html',
+  styleUrl: './home.component.css'
 })
 export class HomeComponent {
   protected readonly authState = inject(AuthStateService);

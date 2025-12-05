@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -82,6 +83,29 @@ class ConversationServiceImplTest {
         Conversation conv = conversationService.getOrCreateActiveConversation(FIXED_USER_ID);
 
         verify(conversationRepository).persist(any(Conversation.class));
+    }
+
+    @Test
+    @DisplayName("Should return active conversation when exists")
+    void should_return_active_conversation_when_exists() {
+        Conversation existingConversation = conversationWithId(FIXED_CONV_ID, FIXED_USER_ID);
+        when(conversationRepository.findActiveByUser(FIXED_USER_ID)).thenReturn(Optional.of(existingConversation));
+
+        Conversation result = conversationService.getActiveConversationByUserId(FIXED_USER_ID);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo(FIXED_CONV_ID);
+        assertThat(result.getUserId()).isEqualTo(FIXED_USER_ID);
+    }
+
+    @Test
+    @DisplayName("Should return null when no active conversation exists")
+    void should_return_null_when_no_active_conversation() {
+        when(conversationRepository.findActiveByUser(FIXED_USER_ID)).thenReturn(Optional.empty());
+
+        Conversation result = conversationService.getActiveConversationByUserId(FIXED_USER_ID);
+
+        assertThat(result).isNull();
     }
 
     private Conversation conversationWithId(UUID id, UUID userId) {

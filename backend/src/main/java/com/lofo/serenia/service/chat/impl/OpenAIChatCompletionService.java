@@ -6,14 +6,17 @@ import com.lofo.serenia.mapper.ChatMessageMapper;
 import com.lofo.serenia.service.chat.ChatCompletionService;
 import com.openai.client.OpenAIClient;
 import com.openai.client.okhttp.OpenAIOkHttpClient;
+import com.openai.models.ReasoningEffort;
 import com.openai.models.chat.completions.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @ApplicationScoped
 public class OpenAIChatCompletionService implements ChatCompletionService {
 
@@ -34,11 +37,14 @@ public class OpenAIChatCompletionService implements ChatCompletionService {
     public String generateReply(String systemPrompt, List<ChatMessage> conversationMessages) {
         List<ChatCompletionMessageParam> messages = new ArrayList<>();
 
+        log.info(systemPrompt);
+
         addSystemInstructionsToRequest(systemPrompt, messages);
         addMessagesToRequest(conversationMessages, messages);
 
         ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
                 .model(this.config.model())
+                .reasoningEffort(ReasoningEffort.LOW)
                 .messages(messages)
                 .build();
 

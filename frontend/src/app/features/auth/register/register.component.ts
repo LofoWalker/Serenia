@@ -11,79 +11,8 @@ import { AlertComponent } from '../../../shared/ui/alert/alert.component';
   selector: 'app-register',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ReactiveFormsModule, RouterLink, ButtonComponent, InputComponent, AlertComponent],
-  template: `
-    <div>
-      <h1 class="text-2xl font-bold text-primary-50 mb-2">Créer un compte</h1>
-      <p class="text-primary-400 mb-6">Rejoignez Serenia et commencez votre expérience.</p>
-      @if (successMessage()) {
-        <app-alert type="success" [message]="successMessage()" class="mb-4 block" />
-      }
-      @if (errorMessage()) {
-        <app-alert type="error" [message]="errorMessage()" class="mb-4 block" />
-      }
-      @if (!successMessage()) {
-        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
-          <div class="grid grid-cols-2 gap-4">
-            <app-input
-              label="Nom"
-              type="text"
-              formControlName="lastName"
-              placeholder="Dupont"
-              autocomplete="family-name"
-              [required]="true"
-              [error]="getFieldError('lastName')"
-            />
-            <app-input
-              label="Prénom"
-              type="text"
-              formControlName="firstName"
-              placeholder="Jean"
-              autocomplete="given-name"
-              [required]="true"
-              [error]="getFieldError('firstName')"
-            />
-          </div>
-          <app-input
-            label="Email"
-            type="email"
-            formControlName="email"
-            placeholder="votre@email.com"
-            autocomplete="email"
-            [required]="true"
-            [error]="getFieldError('email')"
-          />
-          <app-input
-            label="Mot de passe"
-            type="password"
-            formControlName="password"
-            placeholder="Minimum 6 caractères"
-            autocomplete="new-password"
-            [required]="true"
-            [error]="getFieldError('password')"
-          />
-          <app-button 
-            type="submit" 
-            [fullWidth]="true" 
-            [loading]="authState.loading()"
-            [disabled]="form.invalid"
-          >
-            S'inscrire
-          </app-button>
-        </form>
-      }
-      <div class="mt-6 pt-6 border-t border-primary-800 text-center">
-        <p class="text-primary-400 text-sm">
-          Déjà un compte ?
-          <a 
-            routerLink="/login" 
-            class="text-primary-50 hover:text-primary-200 font-medium focus:outline-none focus-visible:underline"
-          >
-            Se connecter
-          </a>
-        </p>
-      </div>
-    </div>
-  `
+  templateUrl: './register.component.html',
+  styleUrl: './register.component.css'
 })
 export class RegisterComponent {
   private readonly fb = inject(FormBuilder);

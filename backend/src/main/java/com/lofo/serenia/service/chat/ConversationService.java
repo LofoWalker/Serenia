@@ -12,4 +12,8 @@ public interface ConversationService {
 
     List<ChatMessage> getConversationMessages(UUID conversationId, UUID userId);
 
+    Conversation getActiveConversationByUserId(UUID userId);
+
+    void deleteUserConversations(UUID userId);
 }
+
