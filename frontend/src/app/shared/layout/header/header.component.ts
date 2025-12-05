@@ -1,0 +1,71 @@
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { AuthStateService } from '../../../core/services/auth-state.service';
+import { AuthService } from '../../../core/services/auth.service';
+@Component({
+  selector: 'app-header',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [RouterLink, RouterLinkActive],
+  template: `
+    <header class="fixed top-0 left-0 right-0 z-50 bg-primary-950/80 backdrop-blur-md border-b border-primary-800">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <a 
+            routerLink="/" 
+            class="text-xl font-bold text-primary-50 hover:text-primary-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 rounded"
+          >
+            Serenia
+          </a>
+          <nav class="flex items-center gap-2" aria-label="Navigation principale">
+            @if (authState.isAuthenticated()) {
+              <a 
+                routerLink="/chat"
+                routerLinkActive="bg-primary-800 text-primary-50"
+                class="px-3 py-2 text-sm font-medium text-primary-300 hover:text-primary-100 hover:bg-primary-800 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+              >
+                Chat
+              </a>
+              <a 
+                routerLink="/profile"
+                routerLinkActive="bg-primary-800 text-primary-50"
+                class="px-3 py-2 text-sm font-medium text-primary-300 hover:text-primary-100 hover:bg-primary-800 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+              >
+                Profil
+              </a>
+              <button
+                type="button"
+                (click)="logout()"
+                class="ml-2 px-3 py-2 text-sm font-medium text-primary-400 hover:text-red-400 hover:bg-primary-800 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+              >
+                Déconnexion
+              </button>
+            } @else {
+              <a 
+                routerLink="/login"
+                routerLinkActive="bg-primary-800 text-primary-50"
+                class="px-3 py-2 text-sm font-medium text-primary-300 hover:text-primary-100 hover:bg-primary-800 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+              >
+                Connexion
+              </a>
+              <a 
+                routerLink="/register"
+                class="px-4 py-2 text-sm font-semibold bg-primary-50 text-primary-900 hover:bg-primary-200 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+              >
+                S'inscrire
+              </a>
+            }
+          </nav>
+        </div>
+      </div>
+    </header>
+  `
+})
+export class HeaderComponent {
+  protected readonly authState = inject(AuthStateService);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  protected logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/']);
+  }
+}
