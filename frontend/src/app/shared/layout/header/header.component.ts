@@ -1,7 +1,8 @@
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive, Router } from '@angular/router';
-import { AuthStateService } from '../../../core/services/auth-state.service';
-import { AuthService } from '../../../core/services/auth.service';
+import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
+import {Router, RouterLink, RouterLinkActive} from '@angular/router';
+import {AuthStateService} from '../../../core/services/auth-state.service';
+import {AuthService} from '../../../core/services/auth.service';
+
 @Component({
   selector: 'app-header',
   changeDetection: ChangeDetectionStrategy.OnPush,

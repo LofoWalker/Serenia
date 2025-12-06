@@ -1,4 +1,5 @@
-import { Component, ChangeDetectionStrategy, input, output, computed } from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, input, output} from '@angular/core';
+
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 type ButtonSize = 'sm' | 'md' | 'lg';
 @Component({
@@ -16,7 +17,7 @@ export class ButtonComponent {
   readonly fullWidth = input(false);
   readonly clicked = output<void>();
   protected readonly buttonClasses = computed(() => {
-    const base = 'inline-flex items-center justify-center font-semibold rounded-lg transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-primary-950 disabled:opacity-50 disabled:cursor-not-allowed';
+    const base = 'inline-flex items-center justify-center font-semibold rounded-lg transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-primary-950 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed';
     const variants: Record<ButtonVariant, string> = {
       primary: 'bg-primary-50 text-primary-900 hover:bg-primary-200 focus-visible:ring-primary-400',
       secondary: 'bg-primary-800 text-primary-100 border border-primary-700 hover:bg-primary-700 focus-visible:ring-primary-500',

@@ -37,8 +37,6 @@ public class OpenAIChatCompletionService implements ChatCompletionService {
     public String generateReply(String systemPrompt, List<ChatMessage> conversationMessages) {
         List<ChatCompletionMessageParam> messages = new ArrayList<>();
 
-        log.info(systemPrompt);
-
         addSystemInstructionsToRequest(systemPrompt, messages);
         addMessagesToRequest(conversationMessages, messages);
 

@@ -1,5 +1,14 @@
-import { Component, ChangeDetectionStrategy, signal, OnInit, OnDestroy, NgZone, inject, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  PLATFORM_ID,
+  signal
+} from '@angular/core';
+import {isPlatformBrowser} from '@angular/common';
 
 @Component({
   selector: 'app-cursor-glow',

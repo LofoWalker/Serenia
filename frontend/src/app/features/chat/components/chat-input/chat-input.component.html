@@ -21,7 +21,7 @@
   <button
     type="submit"
     [disabled]="disabled() || !messageText.trim()"
-    class="p-3 bg-primary-50 text-primary-900 rounded-xl hover:bg-primary-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 focus-visible:ring-offset-primary-950 disabled:opacity-50 disabled:cursor-not-allowed"
+    class="p-3 bg-primary-50 text-primary-900 rounded-xl hover:bg-primary-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 focus-visible:ring-offset-primary-950 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
     aria-label="Envoyer le message"
   >
     @if (disabled()) {

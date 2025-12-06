@@ -1,5 +1,6 @@
-import { Component, ChangeDetectionStrategy, input, forwardRef, signal, computed } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import {ChangeDetectionStrategy, Component, computed, forwardRef, input, signal} from '@angular/core';
+import {ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule} from '@angular/forms';
+
 type InputType = 'text' | 'email' | 'password';
 @Component({
   selector: 'app-input',

@@ -1,6 +1,6 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { CursorGlowComponent } from './shared/ui/cursor-glow/cursor-glow.component';
+import {ChangeDetectionStrategy, Component} from '@angular/core';
+import {RouterOutlet} from '@angular/router';
+import {CursorGlowComponent} from './shared/ui/cursor-glow/cursor-glow.component';
 
 @Component({
   selector: 'app-root',

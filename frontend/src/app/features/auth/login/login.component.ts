@@ -1,14 +1,14 @@
-import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
-import { switchMap, catchError, of } from 'rxjs';
-import { AuthService } from '../../../core/services/auth.service';
-import { AuthStateService } from '../../../core/services/auth-state.service';
-import { ChatService } from '../../../core/services/chat.service';
-import { ButtonComponent } from '../../../shared/ui/button/button.component';
-import { InputComponent } from '../../../shared/ui/input/input.component';
-import { AlertComponent } from '../../../shared/ui/alert/alert.component';
+import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
+import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
+import {Router, RouterLink} from '@angular/router';
+import {HttpErrorResponse} from '@angular/common/http';
+import {catchError, of, switchMap} from 'rxjs';
+import {AuthService} from '../../../core/services/auth.service';
+import {AuthStateService} from '../../../core/services/auth-state.service';
+import {ChatService} from '../../../core/services/chat.service';
+import {ButtonComponent} from '../../../shared/ui/button/button.component';
+import {InputComponent} from '../../../shared/ui/input/input.component';
+import {AlertComponent} from '../../../shared/ui/alert/alert.component';
 
 @Component({
   selector: 'app-login',

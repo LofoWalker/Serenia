@@ -1,7 +1,8 @@
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { AuthStateService } from '../../core/services/auth-state.service';
-import { ButtonComponent } from '../../shared/ui/button/button.component';
+import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
+import {RouterLink} from '@angular/router';
+import {AuthStateService} from '../../core/services/auth-state.service';
+import {ButtonComponent} from '../../shared/ui/button/button.component';
+
 @Component({
   selector: 'app-home',
   changeDetection: ChangeDetectionStrategy.OnPush,

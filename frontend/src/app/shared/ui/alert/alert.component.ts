@@ -1,4 +1,5 @@
-import { Component, ChangeDetectionStrategy, input } from '@angular/core';
+import {ChangeDetectionStrategy, Component, input} from '@angular/core';
+
 type AlertType = 'success' | 'error' | 'warning' | 'info';
 @Component({
   selector: 'app-alert',

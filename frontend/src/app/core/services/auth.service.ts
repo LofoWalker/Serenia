@@ -1,16 +1,16 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, tap, finalize } from 'rxjs';
+import {inject, Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {finalize, Observable, tap} from 'rxjs';
 import {
+  ActivationResponse,
   AuthResponse,
   LoginRequest,
   RegistrationRequest,
   RegistrationResponse,
-  ActivationResponse,
   User
 } from '../models/user.model';
-import { AuthStateService } from './auth-state.service';
-import { environment } from '../../../environments/environment';
+import {AuthStateService} from './auth-state.service';
+import {environment} from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'

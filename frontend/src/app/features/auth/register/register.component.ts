@@ -1,12 +1,13 @@
-import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
-import { AuthService } from '../../../core/services/auth.service';
-import { AuthStateService } from '../../../core/services/auth-state.service';
-import { ButtonComponent } from '../../../shared/ui/button/button.component';
-import { InputComponent } from '../../../shared/ui/input/input.component';
-import { AlertComponent } from '../../../shared/ui/alert/alert.component';
+import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
+import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
+import {RouterLink} from '@angular/router';
+import {HttpErrorResponse} from '@angular/common/http';
+import {AuthService} from '../../../core/services/auth.service';
+import {AuthStateService} from '../../../core/services/auth-state.service';
+import {ButtonComponent} from '../../../shared/ui/button/button.component';
+import {InputComponent} from '../../../shared/ui/input/input.component';
+import {AlertComponent} from '../../../shared/ui/alert/alert.component';
+
 @Component({
   selector: 'app-register',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,8 +1,8 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, tap, of, map } from 'rxjs';
-import { MessageRequest, MessageResponse, ChatMessage, ConversationMessagesResponse } from '../models/chat.model';
-import { environment } from '../../../environments/environment';
+import {computed, inject, Injectable, signal} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {map, Observable, tap} from 'rxjs';
+import {ChatMessage, ConversationMessagesResponse, MessageRequest, MessageResponse} from '../models/chat.model';
+import {environment} from '../../../environments/environment';
 
 interface BackendChatMessage {
   role: string;

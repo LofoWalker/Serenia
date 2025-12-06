@@ -1,5 +1,5 @@
-import { Injectable, signal, computed } from '@angular/core';
-import { User } from '../models/user.model';
+import {computed, Injectable, signal} from '@angular/core';
+import {User} from '../models/user.model';
 
 const TOKEN_KEY = 'serenia_token';
 

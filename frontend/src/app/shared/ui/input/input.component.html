@@ -26,7 +26,7 @@
     @if (type() === 'password') {
       <button
         type="button"
-        class="absolute right-3 top-1/2 -translate-y-1/2 text-primary-400 hover:text-primary-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 rounded"
+        class="absolute right-3 top-1/2 -translate-y-1/2 text-primary-400 hover:text-primary-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 rounded"
         (click)="togglePasswordVisibility()"
         [attr.aria-label]="showPassword() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
       >

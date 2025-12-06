@@ -1,5 +1,6 @@
-import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
-import { ChatMessage } from '../../../../core/models/chat.model';
+import {ChangeDetectionStrategy, Component, computed, input} from '@angular/core';
+import {ChatMessage} from '../../../../core/models/chat.model';
+
 @Component({
   selector: 'app-chat-message',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,10 +1,21 @@
-import { Component, ChangeDetectionStrategy, inject, signal, ViewChild, ElementRef, AfterViewInit, OnDestroy, NgZone } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
-import { ChatService } from '../../core/services/chat.service';
-import { AuthStateService } from '../../core/services/auth-state.service';
-import { ChatMessageComponent } from './components/chat-message/chat-message.component';
-import { ChatInputComponent } from './components/chat-input/chat-input.component';
-import { AlertComponent } from '../../shared/ui/alert/alert.component';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  NgZone,
+  OnDestroy,
+  signal,
+  ViewChild
+} from '@angular/core';
+import {HttpErrorResponse} from '@angular/common/http';
+import {ChatService} from '../../core/services/chat.service';
+import {AuthStateService} from '../../core/services/auth-state.service';
+import {ChatMessageComponent} from './components/chat-message/chat-message.component';
+import {ChatInputComponent} from './components/chat-input/chat-input.component';
+import {AlertComponent} from '../../shared/ui/alert/alert.component';
+
 @Component({
   selector: 'app-chat',
   changeDetection: ChangeDetectionStrategy.OnPush,

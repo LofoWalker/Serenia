@@ -1,5 +1,6 @@
-import { Component, ChangeDetectionStrategy, output, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import {ChangeDetectionStrategy, Component, output, signal} from '@angular/core';
+import {FormsModule} from '@angular/forms';
+
 @Component({
   selector: 'app-chat-input',
   changeDetection: ChangeDetectionStrategy.OnPush,
