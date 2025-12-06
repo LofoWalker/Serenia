@@ -1,0 +1,9 @@
+<div
+  [class]="containerClasses()"
+  [attr.aria-label]="ariaLabel()"
+>
+  <div [class]="bubbleClasses()">
+    <p class="text-sm sm:text-base whitespace-pre-wrap break-words">{{ message().content }}</p>
+  </div>
+</div>
+

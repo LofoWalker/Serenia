@@ -64,6 +64,12 @@ public interface SereniaConfig {
     String url();
 
     /**
+     * URL of the frontend application
+     */
+    @WithName("front-url")
+    String frontUrl();
+
+    /**
      * JWT issuer for token generation and validation.
      */
     @WithName("auth.jwt-issuer")

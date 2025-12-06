@@ -1,0 +1,32 @@
+<div class="text-center">
+  <h1 class="text-2xl font-bold text-primary-50 mb-4">Activation du compte</h1>
+
+  @if (authState.loading()) {
+    <div class="py-8">
+      <svg class="animate-spin h-12 w-12 mx-auto text-primary-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <p class="mt-4 text-primary-400">Activation en cours...</p>
+    </div>
+  } @else {
+    @if (successMessage()) {
+      <app-alert type="success" [message]="successMessage()" class="mb-6 block text-left" />
+      <a routerLink="/login">
+        <app-button [fullWidth]="true">
+          Se connecter
+        </app-button>
+      </a>
+    }
+
+    @if (errorMessage()) {
+      <app-alert type="error" [message]="errorMessage()" class="mb-6 block text-left" />
+      <a routerLink="/register">
+        <app-button variant="secondary" [fullWidth]="true">
+          Retour à l'inscription
+        </app-button>
+      </a>
+    }
+  }
+</div>
+

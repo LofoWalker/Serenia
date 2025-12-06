@@ -97,6 +97,6 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
     }
 
     private String buildActivationLink(String activationToken) {
-        return sereniaConfig.url() + "/api/auth/activate?token=" + activationToken;
+        return sereniaConfig.frontUrl() + "/activate?token=" + activationToken;
     }
 }

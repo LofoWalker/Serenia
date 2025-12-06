@@ -32,6 +32,16 @@ public class ConversationServiceImpl implements ConversationService {
         return getDecryptedMessagesForConversation(userId, conversationId);
     }
 
+    @Override
+    public Conversation getActiveConversationByUserId(UUID userId) {
+        return conversationRepository.findActiveByUser(userId).orElse(null);
+    }
+
+    @Override
+    public void deleteUserConversations(UUID userId) {
+        conversationRepository.deleteByUserId(userId);
+    }
+
     private Conversation startConversation(UUID userId) {
         Conversation conversation = new Conversation();
         conversation.setUserId(userId);

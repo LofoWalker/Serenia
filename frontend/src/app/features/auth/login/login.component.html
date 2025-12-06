@@ -1,0 +1,57 @@
+<div>
+  <h1 class="text-2xl font-bold text-primary-50 mb-5">Connexion</h1>
+  <p class="text-primary-400 mb-6">Bienvenue ! Connectez-vous pour continuer.</p>
+
+  @if (errorMessage()) {
+    <app-alert type="error" [message]="errorMessage()" class="mb-4 block" />
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="mb-5">
+      <app-input
+        label="Email"
+        type="email"
+        formControlName="email"
+        placeholder="votre@email.com"
+        autocomplete="email"
+        [required]="true"
+        [error]="getFieldError('email')"
+      />
+    </div>
+
+    <div class="mb-5">
+      <app-input
+        label="Mot de passe"
+        type="password"
+        formControlName="password"
+        placeholder="••••••••"
+        autocomplete="current-password"
+        [required]="true"
+        [error]="getFieldError('password')"
+      />
+    </div>
+
+    <div class="pt-4">
+      <app-button
+        type="submit"
+        [fullWidth]="true"
+        [loading]="authState.loading()"
+        [disabled]="form.invalid">
+        Se connecter
+      </app-button>
+    </div>
+  </form>
+
+  <div class="mt-6 pt-6 border-t border-primary-800 text-center">
+    <p class="text-primary-400 text-sm">
+      Pas encore de compte ?
+      <a
+        routerLink="/register"
+        class="text-primary-50 hover:text-primary-200 font-medium focus:outline-none focus-visible:underline"
+      >
+        S'inscrire
+      </a>
+    </p>
+  </div>
+</div>
+
