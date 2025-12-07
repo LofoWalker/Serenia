@@ -24,8 +24,15 @@ backend/surefire-reports/
 backend/failsafe-reports/
 
 # Environment & secrets
+.env
+.env.local
+.env.production
 backend/.env
 backend/.env.*
+
+# JWT Keys (production)
+keys/
+!keys/.gitkeep
 
 # Dependency downloads
 backend/.mvn/wrapper/maven-wrapper.jar
@@ -34,4 +41,7 @@ backend/mvnw
 backend/mvnw.cmd
 
 .github
+
+# Docker volumes data
+serenia_*_data/
 

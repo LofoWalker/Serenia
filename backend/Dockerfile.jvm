@@ -1,0 +1,59 @@
+# ========================================
+# SERENIA BACKEND - Quarkus JVM Dockerfile (Alternative)
+# ========================================
+# Use this if native build fails or for faster development builds
+
+# Stage 1: Build application
+FROM maven:3.9-eclipse-temurin-21-alpine AS builder
+
+WORKDIR /build
+
+# Copy Maven files first for better layer caching
+COPY pom.xml ./
+RUN mvn dependency:go-offline -B
+
+# Copy source code
+COPY src ./src
+
+# Build application (skip tests for faster build)
+RUN mvn package -DskipTests -Dquarkus.package.jar.type=uber-jar
+
+# Stage 2: Production runtime image
+FROM eclipse-temurin:21-jre-alpine AS production
+
+LABEL maintainer="Serenia Team" \
+      org.opencontainers.image.title="Serenia Backend (JVM)" \
+      org.opencontainers.image.description="Quarkus JVM backend for Serenia application" \
+      org.opencontainers.image.version="1.0.0"
+
+WORKDIR /app
+
+# Install curl for healthcheck
+RUN apk add --no-cache curl
+
+# Create non-root user for security
+RUN addgroup -g 1001 -S serenia && \
+    adduser -S -D -H -u 1001 -h /app -s /sbin/nologin -G serenia serenia
+
+# Copy built artifact from builder
+COPY --from=builder /build/target/backend-*-runner.jar /app/application.jar
+
+# Set ownership
+RUN chown -R serenia:serenia /app
+
+# Switch to non-root user
+USER serenia
+
+# Expose application port
+EXPOSE 8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:8080/q/health/ready || exit 1
+
+# JVM memory settings
+ENV JAVA_OPTS="-Xms256m -Xmx512m -XX:+UseG1GC -XX:+UseContainerSupport"
+
+# Run application
+CMD ["sh", "-c", "java $JAVA_OPTS -jar /app/application.jar"]
+

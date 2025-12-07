@@ -1,0 +1,49 @@
+# ========================================
+# SERENIA BACKEND - Docker Ignore
+# ========================================
+
+# Build outputs
+target/
+
+# IDE and editors
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+*~
+
+# Environment files
+.env
+.env.local
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+docs/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test outputs
+*.class
+
+# Keys (will be mounted as volumes)
+src/main/resources/keys/
+src/test/resources/keys/
+
+# Postman collections
+src/main/resources/postman/
+
+# Docker files (not needed inside container)
+Dockerfile*
+docker-compose*.yaml
+.dockerignore
+

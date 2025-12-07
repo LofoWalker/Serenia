@@ -1,0 +1,56 @@
+# ========================================
+*.tgz
+*.map
+# Misc
+
+e2e/
+.angular/
+# Angular specific
+
+Thumbs.db
+.DS_Store
+# OS files
+
+yarn-error.log*
+yarn-debug.log*
+npm-debug.log*
+*.log
+# Logs
+
+docs/
+*.md
+# Documentation
+
+.gitignore
+.git/
+# Git
+
+.env.*.local
+.env.local
+.env
+# Environment files
+
+.nyc_output/
+coverage/
+# Test files
+
+*~
+*.swo
+*.swp
+.vscode/
+.idea/
+# IDE and editors
+
+out-tsc/
+tmp/
+build/
+dist/
+# Build outputs
+
+.npm/
+node_modules/
+# Dependencies
+
+# ========================================
+# SERENIA FRONTEND - Docker Ignore
+

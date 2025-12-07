@@ -1,0 +1,59 @@
+# ========================================
+# SERENIA BACKEND - Quarkus Native Multi-stage Dockerfile
+# ========================================
+
+# Stage 1: Build native executable
+FROM quay.io/quarkus/ubi-quarkus-mandrel-builder-image:jdk-21 AS builder
+
+USER root
+WORKDIR /build
+
+# Install Maven
+RUN microdnf install -y maven && microdnf clean all
+
+# Copy pom.xml first for better layer caching
+COPY --chown=quarkus:quarkus pom.xml ./
+
+# Download dependencies (cached layer)
+RUN mvn dependency:go-offline -B
+
+# Copy source code
+COPY --chown=quarkus:quarkus src ./src
+
+# Build native executable
+RUN mvn package -Pnative -DskipTests \
+    -Dquarkus.native.container-build=false \
+    -Dquarkus.native.additional-build-args="--initialize-at-run-time=org.mindrot.jBCrypt"
+
+# Stage 2: Production runtime image
+FROM quay.io/quarkus/quarkus-micro-image:2.0 AS production
+
+LABEL maintainer="Serenia Team" \
+      org.opencontainers.image.title="Serenia Backend" \
+      org.opencontainers.image.description="Quarkus native backend for Serenia application" \
+      org.opencontainers.image.version="1.0.0"
+
+WORKDIR /work
+
+# Copy native executable from builder
+COPY --from=builder /build/target/*-runner /work/application
+
+# Create non-root user for security
+RUN chown -R 1001:1001 /work && chmod -R 755 /work
+
+# Switch to non-root user
+USER 1001
+
+# Expose application port
+EXPOSE 8080
+
+# Health check (using wget since curl may not be available)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD wget -q --spider http://localhost:8080/q/health/ready || exit 1
+
+# JVM memory settings for native (minimal since native doesn't use JVM)
+ENV QUARKUS_HTTP_HOST=0.0.0.0
+
+# Run native application
+CMD ["./application", "-Dquarkus.http.host=0.0.0.0"]
+
