@@ -25,7 +25,8 @@ public class TestResourceProfile implements QuarkusTestProfile {
                 Map.entry("mp.jwt.verify.publickey.location", "classpath:keys/publicKey.pem"),
                 Map.entry("mp.jwt.verify.issuer", "serenia"),
                 Map.entry("mp.jwt.token.header", "Authorization"),
-                Map.entry("quarkus.mailer.mock", "true"));
+                Map.entry("quarkus.mailer.mock", "true"),
+                Map.entry("serenia.front-url", "http://localhost:4200"));
     }
 
     @Override
