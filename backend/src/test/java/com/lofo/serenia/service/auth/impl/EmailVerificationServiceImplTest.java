@@ -5,6 +5,8 @@ import com.lofo.serenia.domain.user.Role;
 import com.lofo.serenia.domain.user.User;
 import com.lofo.serenia.repository.RoleRepository;
 import com.lofo.serenia.repository.UserRepository;
+import com.lofo.serenia.repository.UserTokenQuotaRepository;
+import com.lofo.serenia.repository.UserTokenUsageRepository;
 import com.lofo.serenia.service.auth.EmailVerificationService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
@@ -39,11 +41,19 @@ class EmailVerificationServiceImplTest {
     @Inject
     RoleRepository roleRepository;
 
+    @Inject
+    UserTokenQuotaRepository userTokenQuotaRepository;
+
+    @Inject
+    UserTokenUsageRepository userTokenUsageRepository;
+
     private Role testRole;
 
     @BeforeEach
     @Transactional
     void setup() {
+        userTokenUsageRepository.deleteAll();
+        userTokenQuotaRepository.deleteAll();
         userRepository.deleteAll();
         roleRepository.deleteAll();
         testRole = Role.builder().name("USER").build();

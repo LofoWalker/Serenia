@@ -17,8 +17,7 @@ COPY .mvn .mvn
 
 COPY --chmod=a+rw keys/ ./src/test/resources/keys/
 
-# 4. Lancer le build natif
-RUN ./mvnw clean package -Pnative -Dquarkus.native.container-build=true
+RUN ./mvnw clean package -Pnative
 
 
 # ========================================

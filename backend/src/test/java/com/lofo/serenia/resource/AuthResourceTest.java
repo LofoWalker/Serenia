@@ -7,6 +7,8 @@ import com.lofo.serenia.dto.in.LoginRequestDTO;
 import com.lofo.serenia.dto.in.RegistrationRequestDTO;
 import com.lofo.serenia.repository.RoleRepository;
 import com.lofo.serenia.repository.UserRepository;
+import com.lofo.serenia.repository.UserTokenQuotaRepository;
+import com.lofo.serenia.repository.UserTokenUsageRepository;
 import com.lofo.serenia.service.auth.impl.EmailVerificationServiceImpl;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
@@ -37,6 +39,12 @@ class AuthResourceTest {
     RoleRepository roleRepository;
 
     @Inject
+    UserTokenQuotaRepository userTokenQuotaRepository;
+
+    @Inject
+    UserTokenUsageRepository userTokenUsageRepository;
+
+    @Inject
     EntityManager em;
 
     private Role testRole;
@@ -44,6 +52,8 @@ class AuthResourceTest {
     @BeforeEach
     @Transactional
     void setup() {
+        userTokenUsageRepository.deleteAll();
+        userTokenQuotaRepository.deleteAll();
         userRepository.deleteAll();
         roleRepository.deleteAll();
         testRole = Role.builder().name("USER").build();
