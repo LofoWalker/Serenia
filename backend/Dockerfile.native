@@ -2,51 +2,34 @@
 # Stage 1: Build (Compilation Native & Tests)
 # ========================================
 FROM quay.io/quarkus/ubi-quarkus-mandrel-builder-image:jdk-21 AS builder
-
 LABEL maintainer="Serenia Team"
-
 WORKDIR /build
-
-# 1. Copier le code source et la configuration Maven
+USER root
+RUN mkdir -p /var/cache/yum \
+    && microdnf install -y tar gzip curl \
+    && microdnf clean all \
+    && curl -fsSL https://archive.apache.org/dist/maven/maven-3/3.9.8/binaries/apache-maven-3.9.8-bin.tar.gz -o /tmp/maven.tgz \
+    && tar -xzf /tmp/maven.tgz -C /opt \
+    && mv /opt/apache-maven-3.9.8 /opt/maven \
+    && rm /tmp/maven.tgz
+ENV MAVEN_HOME=/opt/maven
+ENV PATH=$MAVEN_HOME/bin:$PATH
 COPY pom.xml .
 COPY src ./src
-
-# 2. Copier le wrapper Maven et lui donner les droits d'exécution
-COPY --chmod=u+x mvnw .
-COPY .mvn .mvn
-
-COPY --chmod=a+rw keys/ ./src/test/resources/keys/
-
-RUN ./mvnw clean package -Pnative
-
-
+COPY --chmod=a+rw src/main/resources/script/keys/ ./src/test/resources/keys/
+RUN mvn clean package -Pnative
 # ========================================
 # Stage 2: Runtime (Exécution de l'Application Native)
 # ========================================
 FROM registry.access.redhat.com/ubi9/ubi-minimal:9.3
-
 LABEL maintainer="Serenia Team"
-
 WORKDIR /work
-
-# Créer les dossiers nécessaires
 RUN mkdir -p /work/keys
-
-# Copier l'exécutable natif
 COPY --from=builder /build/target/*-runner /work/application
-
-# Copier les clés (si nécessaires au runtime)
-# Nous conservons la ligne, mais assurez-vous qu'elle est bien configurée pour le runtime.
-COPY keys/ /work/keys/
-
-# S'assurer que le répertoire de travail et l'application sont exécutables
+COPY src/main/resources/script/keys/ /work/keys/
 RUN chmod 775 /work && chmod +x /work/application
-
-# Variables d'environnement par défaut
 ENV QUARKUS_HTTP_HOST=0.0.0.0 \
     QUARKUS_HTTP_PORT=8087
 
 EXPOSE 8087
-
-# Commande d'exécution
 CMD ["./application", "-Dquarkus.http.host=0.0.0.0", "-Dquarkus.http.port=8087"]
