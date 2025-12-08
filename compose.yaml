@@ -114,8 +114,15 @@ services:
       - serenia-external
 
     # Exposer le port si vous voulez accéder directement au backend (optionnel)
-    ports:
-      - "${BACKEND_PORT:-8087}:8087"
+    # ports:
+    #   - "${BACKEND_PORT:-8087}:8087"
+
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent --max-time 5 http://localhost:8087/q/health/ready || exit 1"]
+      interval: 5s
+      timeout: 2s
+      retries: 15
+      start_period: 5s
 
   # ========================================
   # Angular Frontend (Nginx)
@@ -136,3 +143,32 @@ services:
 
     ports:
       - "${FRONTEND_PORT:-80}:8080"
+
+    networks:
+      - serenia-external
+      - serenia-internal
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+# ========================================
+# Volumes
+# ========================================
+volumes:
+  serenia_postgres_data:
+    driver: local
+
+# ========================================
+# Networks
+# ========================================
+networks:
+  serenia-internal:
+    driver: bridge
+    internal: true
+
+  serenia-external:
+    driver: bridge
