@@ -1,26 +1,28 @@
 # ========================================
-# Stage 1: Build
+# Stage 1: Build (Compilation Native & Tests)
 # ========================================
-FROM registry.access.redhat.com/ubi9/ubi-minimal:9.3 AS builder
+FROM quay.io/quarkus/ubi-quarkus-mandrel-builder-image:jdk-21 AS builder
 
 LABEL maintainer="Serenia Team"
 
 WORKDIR /build
 
-# Installer Maven, JDK et autres outils nécessaires pour le build
-RUN microdnf install -y java-21-openjdk-devel maven tar gzip \
-    && microdnf clean all \
-    && rm -rf /var/cache/yum
-
-# Copier le code source
+# 1. Copier le code source et la configuration Maven
 COPY pom.xml .
 COPY src ./src
 
-# Build natif Quarkus
-RUN mvn clean package -Pnative -Dquarkus.native.container-build=true
+# 2. Copier le wrapper Maven et lui donner les droits d'exécution
+COPY --chmod=u+x mvnw .
+COPY .mvn .mvn
+
+COPY --chmod=a+rw keys/ ./src/test/resources/keys/
+
+# 4. Lancer le build natif
+RUN ./mvnw clean package -Pnative -Dquarkus.native.container-build=true
+
 
 # ========================================
-# Stage 2: Runtime
+# Stage 2: Runtime (Exécution de l'Application Native)
 # ========================================
 FROM registry.access.redhat.com/ubi9/ubi-minimal:9.3
 
@@ -28,13 +30,17 @@ LABEL maintainer="Serenia Team"
 
 WORKDIR /work
 
-# Créer dossiers nécessaires
+# Créer les dossiers nécessaires
 RUN mkdir -p /work/keys
 
-# Copier l'exécutable natif depuis le builder
+# Copier l'exécutable natif
 COPY --from=builder /build/target/*-runner /work/application
 
-# Droits d'exécution
+# Copier les clés (si nécessaires au runtime)
+# Nous conservons la ligne, mais assurez-vous qu'elle est bien configurée pour le runtime.
+COPY keys/ /work/keys/
+
+# S'assurer que le répertoire de travail et l'application sont exécutables
 RUN chmod 775 /work && chmod +x /work/application
 
 # Variables d'environnement par défaut
@@ -43,5 +49,5 @@ ENV QUARKUS_HTTP_HOST=0.0.0.0 \
 
 EXPOSE 8087
 
-# CMD pour Quarkus native - les propriétés sont gérées via env vars
+# Commande d'exécution
 CMD ["./application", "-Dquarkus.http.host=0.0.0.0", "-Dquarkus.http.port=8087"]
