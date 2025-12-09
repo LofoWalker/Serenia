@@ -2,6 +2,7 @@
 # Stage 1: Build (Compilation Native & Tests)
 # ========================================
 FROM quay.io/quarkus/ubi-quarkus-mandrel-builder-image:jdk-21 AS builder
+
 LABEL maintainer="Serenia Team"
 WORKDIR /build
 USER root
@@ -11,13 +12,15 @@ RUN mkdir -p /var/cache/yum \
     && curl -fsSL https://archive.apache.org/dist/maven/maven-3/3.9.8/binaries/apache-maven-3.9.8-bin.tar.gz -o /tmp/maven.tgz \
     && tar -xzf /tmp/maven.tgz -C /opt \
     && mv /opt/apache-maven-3.9.8 /opt/maven \
-    && rm /tmp/maven.tgz
+    && rm /tmp/maven.tgz \
+
 ENV MAVEN_HOME=/opt/maven
 ENV PATH=$MAVEN_HOME/bin:$PATH
 COPY pom.xml .
 COPY src ./src
-COPY --chmod=a+rw src/main/resources/script/keys/ ./src/test/resources/keys/
+COPY --chmod=a+rw keys/* ./src/test/resources/keys/.
 RUN mvn clean package -Pnative
+
 # ========================================
 # Stage 2: Runtime (Exécution de l'Application Native)
 # ========================================
@@ -26,7 +29,7 @@ LABEL maintainer="Serenia Team"
 WORKDIR /work
 RUN mkdir -p /work/keys
 COPY --from=builder /build/target/*-runner /work/application
-COPY src/main/resources/script/keys/ /work/keys/
+COPY keys/* /work/keys/.
 RUN chmod 775 /work && chmod +x /work/application
 ENV QUARKUS_HTTP_HOST=0.0.0.0 \
     QUARKUS_HTTP_PORT=8087

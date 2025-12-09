@@ -62,10 +62,10 @@ services:
       CORS_ACCESS_CONTROL_EXPOSE_HEADERS: ${CORS_ACCESS_CONTROL_EXPOSE_HEADERS:-Authorization}
 
       # JWT Security
-      MP_JWT_VERIFY_PUBLICKEY_LOCATION: ${MP_JWT_VERIFY_PUBLICKEY_LOCATION:-/work/keys/publicKey.pem}
+      MP_JWT_VERIFY_PUBLICKEY_LOCATION: ${MP_JWT_VERIFY_PUBLICKEY_LOCATION:-file:/work/keys/publicKey.pem}
       MP_JWT_VERIFY_ISSUER: ${MP_JWT_VERIFY_ISSUER:-serenia}
       MP_JWT_TOKEN_HEADER: ${MP_JWT_TOKEN_HEADER:-Authorization}
-      SMALLRYE_JWT_SIGN_KEY_LOCATION: ${SMALLRYE_JWT_SIGN_KEY_LOCATION:-/work/keys/privateKey.pem}
+      SMALLRYE_JWT_SIGN_KEY_LOCATION: ${SMALLRYE_JWT_SIGN_KEY_LOCATION:-file:/work/keys/privateKey.pem}
       SMALLRYE_JWT_SIGN_KEY_ID: ${SMALLRYE_JWT_SIGN_KEY_ID:-1}
 
       # Authentication
@@ -107,7 +107,7 @@ services:
       SERENIA_SYSTEM_PROMPT: ${SERENIA_SYSTEM_PROMPT:-"Tu es Serenia, une présence chaleureuse et empathique."}
 
     volumes:
-      - ./keys:/work/keys:ro
+      - ./backend/keys:/work/keys:ro
 
     networks:
       - serenia-internal
