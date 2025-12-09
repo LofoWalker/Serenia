@@ -149,7 +149,7 @@ services:
       - serenia-internal
 
     healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/ || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://0.0.0.0:8080/ || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
