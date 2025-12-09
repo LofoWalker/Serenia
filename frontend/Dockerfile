@@ -41,7 +41,7 @@ RUN apk add --no-cache curl
 
 # Create non-root user (UID 1001)
 RUN addgroup -g 1001 -S serenia && \
-    adduser -S -D -H -u 1001 -h /var/cache/nginx -s /sbin/nologin -G serenia serenia \
+    adduser -S -D -H -u 1001 -h /var/cache/nginx -s /sbin/nologin -G serenia serenia
 
 # Remove default nginx configuration
 RUN rm /etc/nginx/conf.d/default.conf
@@ -55,7 +55,7 @@ COPY --from=builder /app/dist/frontend/browser /usr/share/nginx/html
 # Configure nginx for non-root user and fix pid file location
 RUN sed -i 's/listen 80;/listen 8080;/g' /etc/nginx/conf.d/default.conf && \
     sed -i '/user  nginx;/d' /etc/nginx/nginx.conf && \
-    sed -i 's|pid\s*/run/nginx.pid;|pid /tmp/nginx.pid;|g' /etc/nginx/nginx.conf \
+    sed -i 's|pid\s*/run/nginx.pid;|pid /tmp/nginx.pid;|g' /etc/nginx/nginx.conf
 
 # Set proper ownership for non-root user
 RUN chown -R serenia:serenia /usr/share/nginx/html && \
@@ -63,11 +63,11 @@ RUN chown -R serenia:serenia /usr/share/nginx/html && \
     chown -R serenia:serenia /var/log/nginx && \
     chown -R serenia:serenia /etc/nginx/conf.d && \
     touch /tmp/nginx.pid && \
-    chown serenia:serenia /tmp/nginx.pid \
+    chown serenia:serenia /tmp/nginx.pid
 
 # Ensure no .map files remain (double-check)
 RUN rm -rf /usr/share/nginx/html/*.map 2>/dev/null || true && \
-    find /usr/share/nginx/html -name "*.map" -type f -delete 2>/dev/null || true \
+    find /usr/share/nginx/html -name "*.map" -type f -delete 2>/dev/null || true
 
 # Set permissions
 RUN chmod -R 755 /usr/share/nginx/html

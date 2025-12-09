@@ -1,0 +1,25 @@
+# Stage 1: Build
+FROM eclipse-temurin:21-jdk-alpine AS builder
+LABEL maintainer="Serenia Team"
+WORKDIR /build
+RUN apk add --no-cache maven
+COPY pom.xml .
+COPY src ./src
+COPY --chmod=a+rw keys/* ./src/test/resources/keys/.
+RUN mvn clean package -DskipTests
+# Stage 2: Runtime
+FROM eclipse-temurin:21-jre-alpine
+LABEL maintainer="Serenia Team"
+WORKDIR /work
+RUN apk add --no-cache curl
+RUN mkdir -p /work/keys
+COPY --from=builder /build/target/quarkus-app/lib/ /work/lib/
+COPY --from=builder /build/target/quarkus-app/*.jar /work/
+COPY --from=builder /build/target/quarkus-app/app/ /work/app/
+COPY --from=builder /build/target/quarkus-app/quarkus/ /work/quarkus/
+COPY keys/* /work/keys/.
+RUN chmod 775 /work
+ENV QUARKUS_HTTP_HOST=0.0.0.0
+ENV QUARKUS_HTTP_PORT=8087
+EXPOSE 8087
+CMD ["java", "-jar", "quarkus-run.jar"]

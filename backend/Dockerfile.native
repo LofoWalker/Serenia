@@ -12,7 +12,7 @@ RUN mkdir -p /var/cache/yum \
     && curl -fsSL https://archive.apache.org/dist/maven/maven-3/3.9.8/binaries/apache-maven-3.9.8-bin.tar.gz -o /tmp/maven.tgz \
     && tar -xzf /tmp/maven.tgz -C /opt \
     && mv /opt/apache-maven-3.9.8 /opt/maven \
-    && rm /tmp/maven.tgz \
+    && rm /tmp/maven.tgz
 
 ENV MAVEN_HOME=/opt/maven
 ENV PATH=$MAVEN_HOME/bin:$PATH

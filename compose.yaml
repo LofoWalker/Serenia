@@ -31,12 +31,12 @@ services:
       start_period: 10s
 
   # ========================================
-  # Quarkus Backend (Native)
+  # Quarkus Backend (JVM)
   # ========================================
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile.native
+      dockerfile: Dockerfile.jvm
     image: serenia/backend:${APP_VERSION:-latest}
     container_name: serenia-backend
     restart: unless-stopped
@@ -96,7 +96,7 @@ services:
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
 
       # URLs
-      SERENIA_URL: ${SERENIA_URL:-http://localhost:8080}
+      SERENIA_URL: ${SERENIA_URL:-http://localhost:8087}
       SERENIA_FRONT_URL: ${SERENIA_FRONT_URL:-http://localhost:80}
 
       # Logging
