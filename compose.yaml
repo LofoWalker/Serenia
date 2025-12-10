@@ -36,7 +36,7 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile.native
+      dockerfile: Dockerfile.jvm
     image: serenia/backend:${APP_VERSION:-latest}
     container_name: serenia-backend
     restart: unless-stopped
