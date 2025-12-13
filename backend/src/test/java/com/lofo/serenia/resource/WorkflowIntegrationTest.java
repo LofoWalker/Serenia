@@ -5,7 +5,7 @@ import com.lofo.serenia.domain.conversation.MessageRole;
 import com.lofo.serenia.domain.user.Role;
 import com.lofo.serenia.domain.user.User;
 import com.lofo.serenia.dto.in.LoginRequestDTO;
-import com.lofo.serenia.dto.out.RegistrationResponseDTO;
+import com.lofo.serenia.dto.out.ApiMessageResponse;
 import com.lofo.serenia.repository.*;
 import com.lofo.serenia.service.chat.ChatCompletionService;
 import io.quarkus.test.InjectMock;
@@ -116,7 +116,7 @@ class WorkflowIntegrationTest {
                 .statusCode(Response.Status.CREATED.getStatusCode())
                 .extract()
                 .body()
-                .as(RegistrationResponseDTO.class);
+                .as(ApiMessageResponse.class);
 
         // 1.2 Attempt login before activation → should fail with 401
         given()

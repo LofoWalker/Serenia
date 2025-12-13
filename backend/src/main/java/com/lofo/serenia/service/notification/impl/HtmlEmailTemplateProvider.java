@@ -38,7 +38,7 @@ public class HtmlEmailTemplateProvider implements EmailTemplateProvider {
 
     @Override
     public String getActivationEmailSubject() {
-        return "Serenia - Bienvenue parmis nous";
+        return "Serenia - Bienvenue parmi nous";
     }
 
     @Override

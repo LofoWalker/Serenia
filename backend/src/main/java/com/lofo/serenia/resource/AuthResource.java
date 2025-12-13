@@ -5,8 +5,8 @@ import com.lofo.serenia.dto.in.LoginRequestDTO;
 import com.lofo.serenia.dto.in.RegistrationRequestDTO;
 import com.lofo.serenia.dto.in.ResetPasswordRequest;
 import com.lofo.serenia.dto.out.ActivationResponseDTO;
+import com.lofo.serenia.dto.out.ApiMessageResponse;
 import com.lofo.serenia.dto.out.AuthResponseDTO;
-import com.lofo.serenia.dto.out.RegistrationResponseDTO;
 import com.lofo.serenia.dto.out.UserResponseDTO;
 import com.lofo.serenia.service.auth.EmailVerificationService;
 import com.lofo.serenia.service.auth.PasswordService;
@@ -66,14 +66,14 @@ public class AuthResource {
     @Operation(summary = "Register user", description = "Creates a user and sends an activation email.")
     @RequestBody(content = @Content(schema = @Schema(implementation = RegistrationRequestDTO.class)))
     @APIResponses({
-            @APIResponse(responseCode = "201", description = "User registered", content = @Content(schema = @Schema(implementation = RegistrationResponseDTO.class))),
+            @APIResponse(responseCode = "201", description = "User registered", content = @Content(schema = @Schema(implementation = ApiMessageResponse.class))),
             @APIResponse(responseCode = "400", description = "Invalid payload")
     })
     public Response register(@Valid RegistrationRequestDTO dto) {
         LOG.infof("REST register called for email=%s", dto.email());
         userRegistrationService.register(dto);
         return Response.status(Response.Status.CREATED)
-                .entity(new RegistrationResponseDTO(
+                .entity(new ApiMessageResponse(
                         "Inscription réussie. Un lien d'activation a été envoyé à votre email."))
                 .build();
     }
@@ -158,7 +158,7 @@ public class AuthResource {
         LOG.infof("REST forgot-password called for email=%s", request.email());
         passwordService.requestReset(request.email());
         return Response.ok()
-                .entity(new RegistrationResponseDTO("Si un compte existe avec cet email, un lien de réinitialisation a été envoyé."))
+                .entity(new ApiMessageResponse("Si un compte existe avec cet email, un lien de réinitialisation a été envoyé."))
                 .build();
     }
 
@@ -175,7 +175,7 @@ public class AuthResource {
         LOG.infof("REST reset-password called with token=%s", maskToken(request.token()));
         passwordService.resetPassword(request.token(), request.newPassword());
         return Response.ok()
-                .entity(new RegistrationResponseDTO("Mot de passe réinitialisé avec succès. Vous pouvez maintenant vous connecter."))
+                .entity(new ApiMessageResponse("Mot de passe réinitialisé avec succès. Vous pouvez maintenant vous connecter."))
                 .build();
     }
 

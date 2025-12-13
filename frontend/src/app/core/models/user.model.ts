@@ -18,7 +18,7 @@ export interface RegistrationRequest {
   password: string;
 }
 
-export interface RegistrationResponse {
+export interface ApiMessageResponse {
   message: string;
 }
 
@@ -40,7 +40,4 @@ export interface ResetPasswordRequest {
   newPassword: string;
 }
 
-export interface PasswordResetResponse {
-  message: string;
-}
 
