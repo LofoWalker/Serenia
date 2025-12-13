@@ -9,7 +9,6 @@ public class TestResourceProfile implements QuarkusTestProfile {
     @Override
     public Map<String, String> getConfigOverrides() {
         return Map.ofEntries(
-                Map.entry("quarkus.datasource.db-kind", "h2"),
                 Map.entry("quarkus.datasource.jdbc.url",
                         "jdbc:h2:mem:serenia;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;INIT=CREATE SCHEMA IF NOT EXISTS PUBLIC\\;SET REFERENTIAL_INTEGRITY FALSE"),
                 Map.entry("quarkus.datasource.username", "sa"),
