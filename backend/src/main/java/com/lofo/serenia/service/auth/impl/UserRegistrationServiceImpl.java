@@ -1,18 +1,19 @@
 package com.lofo.serenia.service.auth.impl;
 
 import com.lofo.serenia.config.SereniaConfig;
+import com.lofo.serenia.domain.user.AccountActivationToken;
 import com.lofo.serenia.domain.user.Role;
 import com.lofo.serenia.domain.user.User;
 import com.lofo.serenia.dto.in.RegistrationRequestDTO;
 import com.lofo.serenia.dto.out.UserResponseDTO;
 import com.lofo.serenia.mapper.UserMapper;
+import com.lofo.serenia.repository.AccountActivationTokenRepository;
 import com.lofo.serenia.repository.RoleRepository;
 import com.lofo.serenia.repository.UserRepository;
 import com.lofo.serenia.service.auth.EmailVerificationService;
 import com.lofo.serenia.service.auth.UserRegistrationService;
 import com.lofo.serenia.service.token.TokenUsageService;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
@@ -31,6 +32,7 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final AccountActivationTokenRepository accountActivationTokenRepository;
     private final UserMapper userMapper;
     private final TokenUsageService tokenUsageService;
     private final SereniaConfig sereniaConfig;
@@ -45,12 +47,13 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
         enforceUserAvailability(dto);
 
         Role defaultRole = getDefaultRole();
-        String activationToken = EmailVerificationServiceImpl.generateActivationToken();
 
-        User user = buildUser(dto, activationToken, defaultRole);
+        User user = buildUser(dto, defaultRole);
 
         userRepository.persist(user);
         tokenUsageService.initializeUserTokenQuota(user);
+
+        String activationToken = createActivationToken(user);
 
         String activationLink = buildActivationLink(activationToken);
         emailVerificationService.sendActivationEmail(user, activationLink);
@@ -59,15 +62,24 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
         return userMapper.toView(user);
     }
 
-    private static User buildUser(RegistrationRequestDTO dto, String activationToken, Role defaultRole) {
+    private String createActivationToken(User user) {
+        String token = EmailVerificationServiceImpl.generateActivationToken();
+        AccountActivationToken activationToken = AccountActivationToken.builder()
+                .token(token)
+                .user(user)
+                .expiryDate(EmailVerificationServiceImpl.calculateExpirationDate(1440))
+                .build();
+        accountActivationTokenRepository.persist(activationToken);
+        return token;
+    }
+
+    private static User buildUser(RegistrationRequestDTO dto, Role defaultRole) {
         return User.builder()
                 .email(dto.email())
                 .password(BCrypt.hashpw(dto.password(), BCrypt.gensalt()))
                 .lastName(dto.lastName())
                 .firstName(dto.firstName())
                 .accountActivated(false)
-                .activationToken(activationToken)
-                .tokenExpirationDate(EmailVerificationServiceImpl.calculateExpirationDate(1440))
                 .roles(Set.of(defaultRole))
                 .build();
     }

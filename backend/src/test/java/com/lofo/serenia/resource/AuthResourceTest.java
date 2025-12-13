@@ -1,6 +1,7 @@
 package com.lofo.serenia.resource;
 
 import com.lofo.serenia.TestResourceProfile;
+import com.lofo.serenia.domain.user.AccountActivationToken;
 import com.lofo.serenia.domain.user.PasswordResetToken;
 import com.lofo.serenia.domain.user.Role;
 import com.lofo.serenia.domain.user.User;
@@ -8,6 +9,7 @@ import com.lofo.serenia.dto.in.ForgotPasswordRequest;
 import com.lofo.serenia.dto.in.LoginRequestDTO;
 import com.lofo.serenia.dto.in.RegistrationRequestDTO;
 import com.lofo.serenia.dto.in.ResetPasswordRequest;
+import com.lofo.serenia.repository.AccountActivationTokenRepository;
 import com.lofo.serenia.repository.PasswordResetTokenRepository;
 import com.lofo.serenia.repository.RoleRepository;
 import com.lofo.serenia.repository.UserRepository;
@@ -47,6 +49,9 @@ class AuthResourceTest {
     PasswordResetTokenRepository passwordResetTokenRepository;
 
     @Inject
+    AccountActivationTokenRepository accountActivationTokenRepository;
+
+    @Inject
     EntityManager em;
 
     private Role testRole;
@@ -54,6 +59,7 @@ class AuthResourceTest {
     @BeforeEach
     @Transactional
     void setup() {
+        accountActivationTokenRepository.deleteAll();
         passwordResetTokenRepository.deleteAll();
         userRepository.deleteAll();
         roleRepository.deleteAll();
@@ -119,11 +125,10 @@ class AuthResourceTest {
                 .lastName("Test")
                 .password(BCrypt.hashpw("Password123!", BCrypt.gensalt()))
                 .accountActivated(false)
-                .activationToken(token)
-                .tokenExpirationDate(EmailVerificationServiceImpl.calculateExpirationDate(1440))
                 .roles(Set.of(testRole))
                 .build();
         persistUser(user);
+        persistActivationToken(token, user, EmailVerificationServiceImpl.calculateExpirationDate(1440));
 
         given()
                 .get("/api/auth/activate?token=" + token)
@@ -151,11 +156,10 @@ class AuthResourceTest {
                 .lastName("Test")
                 .password(BCrypt.hashpw("Password123!", BCrypt.gensalt()))
                 .accountActivated(false)
-                .activationToken(token)
-                .tokenExpirationDate(EmailVerificationServiceImpl.calculateExpirationDate(-60))
                 .roles(Set.of(testRole))
                 .build();
         persistUser(user);
+        persistActivationToken(token, user, EmailVerificationServiceImpl.calculateExpirationDate(-60));
 
         given()
                 .get("/api/auth/activate?token=" + token)
@@ -216,11 +220,10 @@ class AuthResourceTest {
                 .lastName("Test")
                 .password(hashedPassword)
                 .accountActivated(false)
-                .activationToken(token)
-                .tokenExpirationDate(EmailVerificationServiceImpl.calculateExpirationDate(1440))
                 .roles(Set.of(testRole))
                 .build();
         persistUser(user);
+        persistActivationToken(token, user, EmailVerificationServiceImpl.calculateExpirationDate(1440));
 
         LoginRequestDTO request = new LoginRequestDTO(email, password);
 
@@ -567,6 +570,17 @@ class AuthResourceTest {
     @Transactional
     protected void persistResetToken(PasswordResetToken token) {
         passwordResetTokenRepository.persist(token);
+        em.flush();
+    }
+
+    @Transactional
+    protected void persistActivationToken(String token, User user, Instant expiryDate) {
+        AccountActivationToken activationToken = AccountActivationToken.builder()
+                .token(token)
+                .user(user)
+                .expiryDate(expiryDate)
+                .build();
+        accountActivationTokenRepository.persist(activationToken);
         em.flush();
     }
 }

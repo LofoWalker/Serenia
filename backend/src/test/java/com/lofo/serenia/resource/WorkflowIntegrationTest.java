@@ -2,6 +2,7 @@ package com.lofo.serenia.resource;
 
 import com.lofo.serenia.TestResourceProfile;
 import com.lofo.serenia.domain.conversation.MessageRole;
+import com.lofo.serenia.domain.user.AccountActivationToken;
 import com.lofo.serenia.domain.user.Role;
 import com.lofo.serenia.domain.user.User;
 import com.lofo.serenia.dto.in.LoginRequestDTO;
@@ -75,6 +76,9 @@ class WorkflowIntegrationTest {
     @Inject
     ConversationRepository conversationRepository;
 
+    @Inject
+    AccountActivationTokenRepository accountActivationTokenRepository;
+
     @BeforeEach
     @Transactional
     void setUp() {
@@ -82,6 +86,7 @@ class WorkflowIntegrationTest {
         userTokenUsageRepository.deleteAll();
         userTokenQuotaRepository.deleteAll();
         conversationRepository.deleteAll();
+        accountActivationTokenRepository.deleteAll();
         userRepository.deleteAll();
         roleRepository.deleteAll();
 
@@ -330,9 +335,13 @@ class WorkflowIntegrationTest {
     // =============== HELPER METHODS ===============
 
     private String extractActivationTokenFromDatabase(String email) {
-        return userRepository.find("email", email)
+        User user = userRepository.find("email", email).firstResultOptional().orElse(null);
+        if (user == null) {
+            return null;
+        }
+        return accountActivationTokenRepository.find("user.id", user.getId())
                 .firstResultOptional()
-                .map(User::getActivationToken)
+                .map(AccountActivationToken::getToken)
                 .orElse(null);
     }
 }
