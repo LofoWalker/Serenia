@@ -1,10 +1,14 @@
 package com.lofo.serenia.resource;
 
 import com.lofo.serenia.TestResourceProfile;
+import com.lofo.serenia.domain.user.PasswordResetToken;
 import com.lofo.serenia.domain.user.Role;
 import com.lofo.serenia.domain.user.User;
+import com.lofo.serenia.dto.in.ForgotPasswordRequest;
 import com.lofo.serenia.dto.in.LoginRequestDTO;
 import com.lofo.serenia.dto.in.RegistrationRequestDTO;
+import com.lofo.serenia.dto.in.ResetPasswordRequest;
+import com.lofo.serenia.repository.PasswordResetTokenRepository;
 import com.lofo.serenia.repository.RoleRepository;
 import com.lofo.serenia.repository.UserRepository;
 import com.lofo.serenia.service.auth.impl.EmailVerificationServiceImpl;
@@ -19,6 +23,9 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mindrot.jbcrypt.BCrypt;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import java.util.Set;
 
 import static io.restassured.RestAssured.given;
@@ -37,6 +44,9 @@ class AuthResourceTest {
     RoleRepository roleRepository;
 
     @Inject
+    PasswordResetTokenRepository passwordResetTokenRepository;
+
+    @Inject
     EntityManager em;
 
     private Role testRole;
@@ -44,6 +54,7 @@ class AuthResourceTest {
     @BeforeEach
     @Transactional
     void setup() {
+        passwordResetTokenRepository.deleteAll();
         userRepository.deleteAll();
         roleRepository.deleteAll();
         testRole = Role.builder().name("USER").build();
@@ -369,6 +380,194 @@ class AuthResourceTest {
                 .delete("/api/auth/me")
                 .then()
                 .statusCode(401);
+    }
+
+    // ==================== FORGOT PASSWORD TESTS ====================
+
+    @Test
+    @DisplayName("should_return_200_when_forgot_password_with_existing_email")
+    void should_return_200_when_forgot_password_with_existing_email() {
+        String email = "forgot@example.com";
+        User user = User.builder()
+                .email(email)
+                .firstName("Forgot")
+                .lastName("Test")
+                .password(BCrypt.hashpw("Password123!", BCrypt.gensalt()))
+                .accountActivated(true)
+                .roles(Set.of(testRole))
+                .build();
+        persistUser(user);
+
+        ForgotPasswordRequest request = new ForgotPasswordRequest(email);
+
+        given()
+                .contentType("application/json")
+                .body(request)
+                .post("/api/auth/forgot-password")
+                .then()
+                .statusCode(200)
+                .body("message", containsString("lien de réinitialisation"));
+    }
+
+    @Test
+    @DisplayName("should_return_200_when_forgot_password_with_non_existing_email")
+    void should_return_200_when_forgot_password_with_non_existing_email() {
+        ForgotPasswordRequest request = new ForgotPasswordRequest("nonexistent@example.com");
+
+        given()
+                .contentType("application/json")
+                .body(request)
+                .post("/api/auth/forgot-password")
+                .then()
+                .statusCode(200)
+                .body("message", containsString("lien de réinitialisation"));
+    }
+
+    @Test
+    @DisplayName("should_return_400_when_forgot_password_with_invalid_email_format")
+    void should_return_400_when_forgot_password_with_invalid_email_format() {
+        ForgotPasswordRequest request = new ForgotPasswordRequest("invalid-email");
+
+        given()
+                .contentType("application/json")
+                .body(request)
+                .post("/api/auth/forgot-password")
+                .then()
+                .statusCode(400);
+    }
+
+    // ==================== RESET PASSWORD TESTS ====================
+
+    @Test
+    @DisplayName("should_return_200_when_reset_password_with_valid_token")
+    void should_return_200_when_reset_password_with_valid_token() {
+        String email = "reset@example.com";
+        String oldPassword = "OldPassword123!";
+        String newPassword = "NewPassword456!";
+        String token = "valid-reset-token-123";
+
+        User user = User.builder()
+                .email(email)
+                .firstName("Reset")
+                .lastName("Test")
+                .password(BCrypt.hashpw(oldPassword, BCrypt.gensalt()))
+                .accountActivated(true)
+                .roles(Set.of(testRole))
+                .build();
+        persistUser(user);
+
+        PasswordResetToken resetToken = PasswordResetToken.builder()
+                .token(token)
+                .user(user)
+                .expiryDate(Instant.now().plus(15, ChronoUnit.MINUTES))
+                .build();
+        persistResetToken(resetToken);
+
+        ResetPasswordRequest request = new ResetPasswordRequest(token, newPassword);
+
+        given()
+                .contentType("application/json")
+                .body(request)
+                .post("/api/auth/reset-password")
+                .then()
+                .statusCode(200)
+                .body("message", containsString("Mot de passe réinitialisé avec succès"));
+
+        given()
+                .contentType("application/json")
+                .body(new LoginRequestDTO(email, newPassword))
+                .post("/api/auth/login")
+                .then()
+                .statusCode(200)
+                .body("token", notNullValue());
+    }
+
+    @Test
+    @DisplayName("should_return_400_when_reset_password_with_invalid_token")
+    void should_return_400_when_reset_password_with_invalid_token() {
+        ResetPasswordRequest request = new ResetPasswordRequest("invalid-token-xyz", "NewPassword123!");
+
+        given()
+                .contentType("application/json")
+                .body(request)
+                .post("/api/auth/reset-password")
+                .then()
+                .statusCode(400);
+    }
+
+    @Test
+    @DisplayName("should_return_400_when_reset_password_with_expired_token")
+    void should_return_400_when_reset_password_with_expired_token() {
+        String email = "expired-reset@example.com";
+        String token = "expired-reset-token-123";
+
+        User user = User.builder()
+                .email(email)
+                .firstName("Expired")
+                .lastName("Reset")
+                .password(BCrypt.hashpw("Password123!", BCrypt.gensalt()))
+                .accountActivated(true)
+                .roles(Set.of(testRole))
+                .build();
+        persistUser(user);
+
+        PasswordResetToken resetToken = PasswordResetToken.builder()
+                .token(token)
+                .user(user)
+                .expiryDate(Instant.now().minus(1, ChronoUnit.HOURS))
+                .build();
+        persistResetToken(resetToken);
+
+        ResetPasswordRequest request = new ResetPasswordRequest(token, "NewPassword123!");
+
+        given()
+                .contentType("application/json")
+                .body(request)
+                .post("/api/auth/reset-password")
+                .then()
+                .statusCode(400);
+    }
+
+    @Test
+    @DisplayName("should_delete_token_after_successful_password_reset")
+    void should_delete_token_after_successful_password_reset() {
+        String email = "token-delete@example.com";
+        String token = "token-to-delete-123";
+
+        User user = User.builder()
+                .email(email)
+                .firstName("Token")
+                .lastName("Delete")
+                .password(BCrypt.hashpw("Password123!", BCrypt.gensalt()))
+                .accountActivated(true)
+                .roles(Set.of(testRole))
+                .build();
+        persistUser(user);
+
+        PasswordResetToken resetToken = PasswordResetToken.builder()
+                .token(token)
+                .user(user)
+                .expiryDate(Instant.now().plus(15, ChronoUnit.MINUTES))
+                .build();
+        persistResetToken(resetToken);
+
+        ResetPasswordRequest request = new ResetPasswordRequest(token, "NewPassword123!");
+
+        given()
+                .contentType("application/json")
+                .body(request)
+                .post("/api/auth/reset-password")
+                .then()
+                .statusCode(200);
+
+        Optional<PasswordResetToken> deletedToken = passwordResetTokenRepository.findByToken(token);
+        assert deletedToken.isEmpty() : "Token should be deleted after successful reset";
+    }
+
+    @Transactional
+    protected void persistResetToken(PasswordResetToken token) {
+        passwordResetTokenRepository.persist(token);
+        em.flush();
     }
 }
 

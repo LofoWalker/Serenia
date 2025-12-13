@@ -3,10 +3,12 @@ import {HttpClient} from '@angular/common/http';
 import {finalize, Observable, tap} from 'rxjs';
 import {
   ActivationResponse,
+  ApiMessageResponse,
   AuthResponse,
+  ForgotPasswordRequest,
   LoginRequest,
   RegistrationRequest,
-  RegistrationResponse,
+  ResetPasswordRequest,
   User
 } from '../models/user.model';
 import {AuthStateService} from './auth-state.service';
@@ -20,9 +22,9 @@ export class AuthService {
   private readonly authState = inject(AuthStateService);
   private readonly apiUrl = `${environment.apiUrl}/auth`;
 
-  register(request: RegistrationRequest): Observable<RegistrationResponse> {
+  register(request: RegistrationRequest): Observable<ApiMessageResponse> {
     this.authState.setLoading(true);
-    return this.http.post<RegistrationResponse>(`${this.apiUrl}/register`, request).pipe(
+    return this.http.post<ApiMessageResponse>(`${this.apiUrl}/register`, request).pipe(
       finalize(() => this.authState.setLoading(false))
     );
   }
@@ -63,6 +65,20 @@ export class AuthService {
 
   logout(): void {
     this.authState.clear();
+  }
+
+  forgotPassword(request: ForgotPasswordRequest): Observable<ApiMessageResponse> {
+    this.authState.setLoading(true);
+    return this.http.post<ApiMessageResponse>(`${this.apiUrl}/forgot-password`, request).pipe(
+      finalize(() => this.authState.setLoading(false))
+    );
+  }
+
+  resetPassword(request: ResetPasswordRequest): Observable<ApiMessageResponse> {
+    this.authState.setLoading(true);
+    return this.http.post<ApiMessageResponse>(`${this.apiUrl}/reset-password`, request).pipe(
+      finalize(() => this.authState.setLoading(false))
+    );
   }
 
   restoreSession(): Observable<User> {

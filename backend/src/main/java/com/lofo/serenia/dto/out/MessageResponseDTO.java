@@ -6,23 +6,15 @@ import com.lofo.serenia.domain.conversation.MessageRole;
 import java.util.UUID;
 
 /**
- * Response DTO for the add-message endpoint.
- * Contains the assistant's reply and the conversation ID.
+ * Response DTO for chat messages.
+ * Contains conversation context and message details.
  */
 public record MessageResponseDTO(
         UUID conversationId,
         MessageRole role,
         String content
 ) {
-    /**
-     * Create a MessageResponseDTO from a ChatMessage and conversationId
-     */
-    public static MessageResponseDTO from(UUID conversationId, ChatMessage chatMessage) {
-        return new MessageResponseDTO(
-                conversationId,
-                chatMessage.role(),
-                chatMessage.content()
-        );
+    public static MessageResponseDTO from(UUID conversationId, ChatMessage message) {
+        return new MessageResponseDTO(conversationId, message.role(), message.content());
     }
 }
-

@@ -1,12 +1,15 @@
 package com.lofo.serenia.resource;
 
+import com.lofo.serenia.dto.in.ForgotPasswordRequest;
 import com.lofo.serenia.dto.in.LoginRequestDTO;
 import com.lofo.serenia.dto.in.RegistrationRequestDTO;
+import com.lofo.serenia.dto.in.ResetPasswordRequest;
 import com.lofo.serenia.dto.out.ActivationResponseDTO;
+import com.lofo.serenia.dto.out.ApiMessageResponse;
 import com.lofo.serenia.dto.out.AuthResponseDTO;
-import com.lofo.serenia.dto.out.RegistrationResponseDTO;
 import com.lofo.serenia.dto.out.UserResponseDTO;
 import com.lofo.serenia.service.auth.EmailVerificationService;
+import com.lofo.serenia.service.auth.PasswordService;
 import com.lofo.serenia.service.auth.UserAuthenticationService;
 import com.lofo.serenia.service.auth.UserRegistrationService;
 import com.lofo.serenia.service.token.TokenService;
@@ -40,19 +43,22 @@ public class AuthResource {
     private final SecurityIdentity securityIdentity;
     private final TokenService tokenService;
     private final EmailVerificationService emailVerificationService;
+    private final PasswordService passwordService;
 
     public AuthResource(UserRegistrationService userRegistrationService,
             UserAuthenticationService userAuthenticationService,
             UserLifecycleService userLifecycleService,
             SecurityIdentity securityIdentity,
             TokenService tokenService,
-            EmailVerificationService emailVerificationService) {
+            EmailVerificationService emailVerificationService,
+            PasswordService passwordService) {
         this.userRegistrationService = userRegistrationService;
         this.userAuthenticationService = userAuthenticationService;
         this.userLifecycleService = userLifecycleService;
         this.securityIdentity = securityIdentity;
         this.tokenService = tokenService;
         this.emailVerificationService = emailVerificationService;
+        this.passwordService = passwordService;
     }
 
     @POST
@@ -60,14 +66,14 @@ public class AuthResource {
     @Operation(summary = "Register user", description = "Creates a user and sends an activation email.")
     @RequestBody(content = @Content(schema = @Schema(implementation = RegistrationRequestDTO.class)))
     @APIResponses({
-            @APIResponse(responseCode = "201", description = "User registered", content = @Content(schema = @Schema(implementation = RegistrationResponseDTO.class))),
+            @APIResponse(responseCode = "201", description = "User registered", content = @Content(schema = @Schema(implementation = ApiMessageResponse.class))),
             @APIResponse(responseCode = "400", description = "Invalid payload")
     })
     public Response register(@Valid RegistrationRequestDTO dto) {
         LOG.infof("REST register called for email=%s", dto.email());
         userRegistrationService.register(dto);
         return Response.status(Response.Status.CREATED)
-                .entity(new RegistrationResponseDTO(
+                .entity(new ApiMessageResponse(
                         "Inscription réussie. Un lien d'activation a été envoyé à votre email."))
                 .build();
     }
@@ -137,6 +143,40 @@ public class AuthResource {
         String email = securityIdentity.getPrincipal().getName();
         userLifecycleService.deleteAccountAndAssociatedData(email);
         return Response.noContent().build();
+    }
+
+    @POST
+    @Path("/forgot-password")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Request password reset", description = "Sends a password reset email if the user exists. Returns 200 regardless of whether the email exists (prevents user enumeration).")
+    @RequestBody(content = @Content(schema = @Schema(implementation = ForgotPasswordRequest.class)))
+    @APIResponses({
+            @APIResponse(responseCode = "200", description = "Request processed"),
+            @APIResponse(responseCode = "400", description = "Invalid payload")
+    })
+    public Response forgotPassword(@Valid ForgotPasswordRequest request) {
+        LOG.infof("REST forgot-password called for email=%s", request.email());
+        passwordService.requestReset(request.email());
+        return Response.ok()
+                .entity(new ApiMessageResponse("Si un compte existe avec cet email, un lien de réinitialisation a été envoyé."))
+                .build();
+    }
+
+    @POST
+    @Path("/reset-password")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Reset password", description = "Resets the user's password using a valid token.")
+    @RequestBody(content = @Content(schema = @Schema(implementation = ResetPasswordRequest.class)))
+    @APIResponses({
+            @APIResponse(responseCode = "200", description = "Password reset successfully"),
+            @APIResponse(responseCode = "400", description = "Invalid or expired token")
+    })
+    public Response resetPassword(@Valid ResetPasswordRequest request) {
+        LOG.infof("REST reset-password called with token=%s", maskToken(request.token()));
+        passwordService.resetPassword(request.token(), request.newPassword());
+        return Response.ok()
+                .entity(new ApiMessageResponse("Mot de passe réinitialisé avec succès. Vous pouvez maintenant vous connecter."))
+                .build();
     }
 
     private String maskToken(String token) {

@@ -209,6 +209,113 @@
               ]
             }
           }
+        },
+        {
+          "name": "Forgot Password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has message', function() {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('message');",
+                  "});",
+                  "",
+                  "console.log('✓ Forgot password request processed');",
+                  "console.log('  Note: Check your email for the reset link (if user exists)');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{user_email}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/forgot-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "forgot-password"
+              ]
+            },
+            "description": "Sends a password reset email if the user exists. Returns 200 regardless of whether the email exists (to prevent user enumeration attacks)."
+          }
+        },
+        {
+          "name": "Reset Password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Status code is 200', function() {",
+                  "        pm.expect(pm.response.code).to.equal(200);",
+                  "    });",
+                  "    ",
+                  "    pm.test('Response has success message', function() {",
+                  "        const response = pm.response.json();",
+                  "        pm.expect(response).to.have.property('message');",
+                  "    });",
+                  "    ",
+                  "    console.log('✓ Password reset successfully');",
+                  "} else if (pm.response.code === 400) {",
+                  "    console.log('✗ Password reset failed - Invalid or expired token');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{reset_token}}\",\n  \"newPassword\": \"NewPassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/reset-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "reset-password"
+              ]
+            },
+            "description": "Resets the user's password using a valid token received via email. Token expires after 15 minutes."
+          }
         }
       ]
     },
@@ -510,6 +617,11 @@
     {
       "key": "message_content",
       "value": "Hello! How are you?",
+      "type": "string"
+    },
+    {
+      "key": "reset_token",
+      "value": "",
       "type": "string"
     }
   ]

@@ -18,7 +18,7 @@ export interface RegistrationRequest {
   password: string;
 }
 
-export interface RegistrationResponse {
+export interface ApiMessageResponse {
   message: string;
 }
 
@@ -30,4 +30,14 @@ export interface LoginRequest {
 export interface ActivationResponse {
   message: string;
 }
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+}
+
 

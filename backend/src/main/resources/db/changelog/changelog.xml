@@ -9,4 +9,5 @@
     <include file="db/changelog/02-insert-default-roles.yaml"/>
     <include file="db/changelog/03-create-token-tables.yaml"/>
     <include file="db/changelog/04-add-email-verification-columns.yaml"/>
+    <include file="db/changelog/05-create-password-reset-tokens-table.yaml"/>
 </databaseChangeLog>
