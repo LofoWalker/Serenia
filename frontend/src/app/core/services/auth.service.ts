@@ -4,9 +4,12 @@ import {finalize, Observable, tap} from 'rxjs';
 import {
   ActivationResponse,
   AuthResponse,
+  ForgotPasswordRequest,
   LoginRequest,
+  PasswordResetResponse,
   RegistrationRequest,
   RegistrationResponse,
+  ResetPasswordRequest,
   User
 } from '../models/user.model';
 import {AuthStateService} from './auth-state.service';
@@ -63,6 +66,20 @@ export class AuthService {
 
   logout(): void {
     this.authState.clear();
+  }
+
+  forgotPassword(request: ForgotPasswordRequest): Observable<PasswordResetResponse> {
+    this.authState.setLoading(true);
+    return this.http.post<PasswordResetResponse>(`${this.apiUrl}/forgot-password`, request).pipe(
+      finalize(() => this.authState.setLoading(false))
+    );
+  }
+
+  resetPassword(request: ResetPasswordRequest): Observable<PasswordResetResponse> {
+    this.authState.setLoading(true);
+    return this.http.post<PasswordResetResponse>(`${this.apiUrl}/reset-password`, request).pipe(
+      finalize(() => this.authState.setLoading(false))
+    );
   }
 
   restoreSession(): Observable<User> {

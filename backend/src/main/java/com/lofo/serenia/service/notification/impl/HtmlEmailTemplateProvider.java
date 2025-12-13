@@ -1,10 +1,40 @@
 package com.lofo.serenia.service.notification.impl;
 
 import com.lofo.serenia.service.notification.EmailTemplateProvider;
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 @ApplicationScoped
 public class HtmlEmailTemplateProvider implements EmailTemplateProvider {
+
+    private static final String ACTIVATION_TEMPLATE_PATH = "templates/email/activation-email.template";
+    private static final String PASSWORD_RESET_TEMPLATE_PATH = "templates/email/password-reset-email.template";
+
+    private String activationEmailTemplate;
+    private String passwordResetEmailTemplate;
+
+    @PostConstruct
+    void init() {
+        this.activationEmailTemplate = loadTemplate(ACTIVATION_TEMPLATE_PATH);
+        this.passwordResetEmailTemplate = loadTemplate(PASSWORD_RESET_TEMPLATE_PATH);
+    }
+
+    private String loadTemplate(String templatePath) {
+        try (InputStream inputStream = Thread.currentThread()
+                .getContextClassLoader()
+                .getResourceAsStream(templatePath)) {
+            if (inputStream == null) {
+                throw new IllegalStateException("Template not found: " + templatePath);
+            }
+            return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to load email template: " + templatePath, e);
+        }
+    }
 
     @Override
     public String getActivationEmailSubject() {
@@ -13,60 +43,20 @@ public class HtmlEmailTemplateProvider implements EmailTemplateProvider {
 
     @Override
     public String getActivationEmailBody(String firstName, String activationLink) {
-        return String.format(
-                "<html lang=\"fr\">"
-                        + "<body style=\"margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji'; background-color: #1c1c1c;\">"
-                        + "<center>"
-                        + "<table role=\"presentation\" width=\"100%%\""
-                        + " style=\"border-collapse: collapse; max-width: 600px; margin: 40px auto; background-color: #292929; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);\""
-                        + " cellspacing=\"0\" cellpadding=\"0\">"
+        return activationEmailTemplate
+                .replace("{{firstName}}", firstName)
+                .replace("{{activationLink}}", activationLink);
+    }
 
-                        + "<tr><td style=\"padding: 30px 40px 10px; text-align: center;\">"
-                        + "<h1 style=\"font-size: 24px; color: #ffffff; font-weight: 600; margin: 0;\">Serenia</h1>"
-                        + "</td></tr>"
+    @Override
+    public String getPasswordResetEmailSubject() {
+        return "Serenia - Réinitialisation de mot de passe";
+    }
 
-                        + "<tr><td style=\"padding: 10px 40px 30px; text-align: left;\">"
-
-                        + "<h2 style=\"font-size: 20px; color: #ffffff; font-weight: 500; margin-top: 0; margin-bottom: 20px;\">Salut %s, bienvenue dans ton nouvel espace Serenia !</h2>"
-
-                        + "<p style=\"font-size: 16px; color: #cccccc; line-height: 1.6; margin-bottom: 25px;\">"
-                        + "Nous sommes ravis de te compter parmi nos membres. Afin de valider ton compte et de profiter pleinement de nos services, merci de cliquer sur le bouton d'activation ci-dessous."
-                        + "</p>"
-
-                        + "<div style=\"text-align: center; margin: 30px 0;\">"
-
-                        + "<a href=\"%s\" style=\"background-color: #007aff; color: white; padding: 14px 30px; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600; display: inline-block; transition: background-color 0.3s ease;\">"
-                        + "Activer mon compte"
-                        + "</a>"
-                        + "</div>"
-
-                        + "<p style=\"font-size: 16px; color: #cccccc; line-height: 1.6; margin-top: 25px;\">"
-                        + "Si le bouton ne fonctionne pas, tu peux utiliser ce lien directement dans ton navigateur : <br>"
-
-                        + "<a href=\"%s\" style=\"color: #007aff; text-decoration: underline; word-break: break-all; font-size: 14px;\">%s</a>"
-                        + "</p>"
-
-                        + "<p style=\"font-size: 16px; color: #cccccc; line-height: 1.6; margin-top: 40px;\">"
-                        + "À très vite sur Serenia,<br>"
-                        + "L'équipe"
-                        + "</p>"
-
-                        + "</td></tr>"
-
-                        + "<tr><td style=\"padding: 30px 40px; border-top: 1px solid #444444; text-align: center;\">"
-                        + "<p style=\"font-size: 12px; color: #999999; line-height: 1.5; margin: 0;\">"
-                        + "Cet email a été envoyé car tu as récemment créé un compte Serenia. <br>"
-                        + "Le lien d'activation expire dans <b>24 heures</b> pour des raisons de sécurité."
-                        + "</p>"
-                        + "<p style=\"font-size: 12px; color: #999999; margin-top: 10px;\">"
-                        + "Si tu n'as pas demandé cette inscription, tu peux simplement ignorer cet email en toute sécurité."
-                        + "</p>"
-                        + "</td></tr>"
-
-                        + "</table>"
-                        + "</center>"
-                        + "</body>"
-                        + "</html>",
-                firstName, activationLink, activationLink, activationLink);
+    @Override
+    public String getPasswordResetEmailBody(String firstName, String resetLink) {
+        return passwordResetEmailTemplate
+                .replace("{{firstName}}", firstName)
+                .replace("{{resetLink}}", resetLink);
     }
 }
