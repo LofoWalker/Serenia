@@ -14,6 +14,7 @@ describe('AuthService', () => {
     setToken: ReturnType<typeof vi.fn>;
     setUser: ReturnType<typeof vi.fn>;
     clear: ReturnType<typeof vi.fn>;
+    token: ReturnType<typeof vi.fn>;
   };
 
   const mockUser: User = {
@@ -31,7 +32,8 @@ describe('AuthService', () => {
       setLoading: vi.fn(),
       setToken: vi.fn(),
       setUser: vi.fn(),
-      clear: vi.fn()
+      clear: vi.fn(),
+      token: vi.fn().mockReturnValue('mock-token')
     };
 
     TestBed.configureTestingModule({
@@ -164,13 +166,38 @@ describe('AuthService', () => {
   });
 
   describe('restoreSession', () => {
-    it('should_call_getProfile', () => {
+    it('should_call_getProfile_when_token_exists', () => {
+      authStateSpy.token.mockReturnValue('existing-token');
+
       service.restoreSession().subscribe(result => {
         expect(result).toEqual(mockUser);
       });
 
       const req = httpMock.expectOne(`${apiUrl}/me`);
       req.flush(mockUser);
+    });
+
+    it('should_return_null_when_no_token', () => {
+      authStateSpy.token.mockReturnValue(null);
+
+      service.restoreSession().subscribe(result => {
+        expect(result).toBeNull();
+      });
+
+      httpMock.expectNone(`${apiUrl}/me`);
+    });
+
+    it('should_clear_state_and_return_null_on_error', () => {
+      authStateSpy.token.mockReturnValue('invalid-token');
+
+      service.restoreSession().subscribe(result => {
+        expect(result).toBeNull();
+      });
+
+      const req = httpMock.expectOne(`${apiUrl}/me`);
+      req.flush(null, { status: 401, statusText: 'Unauthorized' });
+
+      expect(authStateSpy.clear).toHaveBeenCalled();
     });
   });
 });

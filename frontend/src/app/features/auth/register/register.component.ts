@@ -2,6 +2,7 @@ import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core'
 import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {RouterLink} from '@angular/router';
 import {HttpErrorResponse} from '@angular/common/http';
+import {catchError, EMPTY, take, tap} from 'rxjs';
 import {AuthService} from '../../../core/services/auth.service';
 import {AuthStateService} from '../../../core/services/auth-state.service';
 import {ButtonComponent} from '../../../shared/ui/button/button.component';
@@ -42,18 +43,20 @@ export class RegisterComponent {
     }
     this.errorMessage.set('');
     this.successMessage.set('');
-    this.authService.register(this.form.getRawValue()).subscribe({
-      next: (response) => {
+    this.authService.register(this.form.getRawValue()).pipe(
+      take(1),
+      tap(response => {
         this.successMessage.set(response.message || 'Inscription réussie ! Vérifiez votre email pour activer votre compte.');
         this.form.reset();
-      },
-      error: (error: HttpErrorResponse) => {
+      }),
+      catchError((error: HttpErrorResponse) => {
         if (error.status === 400) {
           this.errorMessage.set(error.error?.message || 'Données invalides. Veuillez vérifier vos informations.');
         } else {
           this.errorMessage.set('Une erreur est survenue. Veuillez réessayer.');
         }
-      }
-    });
+        return EMPTY;
+      })
+    ).subscribe();
   }
 }

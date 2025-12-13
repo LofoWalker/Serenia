@@ -2,7 +2,7 @@ import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core'
 import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Router, RouterLink} from '@angular/router';
 import {HttpErrorResponse} from '@angular/common/http';
-import {catchError, of, switchMap} from 'rxjs';
+import {catchError, EMPTY, of, switchMap, take, tap} from 'rxjs';
 import {AuthService} from '../../../core/services/auth.service';
 import {AuthStateService} from '../../../core/services/auth-state.service';
 import {ChatService} from '../../../core/services/chat.service';
@@ -47,12 +47,10 @@ export class LoginComponent {
     this.authService.login(this.form.getRawValue()).pipe(
       switchMap(() => this.chatService.loadMyMessages().pipe(
         catchError(() => of(null))
-      ))
-    ).subscribe({
-      next: () => {
-        this.router.navigate(['/chat']);
-      },
-      error: (error: HttpErrorResponse) => {
+      )),
+      take(1),
+      tap(() => this.router.navigate(['/chat'])),
+      catchError((error: HttpErrorResponse) => {
         if (error.status === 401) {
           this.errorMessage.set('Email ou mot de passe incorrect');
         } else if (error.status === 403) {
@@ -60,7 +58,8 @@ export class LoginComponent {
         } else {
           this.errorMessage.set('Une erreur est survenue. Veuillez réessayer.');
         }
-      }
-    });
+        return EMPTY;
+      })
+    ).subscribe();
   }
 }

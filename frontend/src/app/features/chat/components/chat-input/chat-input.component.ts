@@ -13,9 +13,28 @@ export class ChatInputComponent {
   readonly messageSent = output<string>();
   protected messageText = '';
   protected readonly textareaHeight = signal('48px');
+  protected readonly glowState = signal<'active' | 'fading' | 'none'>('none');
+  private typingTimeout: ReturnType<typeof setTimeout> | null = null;
+
   setDisabled(value: boolean): void {
     this.disabled.set(value);
   }
+
+  protected onInput(): void {
+    this.glowState.set('active');
+    if (this.typingTimeout) {
+      clearTimeout(this.typingTimeout);
+    }
+    this.typingTimeout = setTimeout(() => {
+      this.glowState.set('fading');
+      setTimeout(() => {
+        if (this.glowState() === 'fading') {
+          this.glowState.set('none');
+        }
+      }, 600);
+    }, 100);
+  }
+
   protected onSubmit(event: Event): void {
     event.preventDefault();
     this.sendMessage();
@@ -25,8 +44,8 @@ export class ChatInputComponent {
       event.preventDefault();
       this.sendMessage();
     }
-    setTimeout(() => this.adjustHeight(), 0);
   }
+
   private sendMessage(): void {
     const trimmed = this.messageText.trim();
     if (!trimmed || this.disabled()) return;
