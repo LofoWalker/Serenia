@@ -86,8 +86,6 @@ class UserAuthenticationServiceTest {
 
         User user = userRepository.find("email", email).firstResult();
         user.setAccountActivated(true);
-        user.setActivationToken(null);
-        user.setTokenExpirationDate(null);
         userRepository.persist(user);
 
         UserResponseDTO logged = userAuthenticationService.login(new LoginRequestDTO(email, password));
@@ -103,8 +101,6 @@ class UserAuthenticationServiceTest {
 
         User user = userRepository.find("email", email).firstResult();
         user.setAccountActivated(true);
-        user.setActivationToken(null);
-        user.setTokenExpirationDate(null);
         userRepository.persist(user);
 
         assertThrows(AuthenticationFailedException.class,

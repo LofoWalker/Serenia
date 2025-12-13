@@ -1,8 +1,10 @@
 package com.lofo.serenia.service.auth.impl;
 
 import com.lofo.serenia.TestResourceProfile;
+import com.lofo.serenia.domain.user.AccountActivationToken;
 import com.lofo.serenia.domain.user.Role;
 import com.lofo.serenia.domain.user.User;
+import com.lofo.serenia.repository.AccountActivationTokenRepository;
 import com.lofo.serenia.repository.RoleRepository;
 import com.lofo.serenia.repository.UserRepository;
 import com.lofo.serenia.service.auth.EmailVerificationService;
@@ -39,11 +41,15 @@ class EmailVerificationServiceImplTest {
     @Inject
     RoleRepository roleRepository;
 
+    @Inject
+    AccountActivationTokenRepository accountActivationTokenRepository;
+
     private Role testRole;
 
     @BeforeEach
     @Transactional
     void setup() {
+        accountActivationTokenRepository.deleteAll();
         userRepository.deleteAll();
         roleRepository.deleteAll();
         testRole = Role.builder().name("USER").build();
@@ -61,18 +67,22 @@ class EmailVerificationServiceImplTest {
                 .lastName("Dupont")
                 .password("hashedPassword")
                 .accountActivated(false)
-                .activationToken(token)
-                .tokenExpirationDate(EmailVerificationServiceImpl.calculateExpirationDate(1440))
                 .roles(Set.of(testRole))
                 .build();
         userRepository.persist(user);
+
+        AccountActivationToken activationToken = AccountActivationToken.builder()
+                .token(token)
+                .user(user)
+                .expiryDate(EmailVerificationServiceImpl.calculateExpirationDate(1440))
+                .build();
+        accountActivationTokenRepository.persist(activationToken);
 
         emailVerificationService.activateAccount(token);
 
         User activated = userRepository.find("email", "test@example.com").firstResult();
         assertTrue(activated.isAccountActivated());
-        assertNull(activated.getActivationToken());
-        assertNull(activated.getTokenExpirationDate());
+        assertThat(accountActivationTokenRepository.findByToken(token)).isEmpty();
     }
 
     @Test
@@ -98,11 +108,16 @@ class EmailVerificationServiceImplTest {
                 .lastName("Dupont")
                 .password("hashedPassword")
                 .accountActivated(false)
-                .activationToken(token)
-                .tokenExpirationDate(expiredDate)
                 .roles(Set.of(testRole))
                 .build();
         userRepository.persist(user);
+
+        AccountActivationToken activationToken = AccountActivationToken.builder()
+                .token(token)
+                .user(user)
+                .expiryDate(expiredDate)
+                .build();
+        accountActivationTokenRepository.persist(activationToken);
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
                 () -> emailVerificationService.activateAccount(token));

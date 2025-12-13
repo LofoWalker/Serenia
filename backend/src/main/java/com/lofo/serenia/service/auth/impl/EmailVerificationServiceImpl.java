@@ -1,6 +1,8 @@
 package com.lofo.serenia.service.auth.impl;
 
+import com.lofo.serenia.domain.user.AccountActivationToken;
 import com.lofo.serenia.domain.user.User;
+import com.lofo.serenia.repository.AccountActivationTokenRepository;
 import com.lofo.serenia.repository.UserRepository;
 import com.lofo.serenia.service.auth.EmailVerificationService;
 import com.lofo.serenia.service.notification.EmailTemplateProvider;
@@ -24,6 +26,7 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
     private static final Logger LOG = Logger.getLogger(EmailVerificationServiceImpl.class);
 
     private final UserRepository userRepository;
+    private final AccountActivationTokenRepository accountActivationTokenRepository;
     private final Mailer mailer;
     private final EmailTemplateProvider emailTemplateProvider;
 
@@ -46,22 +49,22 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
     public void activateAccount(String token) {
         LOG.infof("Attempting to activate account with token=%s", maskToken(token));
 
-        User user = userRepository.find("activationToken", token)
-                .firstResultOptional()
+        AccountActivationToken activationToken = accountActivationTokenRepository.findByToken(token)
                 .orElseThrow(() -> {
                     LOG.warnf("Activation failed: invalid token");
                     return new WebApplicationException("Jeton invalide", Response.Status.BAD_REQUEST);
                 });
 
-        if (user.getTokenExpirationDate() != null && Instant.now().isAfter(user.getTokenExpirationDate())) {
-            LOG.warnf("Activation failed for email=%s: token expired", user.getEmail());
+        if (activationToken.isExpired()) {
+            LOG.warnf("Activation failed for user_id=%s: token expired", activationToken.getUser().getId());
             throw new WebApplicationException("Jeton expiré", Response.Status.BAD_REQUEST);
         }
 
+        User user = activationToken.getUser();
         user.setAccountActivated(true);
-        user.setActivationToken(null);
-        user.setTokenExpirationDate(null);
         userRepository.persist(user);
+
+        accountActivationTokenRepository.deleteByToken(token);
 
         LOG.infof("Account successfully activated for email=%s", user.getEmail());
     }

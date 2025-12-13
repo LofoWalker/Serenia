@@ -3,7 +3,6 @@ package com.lofo.serenia.domain.user;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -43,11 +42,6 @@ public class User {
     @Column(name = "is_account_activated", nullable = false)
     private boolean accountActivated = false;
 
-    @Column(name = "activation_token", length = 255)
-    private String activationToken;
-
-    @Column(name = "token_expiration_date")
-    private Instant tokenExpirationDate;
 
     @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)
