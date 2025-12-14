@@ -1,5 +1,6 @@
 import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
 import {Router} from '@angular/router';
+import {catchError, EMPTY, take, tap} from 'rxjs';
 import {AuthService} from '../../core/services/auth.service';
 import {AuthStateService} from '../../core/services/auth-state.service';
 import {ChatService} from '../../core/services/chat.service';
@@ -26,11 +27,13 @@ export class ProfileComponent implements OnInit {
   protected readonly successMessage = signal('');
   ngOnInit(): void {
     if (!this.authState.user()) {
-      this.authService.getProfile().subscribe({
-        error: () => {
+      this.authService.getProfile().pipe(
+        take(1),
+        catchError(() => {
           this.errorMessage.set('Impossible de charger le profil.');
-        }
-      });
+          return EMPTY;
+        })
+      ).subscribe();
     }
   }
   protected getInitials(firstName: string, lastName: string): string {
@@ -40,29 +43,31 @@ export class ProfileComponent implements OnInit {
     this.deletingConversations.set(true);
     this.errorMessage.set('');
     this.successMessage.set('');
-    this.chatService.deleteMyConversations().subscribe({
-      next: () => {
+    this.chatService.deleteMyConversations().pipe(
+      take(1),
+      tap(() => {
         this.deletingConversations.set(false);
         this.showDeleteConversationsConfirm.set(false);
         this.successMessage.set('Vos conversations ont été supprimées avec succès.');
-      },
-      error: () => {
+      }),
+      catchError(() => {
         this.deletingConversations.set(false);
         this.errorMessage.set('Impossible de supprimer les conversations. Veuillez réessayer.');
-      }
-    });
+        return EMPTY;
+      })
+    ).subscribe();
   }
   protected deleteAccount(): void {
     this.deleting.set(true);
     this.errorMessage.set('');
-    this.authService.deleteAccount().subscribe({
-      next: () => {
-        this.router.navigate(['/']);
-      },
-      error: () => {
+    this.authService.deleteAccount().pipe(
+      take(1),
+      tap(() => this.router.navigate(['/'])),
+      catchError(() => {
         this.deleting.set(false);
         this.errorMessage.set('Impossible de supprimer le compte. Veuillez réessayer.');
-      }
-    });
+        return EMPTY;
+      })
+    ).subscribe();
   }
 }

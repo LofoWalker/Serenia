@@ -2,6 +2,7 @@ import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angul
 import {AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators} from '@angular/forms';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {HttpErrorResponse} from '@angular/common/http';
+import {catchError, EMPTY, take, tap} from 'rxjs';
 import {AuthService} from '../../../core/services/auth.service';
 import {AuthStateService} from '../../../core/services/auth-state.service';
 import {ButtonComponent} from '../../../shared/ui/button/button.component';
@@ -70,18 +71,20 @@ export class ResetPasswordComponent implements OnInit {
     this.authService.resetPassword({
       token: this.token,
       newPassword: this.form.getRawValue().newPassword
-    }).subscribe({
-      next: (response) => {
+    }).pipe(
+      take(1),
+      tap(response => {
         this.successMessage.set(response.message);
-      },
-      error: (error: HttpErrorResponse) => {
+      }),
+      catchError((error: HttpErrorResponse) => {
         if (error.status === 400) {
           this.errorMessage.set('Le lien de réinitialisation est invalide ou a expiré. Veuillez refaire une demande.');
         } else {
           this.errorMessage.set('Une erreur est survenue. Veuillez réessayer.');
         }
-      }
-    });
+        return EMPTY;
+      })
+    ).subscribe();
   }
 }
 

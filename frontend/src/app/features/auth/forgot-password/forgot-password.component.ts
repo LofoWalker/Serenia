@@ -1,6 +1,7 @@
 import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
 import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {RouterLink} from '@angular/router';
+import {catchError, EMPTY, take, tap} from 'rxjs';
 import {AuthService} from '../../../core/services/auth.service';
 import {AuthStateService} from '../../../core/services/auth-state.service';
 import {ButtonComponent} from '../../../shared/ui/button/button.component';
@@ -40,15 +41,17 @@ export class ForgotPasswordComponent {
       return;
     }
     this.errorMessage.set('');
-    this.authService.forgotPassword(this.form.getRawValue()).subscribe({
-      next: (response) => {
+    this.authService.forgotPassword(this.form.getRawValue()).pipe(
+      take(1),
+      tap(response => {
         this.successMessage.set(response.message);
         this.submitted.set(true);
-      },
-      error: () => {
+      }),
+      catchError(() => {
         this.errorMessage.set('Une erreur est survenue. Veuillez réessayer.');
-      }
-    });
+        return EMPTY;
+      })
+    ).subscribe();
   }
 }
 

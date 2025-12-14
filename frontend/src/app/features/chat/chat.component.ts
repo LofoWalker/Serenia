@@ -10,6 +10,7 @@ import {
   ViewChild
 } from '@angular/core';
 import {HttpErrorResponse} from '@angular/common/http';
+import {catchError, EMPTY, take, tap} from 'rxjs';
 import {ChatService} from '../../core/services/chat.service';
 import {AuthStateService} from '../../core/services/auth-state.service';
 import {ChatMessageComponent} from './components/chat-message/chat-message.component';
@@ -86,20 +87,22 @@ export class ChatComponent implements AfterViewInit, OnDestroy {
     this.errorMessage.set('');
     this.chatInput.setDisabled(true);
     this.isUserScrolling = false;
-    this.chatService.sendMessage(content).subscribe({
-      next: () => {
+    this.chatService.sendMessage(content).pipe(
+      take(1),
+      tap(() => {
         this.chatInput.setDisabled(false);
         this.scrollToBottom();
-      },
-      error: (error: HttpErrorResponse) => {
+      }),
+      catchError((error: HttpErrorResponse) => {
         this.chatInput.setDisabled(false);
         if (error.status === 401) {
           this.errorMessage.set('Session expirée. Veuillez vous reconnecter.');
         } else {
           this.errorMessage.set("Impossible d'envoyer le message. Veuillez réessayer.");
         }
-      }
-    });
+        return EMPTY;
+      })
+    ).subscribe();
   }
   private scrollToBottom(): void {
     requestAnimationFrame(() => {

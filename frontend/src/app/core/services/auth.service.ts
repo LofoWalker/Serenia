@@ -1,6 +1,6 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {finalize, Observable, tap} from 'rxjs';
+import {catchError, finalize, Observable, of, tap} from 'rxjs';
 import {
   ActivationResponse,
   ApiMessageResponse,
@@ -81,8 +81,16 @@ export class AuthService {
     );
   }
 
-  restoreSession(): Observable<User> {
-    return this.getProfile();
+  restoreSession(): Observable<User | null> {
+    if (!this.authState.token()) {
+      return of(null);
+    }
+    return this.getProfile().pipe(
+      catchError(() => {
+        this.authState.clear();
+        return of(null);
+      })
+    );
   }
 }
 
