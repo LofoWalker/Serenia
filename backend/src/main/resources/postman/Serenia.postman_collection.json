@@ -2,61 +2,34 @@
   "info": {
     "_postman_id": "serenia-api-collection",
     "name": "Serenia API",
-    "description": "Collection de test pour l'API Serenia - Authentification et Conversations",
+    "description": "Collection complète pour tester l'API Serenia avec authentification JWT, gestion des conversations et des tokens",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
-  "auth": {
-    "type": "bearer",
-    "bearer": [
-      {
-        "key": "token",
-        "value": "{{jwt_token}}",
-        "type": "string"
-      }
-    ]
-  },
-  "protocolProfileBehavior": {},
   "item": [
     {
-      "name": "Authentication",
-      "description": "Endpoints d'authentification",
+      "name": "Auth",
       "item": [
         {
-          "name": "Register",
+          "name": "Register User",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "if (pm.response.code === 200) {",
-                  "    const response = pm.response.json();",
-                  "    pm.environment.set('user_id', response.user.id);",
-                  "    pm.environment.set('user_email', response.user.email);",
-                  "    pm.environment.set('jwt_token', response.token);",
-                  "    ",
-                  "    pm.test('Status code is 200', function() {",
-                  "        pm.expect(pm.response.code).to.equal(200);",
-                  "    });",
-                  "    ",
-                  "    pm.test('Response has user and token', function() {",
-                  "        pm.expect(response).to.have.property('user');",
-                  "        pm.expect(response).to.have.property('token');",
-                  "    });",
-                  "    ",
-                  "    pm.test('User has required fields', function() {",
-                  "        pm.expect(response.user).to.have.property('id');",
-                  "        pm.expect(response.user).to.have.property('email');",
-                  "        pm.expect(response.user).to.have.property('firstName');",
-                  "        pm.expect(response.user).to.have.property('lastName');",
-                  "    });",
-                  "    ",
-                  "    console.log('✓ Registration successful - Variables stored:');",
-                  "    console.log('  - user_id: ' + response.user.id);",
-                  "    console.log('  - user_email: ' + response.user.email);",
-                  "    console.log('  - jwt_token: ' + response.token.substring(0, 20) + '...');",
-                  "}"
-                ],
-                "type": "text/javascript"
+                  "pm.test('Status is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Response has message', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('message');",
+                  "    pm.expect(jsonData.message).to.include('Inscription réussie');",
+                  "});",
+                  "",
+                  "// Store email for later use",
+                  "pm.environment.set('registered_email', pm.variables.get('test_email'));",
+                  "pm.environment.set('registered_password', pm.variables.get('test_password'));"
+                ]
               }
             }
           ],
@@ -70,17 +43,58 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\",\n  \"email\": \"test-{{$timestamp}}@serenia.com\",\n  \"password\": \"Password123!\"\n}"
+              "raw": "{\n  \"firstName\": \"{{first_name}}\",\n  \"lastName\": \"{{last_name}}\",\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/auth/register",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "register"
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Activate Account",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Note: In a real scenario, you would extract the token from the email",
+                  "// For testing, we'll use a mock token - in production, automate email extraction",
+                  "pm.variables.set('activation_token', pm.environment.get('mock_activation_token'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Account activated message', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.include('Compte activé avec succès');",
+                  "});",
+                  "",
+                  "pm.environment.set('account_activated', true);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/activate?token={{activation_token}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "activate"],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{activation_token}}"
+                }
               ]
             }
           }
@@ -92,26 +106,30 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "if (pm.response.code === 200) {",
-                  "    const response = pm.response.json();",
-                  "    pm.environment.set('user_id', response.user.id);",
-                  "    pm.environment.set('user_email', response.user.email);",
-                  "    pm.environment.set('jwt_token', response.token);",
-                  "    ",
-                  "    pm.test('Status code is 200', function() {",
-                  "        pm.expect(pm.response.code).to.equal(200);",
-                  "    });",
-                  "    ",
-                  "    pm.test('Response has user and token', function() {",
-                  "        pm.expect(response).to.have.property('user');",
-                  "        pm.expect(response).to.have.property('token');",
-                  "    });",
-                  "    ",
-                  "    console.log('✓ Login successful - JWT Token stored:');",
-                  "    console.log('  - jwt_token: ' + response.token.substring(0, 20) + '...');",
-                  "}"
-                ],
-                "type": "text/javascript"
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has JWT token', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('token');",
+                  "    pm.expect(jsonData.token).to.be.a('string');",
+                  "    pm.expect(jsonData.token.length).to.be.greaterThan(0);",
+                  "});",
+                  "",
+                  "pm.test('Response has user info', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('user');",
+                  "    pm.expect(jsonData.user).to.have.property('email');",
+                  "    pm.expect(jsonData.user).to.have.property('firstName');",
+                  "    pm.expect(jsonData.user).to.have.property('lastName');",
+                  "});",
+                  "",
+                  "// Store JWT for subsequent requests",
+                  "var jsonData = pm.response.json();",
+                  "pm.environment.set('jwt_token', jsonData.token);",
+                  "pm.environment.set('user_id', jsonData.user.id);"
+                ]
               }
             }
           ],
@@ -125,88 +143,54 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"{{user_email}}\",\n  \"password\": \"Password123!\"\n}"
+              "raw": "{\n  \"email\": \"{{registered_email}}\",\n  \"password\": \"{{registered_password}}\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/auth/login",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "login"
-              ]
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
             }
           }
         },
         {
-          "name": "Get Current User",
+          "name": "Get Current User Profile",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status code is 200', function() {",
-                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test('Response has user data', function() {",
-                  "    const response = pm.response.json();",
-                  "    pm.expect(response).to.have.property('id');",
-                  "    pm.expect(response).to.have.property('email');",
+                  "pm.test('Response has user profile', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('email');",
+                  "    pm.expect(jsonData).to.have.property('firstName');",
+                  "    pm.expect(jsonData).to.have.property('lastName');",
+                  "    pm.expect(jsonData).to.have.property('role');",
+                  "});",
+                  "",
+                  "pm.test('Email matches registered email', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.email).to.equal(pm.environment.get('registered_email'));",
                   "});"
-                ],
-                "type": "text/javascript"
+                ]
               }
             }
           ],
           "request": {
             "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/api/auth/me",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "me"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Delete Account",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 204 (No Content)', function() {",
-                  "    pm.expect(pm.response.code).to.equal(204);",
-                  "});",
-                  "",
-                  "console.log('✓ Account deleted successfully');"
-                ],
-                "type": "text/javascript"
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
               }
-            }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [],
+            ],
             "url": {
-              "raw": "{{base_url}}/api/auth/me",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "me"
-              ]
+              "raw": "{{base_url}}/api/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile"]
             }
           }
         },
@@ -217,26 +201,20 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status code is 200', function() {",
-                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test('Response has message', function() {",
-                  "    const response = pm.response.json();",
-                  "    pm.expect(response).to.have.property('message');",
-                  "});",
-                  "",
-                  "console.log('✓ Forgot password request processed');",
-                  "console.log('  Note: Check your email for the reset link (if user exists)');"
-                ],
-                "type": "text/javascript"
+                  "pm.test('Response has message', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('message');",
+                  "    pm.expect(jsonData.message).to.include('lien de réinitialisation');",
+                  "});"
+                ]
               }
             }
           ],
           "request": {
-            "auth": {
-              "type": "noauth"
-            },
             "method": "POST",
             "header": [
               {
@@ -246,52 +224,46 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"{{user_email}}\"\n}"
+              "raw": "{\n  \"email\": \"{{registered_email}}\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/auth/forgot-password",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "forgot-password"
-              ]
-            },
-            "description": "Sends a password reset email if the user exists. Returns 200 regardless of whether the email exists (to prevent user enumeration attacks)."
+              "raw": "{{base_url}}/api/password/forgot",
+              "host": ["{{base_url}}"],
+              "path": ["api", "password", "forgot"]
+            }
           }
         },
         {
           "name": "Reset Password",
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Note: In a real scenario, extract token from reset email",
+                  "pm.variables.set('reset_token', pm.environment.get('mock_reset_token'));"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "exec": [
-                  "if (pm.response.code === 200) {",
-                  "    pm.test('Status code is 200', function() {",
-                  "        pm.expect(pm.response.code).to.equal(200);",
-                  "    });",
-                  "    ",
-                  "    pm.test('Response has success message', function() {",
-                  "        const response = pm.response.json();",
-                  "        pm.expect(response).to.have.property('message');",
-                  "    });",
-                  "    ",
-                  "    console.log('✓ Password reset successfully');",
-                  "} else if (pm.response.code === 400) {",
-                  "    console.log('✗ Password reset failed - Invalid or expired token');",
-                  "}"
-                ],
-                "type": "text/javascript"
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has success message', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.include('Mot de passe réinitialisé');",
+                  "});",
+                  "",
+                  "pm.environment.set('registered_password', pm.variables.get('new_password'));"
+                ]
               }
             }
           ],
           "request": {
-            "auth": {
-              "type": "noauth"
-            },
             "method": "POST",
             "header": [
               {
@@ -301,69 +273,82 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"token\": \"{{reset_token}}\",\n  \"newPassword\": \"NewPassword123!\"\n}"
+              "raw": "{\n  \"token\": \"{{reset_token}}\",\n  \"newPassword\": \"{{new_password}}\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/auth/reset-password",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "reset-password"
-              ]
-            },
-            "description": "Resets the user's password using a valid token received via email. Token expires after 15 minutes."
+              "raw": "{{base_url}}/api/password/reset",
+              "host": ["{{base_url}}"],
+              "path": ["api", "password", "reset"]
+            }
+          }
+        },
+        {
+          "name": "Delete Account",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 204', function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});",
+                  "",
+                  "pm.test('No content returned', function () {",
+                  "    pm.expect(pm.response.text()).to.be.empty;",
+                  "});",
+                  "",
+                  "pm.environment.set('account_deleted', true);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile"]
+            }
           }
         }
       ]
     },
     {
       "name": "Conversations",
-      "description": "Endpoints pour les conversations et les messages",
       "item": [
         {
-          "name": "Send Message",
+          "name": "Add Message",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "if (pm.response.code === 200) {",
-                  "    const response = pm.response.json();",
-                  "    ",
-                  "    pm.test('Status code is 200', function() {",
-                  "        pm.expect(pm.response.code).to.equal(200);",
-                  "    });",
-                  "    ",
-                  "    pm.test('Response has message data', function() {",
-                  "        pm.expect(response).to.have.property('role');",
-                  "        pm.expect(response).to.have.property('content');",
-                  "    });",
-                  "    ",
-                  "    pm.test('Message has valid role', function() {",
-                  "        pm.expect(['ASSISTANT', 'USER']).to.include(response.role);",
-                  "    });",
-                  "    ",
-                  "    console.log('✓ Message sent successfully');",
-                  "    console.log('  - Role: ' + response.role);",
-                  "    console.log('  - Content: ' + response.content.substring(0, 50) + '...');",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            },
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  "// Optional: Set default message if not already set",
-                  "if (!pm.environment.get('message_content')) {",
-                  "    pm.environment.set('message_content', 'Hello, how are you?');",
-                  "}"
-                ],
-                "type": "text/javascript"
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has conversation ID', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('conversationId');",
+                  "    pm.expect(jsonData.conversationId).to.be.a('string');",
+                  "});",
+                  "",
+                  "pm.test('Response has assistant message', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('assistantMessage');",
+                  "    pm.expect(jsonData.assistantMessage).to.be.a('string');",
+                  "});",
+                  "",
+                  "// Store conversation ID for subsequent requests",
+                  "var jsonData = pm.response.json();",
+                  "pm.environment.set('conversation_id', jsonData.conversationId);"
+                ]
               }
             }
           ],
@@ -373,6 +358,10 @@
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
               }
             ],
             "body": {
@@ -380,14 +369,51 @@
               "raw": "{\n  \"content\": \"{{message_content}}\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/conversations/add-message",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "conversations",
-                "add-message"
-              ]
+              "raw": "{{base_url}}/api/conversations/add-message",
+              "host": ["{{base_url}}"],
+              "path": ["api", "conversations", "add-message"]
+            }
+          }
+        },
+        {
+          "name": "Get My Messages",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 204', function () {",
+                  "    pm.response.to.have.status([200, 204]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Response has conversation ID', function () {",
+                  "        var jsonData = pm.response.json();",
+                  "        pm.expect(jsonData).to.have.property('conversationId');",
+                  "    });",
+                  "",
+                  "    pm.test('Response has messages array', function () {",
+                  "        var jsonData = pm.response.json();",
+                  "        pm.expect(jsonData).to.have.property('messages');",
+                  "        pm.expect(jsonData.messages).to.be.an('array');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/conversations/my-messages",
+              "host": ["{{base_url}}"],
+              "path": ["api", "conversations", "my-messages"]
             }
           }
         },
@@ -395,193 +421,113 @@
           "name": "Get Conversation Messages",
           "event": [
             {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  "// Note: conversation_id should be obtained after the first message is sent",
-                  "if (!pm.environment.get('conversation_id')) {",
-                  "    console.log('⚠ conversation_id not set. Send a message first to get the conversation ID.'):",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            },
-            {
               "listen": "test",
               "script": {
                 "exec": [
-                  "if (pm.response.code === 200) {",
-                  "    const messages = pm.response.json();",
-                  "    ",
-                  "    pm.test('Status code is 200', function() {",
-                  "        pm.expect(pm.response.code).to.equal(200);",
-                  "    });",
-                  "    ",
-                  "    pm.test('Response is an array', function() {",
-                  "        pm.expect(Array.isArray(messages)).to.be.true;",
-                  "    });",
-                  "    ",
-                  "    if (messages.length > 0) {",
-                  "        pm.test('Messages have required fields', function() {",
-                  "            messages.forEach(function(msg) {",
-                  "                pm.expect(msg).to.have.property('role');",
-                  "                pm.expect(msg).to.have.property('content');",
-                  "            });",
-                  "        });",
-                  "        ",
-                  "        console.log('✓ Retrieved ' + messages.length + ' messages');",
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is array of messages', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Messages have required fields', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.length > 0) {",
+                  "        pm.expect(jsonData[0]).to.have.property('id');",
+                  "        pm.expect(jsonData[0]).to.have.property('role');",
+                  "        pm.expect(jsonData[0]).to.have.property('content');",
                   "    }",
-                  "}"
-                ],
-                "type": "text/javascript"
+                  "});"
+                ]
               }
             }
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
             "url": {
-              "raw": "{{base_url}}/conversations/{{conversation_id}}/messages",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "conversations",
-                "{{conversation_id}}",
-                "messages"
-              ]
+              "raw": "{{base_url}}/api/conversations/{{conversation_id}}/messages",
+              "host": ["{{base_url}}"],
+              "path": ["api", "conversations", "{{conversation_id}}", "messages"]
+            }
+          }
+        },
+        {
+          "name": "Delete My Conversations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 204', function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});",
+                  "",
+                  "pm.test('No content returned', function () {",
+                  "    pm.expect(pm.response.text()).to.be.empty;",
+                  "});",
+                  "",
+                  "pm.environment.set('conversations_deleted', true);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/conversations/my-conversations",
+              "host": ["{{base_url}}"],
+              "path": ["api", "conversations", "my-conversations"]
             }
           }
         }
       ]
     },
     {
-      "name": "Complete Workflow",
-      "description": "Scénario complet: Enregistrement -> Envoi de messages -> Consultation",
+      "name": "Test Workflows",
       "item": [
         {
-          "name": "1. Register New User",
+          "name": "Complete Auth Flow",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "if (pm.response.code === 200) {",
-                  "    const response = pm.response.json();",
-                  "    pm.environment.set('user_id', response.user.id);",
-                  "    pm.environment.set('user_email', response.user.email);",
-                  "    pm.environment.set('jwt_token', response.token);",
-                  "    console.log('✓ Step 1: User registered successfully');",
-                  "}"
-                ],
-                "type": "text/javascript"
+                  "pm.test('All auth steps completed successfully', function () {",
+                  "    pm.expect(pm.environment.get('jwt_token')).to.be.a('string');",
+                  "    pm.expect(pm.environment.get('jwt_token').length).to.be.greaterThan(0);",
+                  "    pm.expect(pm.environment.get('user_id')).to.be.a('string');",
+                  "});"
+                ]
               }
             }
           ],
           "request": {
-            "method": "POST",
+            "method": "GET",
             "header": [
               {
-                "key": "Content-Type",
-                "value": "application/json"
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"firstName\": \"Demo\",\n  \"lastName\": \"User\",\n  \"email\": \"demo-{{$timestamp}}@serenia.com\",\n  \"password\": \"Password123!\"\n}"
-            },
             "url": {
-              "raw": "{{base_url}}/api/auth/register",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "register"
-              ]
-            }
-          }
-        },
-        {
-          "name": "2. Send First Message",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 200) {",
-                  "    const response = pm.response.json();",
-                  "    console.log('✓ Step 2: First message sent');",
-                  "    console.log('  Response: ' + response.content.substring(0, 60) + '...');",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"content\": \"What is the capital of France?\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/conversations/add-message",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "conversations",
-                "add-message"
-              ]
-            }
-          }
-        },
-        {
-          "name": "3. Send Follow-up Message",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 200) {",
-                  "    const response = pm.response.json();",
-                  "    console.log('✓ Step 3: Follow-up message sent');",
-                  "    console.log('  Response: ' + response.content.substring(0, 60) + '...');",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"content\": \"Tell me more about this city\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/conversations/add-message",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "conversations",
-                "add-message"
-              ]
+              "raw": "{{base_url}}/api/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "me"]
             }
           }
         }
@@ -605,22 +551,7 @@
       "type": "string"
     },
     {
-      "key": "user_email",
-      "value": "",
-      "type": "string"
-    },
-    {
       "key": "conversation_id",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "message_content",
-      "value": "Hello! How are you?",
-      "type": "string"
-    },
-    {
-      "key": "reset_token",
       "value": "",
       "type": "string"
     }

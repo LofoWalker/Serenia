@@ -1,6 +1,6 @@
 package com.lofo.serenia.service.chat;
 
-import com.lofo.serenia.domain.conversation.ChatMessage;
+import com.lofo.serenia.persistence.entity.conversation.ChatMessage;
 
 import java.util.UUID;
 

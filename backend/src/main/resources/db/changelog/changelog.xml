@@ -5,10 +5,5 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.15.xsd">
 
-    <include file="db/changelog/01-create-tables.yaml"/>
-    <include file="db/changelog/02-insert-default-roles.yaml"/>
-    <include file="db/changelog/03-create-token-tables.yaml"/>
-    <include file="db/changelog/04-add-email-verification-columns.yaml"/>
-    <include file="db/changelog/05-create-password-reset-tokens-table.yaml"/>
-    <include file="db/changelog/06-migrate-activation-tokens-to-separate-table.yaml"/>
+    <include file="db/changelog/01-init-datamodel.yaml"/>
 </databaseChangeLog>

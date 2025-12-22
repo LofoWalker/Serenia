@@ -1,6 +1,6 @@
 package com.lofo.serenia.mapper;
 
-import com.lofo.serenia.domain.conversation.ChatMessage;
+import com.lofo.serenia.persistence.entity.conversation.ChatMessage;
 import com.openai.models.chat.completions.ChatCompletionAssistantMessageParam;
 import com.openai.models.chat.completions.ChatCompletionMessageParam;
 import com.openai.models.chat.completions.ChatCompletionSystemMessageParam;

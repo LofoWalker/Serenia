@@ -1,12 +1,12 @@
 package com.lofo.serenia.exception.exceptions;
 
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Response;
-
-public class ForbiddenAccessException extends WebApplicationException {
+/**
+ * Exception thrown when a user tries to access a resource they don't own.
+ */
+public class ForbiddenAccessException extends RuntimeException {
 
     public ForbiddenAccessException(String message) {
-        super(message, Response.Status.FORBIDDEN);
+        super(message);
     }
 }
 

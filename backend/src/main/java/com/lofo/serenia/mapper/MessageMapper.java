@@ -1,7 +1,7 @@
 package com.lofo.serenia.mapper;
 
-import com.lofo.serenia.domain.conversation.ChatMessage;
-import com.lofo.serenia.domain.conversation.Message;
+import com.lofo.serenia.persistence.entity.conversation.ChatMessage;
+import com.lofo.serenia.persistence.entity.conversation.Message;
 import io.quarkus.arc.Unremovable;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
