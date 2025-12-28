@@ -22,6 +22,8 @@
 /src/main/resources/keys/
 /src/test/resources/keys/
 
+keys/
+
 *.pem
 
 # OS noise

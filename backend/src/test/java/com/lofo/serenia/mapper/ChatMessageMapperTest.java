@@ -1,7 +1,7 @@
 package com.lofo.serenia.mapper;
 
-import com.lofo.serenia.domain.conversation.ChatMessage;
-import com.lofo.serenia.domain.conversation.MessageRole;
+import com.lofo.serenia.persistence.entity.conversation.ChatMessage;
+import com.lofo.serenia.persistence.entity.conversation.MessageRole;
 import com.openai.models.chat.completions.ChatCompletionMessageParam;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

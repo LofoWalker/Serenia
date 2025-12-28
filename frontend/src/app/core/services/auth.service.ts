@@ -20,18 +20,20 @@ import {environment} from '../../../environments/environment';
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly authState = inject(AuthStateService);
-  private readonly apiUrl = `${environment.apiUrl}/auth`;
+  private readonly authUrl = `${environment.apiUrl}/auth`;
+  private readonly profileUrl = `${environment.apiUrl}/profile`;
+  private readonly passwordUrl = `${environment.apiUrl}/password`;
 
   register(request: RegistrationRequest): Observable<ApiMessageResponse> {
     this.authState.setLoading(true);
-    return this.http.post<ApiMessageResponse>(`${this.apiUrl}/register`, request).pipe(
+    return this.http.post<ApiMessageResponse>(`${this.authUrl}/register`, request).pipe(
       finalize(() => this.authState.setLoading(false))
     );
   }
 
   activate(token: string): Observable<ActivationResponse> {
     this.authState.setLoading(true);
-    return this.http.get<ActivationResponse>(`${this.apiUrl}/activate`, {
+    return this.http.get<ActivationResponse>(`${this.authUrl}/activate`, {
       params: { token }
     }).pipe(
       finalize(() => this.authState.setLoading(false))
@@ -40,7 +42,7 @@ export class AuthService {
 
   login(request: LoginRequest): Observable<AuthResponse> {
     this.authState.setLoading(true);
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, request).pipe(
+    return this.http.post<AuthResponse>(`${this.authUrl}/login`, request).pipe(
       tap(response => {
         this.authState.setToken(response.token);
         this.authState.setUser(response.user);
@@ -50,14 +52,14 @@ export class AuthService {
   }
 
   getProfile(): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/me`).pipe(
+    return this.http.get<User>(`${this.profileUrl}`).pipe(
       tap(user => this.authState.setUser(user))
     );
   }
 
   deleteAccount(): Observable<void> {
     this.authState.setLoading(true);
-    return this.http.delete<void>(`${this.apiUrl}/me`).pipe(
+    return this.http.delete<void>(`${this.profileUrl}`).pipe(
       tap(() => this.logout()),
       finalize(() => this.authState.setLoading(false))
     );
@@ -69,14 +71,14 @@ export class AuthService {
 
   forgotPassword(request: ForgotPasswordRequest): Observable<ApiMessageResponse> {
     this.authState.setLoading(true);
-    return this.http.post<ApiMessageResponse>(`${this.apiUrl}/forgot-password`, request).pipe(
+    return this.http.post<ApiMessageResponse>(`${this.passwordUrl}/forgot`, request).pipe(
       finalize(() => this.authState.setLoading(false))
     );
   }
 
   resetPassword(request: ResetPasswordRequest): Observable<ApiMessageResponse> {
     this.authState.setLoading(true);
-    return this.http.post<ApiMessageResponse>(`${this.apiUrl}/reset-password`, request).pipe(
+    return this.http.post<ApiMessageResponse>(`${this.passwordUrl}/reset`, request).pipe(
       finalize(() => this.authState.setLoading(false))
     );
   }

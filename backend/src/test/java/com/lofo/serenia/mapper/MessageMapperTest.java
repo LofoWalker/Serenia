@@ -1,17 +1,15 @@
 package com.lofo.serenia.mapper;
 
-import com.lofo.serenia.domain.conversation.ChatMessage;
-import com.lofo.serenia.domain.conversation.Message;
-import com.lofo.serenia.domain.conversation.MessageRole;
+import com.lofo.serenia.persistence.entity.conversation.ChatMessage;
+import com.lofo.serenia.persistence.entity.conversation.Message;
+import com.lofo.serenia.persistence.entity.conversation.MessageRole;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("MessageMapper unit tests")
 class MessageMapperTest {
