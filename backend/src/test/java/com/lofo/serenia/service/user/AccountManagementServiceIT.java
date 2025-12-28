@@ -9,6 +9,7 @@ import com.lofo.serenia.persistence.repository.ConversationRepository;
 import com.lofo.serenia.persistence.repository.MessageRepository;
 import com.lofo.serenia.persistence.repository.UserRepository;
 import com.lofo.serenia.rest.dto.out.UserResponseDTO;
+import com.lofo.serenia.service.user.account.AccountManagementService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import jakarta.inject.Inject;

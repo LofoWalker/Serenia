@@ -1,4 +1,4 @@
-package com.lofo.serenia.service.user;
+package com.lofo.serenia.service.user.account;
 
 import com.lofo.serenia.mapper.UserMapper;
 import com.lofo.serenia.persistence.entity.user.User;

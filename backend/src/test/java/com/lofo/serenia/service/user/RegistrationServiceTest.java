@@ -5,6 +5,7 @@ import com.lofo.serenia.persistence.entity.user.User;
 import com.lofo.serenia.persistence.repository.UserRepository;
 import com.lofo.serenia.rest.dto.in.RegistrationRequestDTO;
 import com.lofo.serenia.service.user.activation.AccountActivationService;
+import com.lofo.serenia.service.user.registration.RegistrationService;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

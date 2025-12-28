@@ -1,6 +1,7 @@
 package com.lofo.serenia.service.user;
 import com.lofo.serenia.rest.dto.out.UserResponseDTO;
 import com.lofo.serenia.TestResourceProfile;
+import com.lofo.serenia.service.user.jwt.JwtService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import jakarta.inject.Inject;
@@ -11,9 +12,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @QuarkusTest
 @TestProfile(TestResourceProfile.class)
 @DisplayName("TokenService Tests")
-class TokenServiceTest {
+class JwtServiceTest {
     @Inject
-    TokenService tokenService;
+    JwtService jwtService;
     private static final UUID TEST_USER_ID = UUID.randomUUID();
     private static final String TEST_EMAIL = "user@example.com";
     private static final String TEST_FIRST_NAME = "John";
@@ -23,7 +24,7 @@ class TokenServiceTest {
     @DisplayName("should_generate_valid_jwt_token")
     void should_generate_valid_jwt_token() {
         UserResponseDTO user = createTestUser();
-        String token = tokenService.generateToken(user);
+        String token = jwtService.generateToken(user);
         assertThat(token).isNotNull();
         assertThat(token).isNotEmpty();
     }
@@ -31,7 +32,7 @@ class TokenServiceTest {
     @DisplayName("should_generate_token_with_three_parts")
     void should_generate_token_with_three_parts() {
         UserResponseDTO user = createTestUser();
-        String token = tokenService.generateToken(user);
+        String token = jwtService.generateToken(user);
         String[] parts = token.split("\\.");
         assertThat(parts).hasSize(3);
     }
@@ -40,15 +41,15 @@ class TokenServiceTest {
     void should_generate_different_tokens_for_different_users() {
         UserResponseDTO user1 = createTestUser();
         UserResponseDTO user2 = new UserResponseDTO(UUID.randomUUID(), "other@example.com", "Jane", "Smith", "USER");
-        String token1 = tokenService.generateToken(user1);
-        String token2 = tokenService.generateToken(user2);
+        String token1 = jwtService.generateToken(user1);
+        String token2 = jwtService.generateToken(user2);
         assertThat(token1).isNotEqualTo(token2);
     }
     @Test
     @DisplayName("should_generate_token_for_admin_role")
     void should_generate_token_for_admin_role() {
         UserResponseDTO adminUser = new UserResponseDTO(TEST_USER_ID, TEST_EMAIL, TEST_FIRST_NAME, TEST_LAST_NAME, "ADMIN");
-        String token = tokenService.generateToken(adminUser);
+        String token = jwtService.generateToken(adminUser);
         assertThat(token).isNotNull();
         assertThat(token).isNotEmpty();
     }

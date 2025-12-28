@@ -1,4 +1,4 @@
-package com.lofo.serenia.service.user;
+package com.lofo.serenia.service.user.authentication;
 
 import com.lofo.serenia.exception.exceptions.AuthenticationFailedException;
 import com.lofo.serenia.exception.exceptions.UnactivatedAccountException;

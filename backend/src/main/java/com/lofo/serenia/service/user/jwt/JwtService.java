@@ -1,4 +1,4 @@
-package com.lofo.serenia.service.user;
+package com.lofo.serenia.service.user.jwt;
 
 import com.lofo.serenia.config.SereniaConfig;
 import com.lofo.serenia.rest.dto.out.UserResponseDTO;
@@ -14,7 +14,7 @@ import java.time.Duration;
  */
 @AllArgsConstructor
 @ApplicationScoped
-public class TokenService {
+public class JwtService {
 
     private final SereniaConfig sereniaConfig;
     private final UserMapper userMapper;

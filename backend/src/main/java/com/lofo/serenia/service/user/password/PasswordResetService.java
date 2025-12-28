@@ -1,11 +1,11 @@
-package com.lofo.serenia.service.user;
+package com.lofo.serenia.service.user.password;
 
 import com.lofo.serenia.exception.exceptions.InvalidTokenException;
 import com.lofo.serenia.persistence.entity.user.BaseToken;
 import com.lofo.serenia.persistence.entity.user.User;
 import com.lofo.serenia.persistence.repository.BaseTokenRepository;
 import com.lofo.serenia.persistence.repository.UserRepository;
-import com.lofo.serenia.service.mail.EmailTemplateProvider;
+import com.lofo.serenia.service.mail.provider.EmailTemplateProvider;
 import com.lofo.serenia.service.mail.MailSender;
 import com.lofo.serenia.service.user.shared.UserFinder;
 import io.quarkus.elytron.security.common.BcryptUtil;

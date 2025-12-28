@@ -1,5 +1,6 @@
-package com.lofo.serenia.service.mail;
+package com.lofo.serenia.service.mail.sender;
 
+import com.lofo.serenia.service.mail.MailSender;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.Mailer;
 import jakarta.enterprise.context.ApplicationScoped;

@@ -3,8 +3,8 @@ package com.lofo.serenia.rest.resource;
 import com.lofo.serenia.rest.dto.in.LoginRequestDTO;
 import com.lofo.serenia.rest.dto.out.AuthResponseDTO;
 import com.lofo.serenia.rest.dto.out.UserResponseDTO;
-import com.lofo.serenia.service.user.AuthenticationService;
-import com.lofo.serenia.service.user.TokenService;
+import com.lofo.serenia.service.user.authentication.AuthenticationService;
+import com.lofo.serenia.service.user.jwt.JwtService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -30,12 +30,12 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 public class AuthenticationResource {
 
     private final AuthenticationService authenticationService;
-    private final TokenService tokenService;
+    private final JwtService jwtService;
 
     @Inject
-    public AuthenticationResource(AuthenticationService authenticationService, TokenService tokenService) {
+    public AuthenticationResource(AuthenticationService authenticationService, JwtService jwtService) {
         this.authenticationService = authenticationService;
-        this.tokenService = tokenService;
+        this.jwtService = jwtService;
     }
 
     /**
@@ -60,7 +60,7 @@ public class AuthenticationResource {
         log.info("User login attempted for email=%s", dto.email());
 
         UserResponseDTO userProfile = authenticationService.login(dto);
-        String token = tokenService.generateToken(userProfile);
+        String token = jwtService.generateToken(userProfile);
 
         log.debug("JWT token successfully generated for email=%s", dto.email());
         return Response.ok(new AuthResponseDTO(userProfile, token)).build();

@@ -3,7 +3,7 @@ package com.lofo.serenia.rest.resource;
 import com.lofo.serenia.rest.dto.in.ForgotPasswordRequest;
 import com.lofo.serenia.rest.dto.in.ResetPasswordRequest;
 import com.lofo.serenia.rest.dto.out.ApiMessageResponse;
-import com.lofo.serenia.service.user.PasswordResetService;
+import com.lofo.serenia.service.user.password.PasswordResetService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;

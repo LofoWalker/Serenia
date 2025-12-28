@@ -1,7 +1,7 @@
 package com.lofo.serenia.rest.resource;
 
 import com.lofo.serenia.rest.dto.out.UserResponseDTO;
-import com.lofo.serenia.service.user.AccountManagementService;
+import com.lofo.serenia.service.user.account.AccountManagementService;
 import io.quarkus.security.Authenticated;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.inject.Inject;

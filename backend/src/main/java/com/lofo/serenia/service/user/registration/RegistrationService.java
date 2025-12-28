@@ -1,4 +1,4 @@
-package com.lofo.serenia.service.user;
+package com.lofo.serenia.service.user.registration;
 import com.lofo.serenia.config.SereniaConfig;
 import com.lofo.serenia.exception.exceptions.SereniaException;
 import com.lofo.serenia.persistence.entity.user.User;

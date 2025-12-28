@@ -3,7 +3,7 @@ package com.lofo.serenia.rest.resource;
 import com.lofo.serenia.rest.dto.in.RegistrationRequestDTO;
 import com.lofo.serenia.rest.dto.out.ActivationResponseDTO;
 import com.lofo.serenia.rest.dto.out.ApiMessageResponse;
-import com.lofo.serenia.service.user.RegistrationService;
+import com.lofo.serenia.service.user.registration.RegistrationService;
 import com.lofo.serenia.service.user.activation.AccountActivationService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;

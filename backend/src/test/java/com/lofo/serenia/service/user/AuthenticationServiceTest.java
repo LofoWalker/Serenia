@@ -6,6 +6,7 @@ import com.lofo.serenia.persistence.entity.user.Role;
 import com.lofo.serenia.persistence.entity.user.User;
 import com.lofo.serenia.rest.dto.in.LoginRequestDTO;
 import com.lofo.serenia.rest.dto.out.UserResponseDTO;
+import com.lofo.serenia.service.user.authentication.AuthenticationService;
 import com.lofo.serenia.service.user.shared.UserFinder;
 import jakarta.ws.rs.NotFoundException;
 import org.junit.jupiter.api.BeforeEach;

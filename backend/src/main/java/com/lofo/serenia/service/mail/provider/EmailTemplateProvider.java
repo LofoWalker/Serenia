@@ -1,4 +1,4 @@
-package com.lofo.serenia.service.mail;
+package com.lofo.serenia.service.mail.provider;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
