@@ -3,6 +3,7 @@ import {HttpClient} from '@angular/common/http';
 import {catchError, finalize, Observable, tap, throwError} from 'rxjs';
 import {
   ChangePlanRequestDTO,
+  PlanDTO,
   PlanType,
   SubscriptionStatusDTO
 } from '../models/subscription.model';
@@ -17,20 +18,30 @@ export class SubscriptionService {
 
   // Signals privés
   private readonly statusSignal = signal<SubscriptionStatusDTO | null>(null);
+  private readonly plansSignal = signal<PlanDTO[]>([]);
   private readonly loadingSignal = signal<boolean>(false);
+  private readonly loadingPlansSignal = signal<boolean>(false);
   private readonly errorSignal = signal<string | null>(null);
 
   // Signals publics (readonly)
   readonly status = this.statusSignal.asReadonly();
+  readonly plans = this.plansSignal.asReadonly();
   readonly loading = this.loadingSignal.asReadonly();
+  readonly loadingPlans = this.loadingPlansSignal.asReadonly();
   readonly error = this.errorSignal.asReadonly();
 
   // Computed signals
   readonly planName = computed(() => this.statusSignal()?.planName ?? 'FREE');
 
+  readonly currentPlanConfig = computed(() => {
+    const planName = this.planName();
+    return this.plansSignal().find(p => p.type === planName);
+  });
+
   readonly tokensUsagePercent = computed(() => {
     const s = this.statusSignal();
     if (!s || s.monthlyTokenLimit === 0) return 0;
+    console.log(Math.min(100, (s.tokensUsedThisMonth / s.monthlyTokenLimit) * 100))
     return Math.min(100, (s.tokensUsedThisMonth / s.monthlyTokenLimit) * 100);
   });
 
@@ -42,12 +53,34 @@ export class SubscriptionService {
 
   readonly tokensRemaining = computed(() => this.statusSignal()?.tokensRemainingThisMonth ?? 0);
   readonly messagesRemaining = computed(() => this.statusSignal()?.messagesRemainingToday ?? 0);
+  readonly tokensUsed = computed(() => this.statusSignal()?.tokensUsedThisMonth ?? 0);
+  readonly monthlyTokenLimit = computed(() => this.statusSignal()?.monthlyTokenLimit ?? 0);
+  readonly messagesSent = computed(() => this.statusSignal()?.messagesSentToday ?? 0);
+  readonly dailyMessageLimit = computed(() => this.statusSignal()?.dailyMessageLimit ?? 0);
+  readonly dailyResetDate = computed(() => this.statusSignal()?.dailyResetDate ?? '');
+  readonly monthlyResetDate = computed(() => this.statusSignal()?.monthlyResetDate ?? '');
 
   readonly isQuotaLow = computed(() => {
     const s = this.statusSignal();
     if (!s) return false;
     return s.messagesRemainingToday <= 2 || s.tokensRemainingThisMonth < 500;
   });
+
+  /**
+   * Récupère la liste des plans disponibles
+   */
+  getPlans(): Observable<PlanDTO[]> {
+    this.loadingPlansSignal.set(true);
+
+    return this.http.get<PlanDTO[]>(`${this.apiUrl}/plans`).pipe(
+      tap(plans => this.plansSignal.set(plans)),
+      catchError(error => {
+        this.errorSignal.set('Impossible de charger les plans');
+        return throwError(() => error);
+      }),
+      finalize(() => this.loadingPlansSignal.set(false))
+    );
+  }
 
   /**
    * Récupère le statut de l'abonnement de l'utilisateur

@@ -94,7 +94,11 @@ export class ChatService {
   sendMessage(content: string): Observable<MessageResponse> {
     this.loadingSignal.set(true);
 
-    const userMessage: ChatMessage = { role: 'user', content };
+    const userMessage: ChatMessage = {
+      role: 'user',
+      content,
+      timestamp: new Date().toISOString()
+    };
     this.allMessagesSignal.update(messages => [...messages, userMessage]);
     this.visibleCountSignal.update(count => count + 1);
 
@@ -104,7 +108,8 @@ export class ChatService {
         this.conversationIdSignal.set(response.conversationId);
         const assistantMessage: ChatMessage = {
           role: 'assistant',
-          content: response.content
+          content: response.content,
+          timestamp: new Date().toISOString()
         };
         this.allMessagesSignal.update(messages => [...messages, assistantMessage]);
         this.visibleCountSignal.update(count => count + 1);

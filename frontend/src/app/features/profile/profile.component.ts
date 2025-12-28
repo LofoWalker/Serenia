@@ -1,14 +1,17 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} from '@angular/core';
 import {Router} from '@angular/router';
 import {DatePipe, DecimalPipe, NgClass} from '@angular/common';
-import {catchError, EMPTY, take, tap} from 'rxjs';
+import {catchError, EMPTY, forkJoin, take, tap} from 'rxjs';
 import {AuthService} from '../../core/services/auth.service';
 import {AuthStateService} from '../../core/services/auth-state.service';
 import {ChatService} from '../../core/services/chat.service';
 import {SubscriptionService} from '../../core/services/subscription.service';
 import {ButtonComponent} from '../../shared/ui/button/button.component';
 import {AlertComponent} from '../../shared/ui/alert/alert.component';
-import {PlanType, PLAN_CONFIGS, getPlanConfig} from '../../core/models/subscription.model';
+import {PlanDTO, PlanType, getPlanByType} from '../../core/models/subscription.model';
+
+// Ordre d'affichage des plans
+const PLAN_ORDER: PlanType[] = ['FREE', 'PLUS', 'MAX'];
 
 @Component({
   selector: 'app-profile',
@@ -27,13 +30,26 @@ export class ProfileComponent implements OnInit {
   protected readonly showDeleteConfirm = signal(false);
   protected readonly showDeleteConversationsConfirm = signal(false);
   protected readonly showPlanSelector = signal(false);
+  protected readonly selectedPlan = signal<PlanType | null>(null);
   protected readonly deleting = signal(false);
   protected readonly deletingConversations = signal(false);
   protected readonly changingPlan = signal(false);
   protected readonly errorMessage = signal('');
   protected readonly successMessage = signal('');
 
-  protected readonly plans = PLAN_CONFIGS;
+  // Plans triés dans l'ordre : Gratuit / Plus / Max
+  protected readonly sortedPlans = computed(() => {
+    const plans = this.subscriptionService.plans();
+    return [...plans].sort((a, b) => {
+      return PLAN_ORDER.indexOf(a.type) - PLAN_ORDER.indexOf(b.type);
+    });
+  });
+
+  // Vérifie si un plan peut être sélectionné (pas le plan actuel)
+  protected readonly canConfirmChange = computed(() => {
+    const selected = this.selectedPlan();
+    return selected !== null && selected !== this.subscriptionService.planName();
+  });
 
   ngOnInit(): void {
     if (!this.authState.user()) {
@@ -46,8 +62,11 @@ export class ProfileComponent implements OnInit {
       ).subscribe();
     }
 
-    // Charger le statut d'abonnement
-    this.subscriptionService.getStatus().pipe(
+    // Charger le statut d'abonnement et les plans disponibles
+    forkJoin([
+      this.subscriptionService.getStatus(),
+      this.subscriptionService.getPlans()
+    ]).pipe(
       take(1),
       catchError(() => {
         // Erreur silencieuse - le statut sera affiché comme indisponible
@@ -61,11 +80,21 @@ export class ProfileComponent implements OnInit {
   }
 
   protected getPlanDisplayName(planType: PlanType): string {
-    return getPlanConfig(planType)?.name ?? planType;
+    const plan = getPlanByType(this.subscriptionService.plans(), planType);
+    return plan?.name ?? planType;
   }
 
-  protected changePlan(newPlan: PlanType): void {
-    if (newPlan === this.subscriptionService.planName()) {
+  protected selectPlan(plan: PlanType): void {
+    // Ne pas sélectionner le plan actuel
+    if (plan === this.subscriptionService.planName()) {
+      return;
+    }
+    this.selectedPlan.set(plan);
+  }
+
+  protected confirmChangePlan(): void {
+    const newPlan = this.selectedPlan();
+    if (!newPlan || newPlan === this.subscriptionService.planName()) {
       return;
     }
 
@@ -78,6 +107,7 @@ export class ProfileComponent implements OnInit {
       tap(() => {
         this.changingPlan.set(false);
         this.showPlanSelector.set(false);
+        this.selectedPlan.set(null);
         this.successMessage.set(`Votre plan a été changé en ${this.getPlanDisplayName(newPlan)} avec succès.`);
       }),
       catchError(() => {
@@ -86,6 +116,11 @@ export class ProfileComponent implements OnInit {
         return EMPTY;
       })
     ).subscribe();
+  }
+
+  protected cancelPlanSelection(): void {
+    this.showPlanSelector.set(false);
+    this.selectedPlan.set(null);
   }
 
   protected deleteConversations(): void {

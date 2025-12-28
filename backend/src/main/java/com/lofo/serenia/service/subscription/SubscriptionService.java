@@ -7,6 +7,7 @@ import com.lofo.serenia.persistence.entity.subscription.Subscription;
 import com.lofo.serenia.persistence.entity.user.User;
 import com.lofo.serenia.persistence.repository.PlanRepository;
 import com.lofo.serenia.persistence.repository.SubscriptionRepository;
+import com.lofo.serenia.rest.dto.out.PlanDTO;
 import com.lofo.serenia.rest.dto.out.SubscriptionStatusDTO;
 import com.lofo.serenia.service.user.shared.UserFinder;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -111,6 +113,17 @@ public class SubscriptionService {
     public SubscriptionStatusDTO getStatus(UUID userId) {
         Subscription subscription = getSubscription(userId);
         return buildStatusDTO(subscription);
+    }
+
+    /**
+     * Récupère la liste de tous les plans disponibles.
+     *
+     * @return la liste des plans sous forme de DTO
+     */
+    public List<PlanDTO> getAllPlans() {
+        return planRepository.listAll().stream()
+                .map(PlanDTO::from)
+                .toList();
     }
 
     // ========== Méthodes privées ==========

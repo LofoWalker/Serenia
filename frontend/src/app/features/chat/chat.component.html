@@ -1,10 +1,10 @@
 <div class="h-[calc(100vh-4rem)] flex flex-col bg-primary-950">
   <div
     #messagesContainer
-    class="flex-1 overflow-y-auto px-4 py-6 scrollbar-thin"
+    class="flex-1 overflow-y-auto py-6 scrollbar-thin"
     (scroll)="onScroll()"
   >
-    <div class="max-w-3xl mx-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       @if (!chatService.hasMessages()) {
         <div class="flex flex-col items-center justify-center h-full min-h-[50vh] text-center">
           <div class="w-16 h-16 mb-6 rounded-full bg-primary-800 flex items-center justify-center">
@@ -82,19 +82,21 @@
   </div>
 
   <div class="border-t border-primary-800 bg-primary-900/50 backdrop-blur-sm p-4">
-    <div class="max-w-3xl mx-auto">
-      <!-- Indicateur de messages restants -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Indicateur de messages restants (seulement si < 20) -->
       @if (subscriptionService.status(); as status) {
-        <div class="text-xs text-center mb-2"
-             [class.text-primary-500]="status.messagesRemainingToday > 2"
-             [class.text-yellow-500]="status.messagesRemainingToday <= 2 && status.messagesRemainingToday > 0"
-             [class.text-red-400]="status.messagesRemainingToday === 0">
-          @if (status.messagesRemainingToday === 0) {
-            <span>Aucun message restant aujourd'hui - <a routerLink="/profile" class="underline hover:text-red-300">Changer de plan</a></span>
-          } @else {
-            <span>{{ status.messagesRemainingToday }} message{{ status.messagesRemainingToday > 1 ? 's' : '' }} restant{{ status.messagesRemainingToday > 1 ? 's' : '' }} aujourd'hui</span>
-          }
-        </div>
+        @if (status.messagesRemainingToday < 20) {
+          <div class="text-xs text-center mb-2"
+               [class.text-primary-500]="status.messagesRemainingToday > 2"
+               [class.text-yellow-500]="status.messagesRemainingToday <= 2 && status.messagesRemainingToday > 0"
+               [class.text-red-400]="status.messagesRemainingToday === 0">
+            @if (status.messagesRemainingToday === 0) {
+              <span>Aucun message restant aujourd'hui - <a routerLink="/profile" class="underline hover:text-red-300">Changer de plan</a></span>
+            } @else {
+              <span>{{ status.messagesRemainingToday }} message{{ status.messagesRemainingToday > 1 ? 's' : '' }} restant{{ status.messagesRemainingToday > 1 ? 's' : '' }} aujourd'hui</span>
+            }
+          </div>
+        }
       }
       <app-chat-input
         #chatInput

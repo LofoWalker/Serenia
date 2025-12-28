@@ -46,6 +46,19 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   private scrollTimeout: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit(): void {
+    // Charger les messages précédents
+    this.chatService.loadMyMessages().pipe(
+      take(1),
+      tap(() => {
+        // Scroll vers le bas après chargement des messages
+        setTimeout(() => this.scrollToBottom(), 100);
+      }),
+      catchError(() => {
+        this.errorMessage.set('Impossible de charger vos messages.');
+        return EMPTY;
+      })
+    ).subscribe();
+
     // Charger le statut d'abonnement si pas déjà chargé
     if (!this.subscriptionService.status()) {
       this.subscriptionService.getStatus().pipe(

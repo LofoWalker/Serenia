@@ -43,69 +43,20 @@ export interface ChangePlanRequestDTO {
 }
 
 /**
- * Configuration d'un plan (pour l'affichage)
+ * DTO d'un plan (réponse API GET /api/subscription/plans)
  */
-export interface PlanConfig {
+export interface PlanDTO {
   type: PlanType;
   name: string;
   monthlyTokenLimit: number;
   dailyMessageLimit: number;
   perMessageTokenLimit: number;
-  price: string;
-  features: string[];
-  recommended?: boolean;
 }
 
 /**
- * Configurations des plans disponibles
+ * Récupère la configuration d'un plan par son type depuis une liste de plans
  */
-export const PLAN_CONFIGS: PlanConfig[] = [
-  {
-    type: 'FREE',
-    name: 'Gratuit',
-    monthlyTokenLimit: 10000,
-    dailyMessageLimit: 10,
-    perMessageTokenLimit: 1000,
-    price: '0€',
-    features: [
-      '10 messages par jour',
-      '10 000 tokens par mois',
-      '1 000 tokens par message'
-    ]
-  },
-  {
-    type: 'PLUS',
-    name: 'Plus',
-    monthlyTokenLimit: 100000,
-    dailyMessageLimit: 50,
-    perMessageTokenLimit: 4000,
-    price: '9,99€/mois',
-    features: [
-      '50 messages par jour',
-      '100 000 tokens par mois',
-      '4 000 tokens par message'
-    ],
-    recommended: true
-  },
-  {
-    type: 'MAX',
-    name: 'Max',
-    monthlyTokenLimit: 500000,
-    dailyMessageLimit: 200,
-    perMessageTokenLimit: 8000,
-    price: '29,99€/mois',
-    features: [
-      '200 messages par jour',
-      '500 000 tokens par mois',
-      '8 000 tokens par message'
-    ]
-  }
-];
-
-/**
- * Récupère la configuration d'un plan par son type
- */
-export function getPlanConfig(planType: PlanType): PlanConfig | undefined {
-  return PLAN_CONFIGS.find(plan => plan.type === planType);
+export function getPlanByType(plans: PlanDTO[], planType: PlanType): PlanDTO | undefined {
+  return plans.find(plan => plan.type === planType);
 }
 

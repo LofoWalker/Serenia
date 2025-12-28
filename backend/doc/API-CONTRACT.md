@@ -400,6 +400,51 @@ Supprime toutes les conversations de l'utilisateur.
 
 ## 6. Abonnements & Quotas
 
+### GET `/api/subscription/plans`
+
+Récupère la liste des plans d'abonnement disponibles.
+
+> ℹ️ **Authentification non requise** - Cet endpoint est public.
+
+#### Responses
+
+**200 OK** - Plans retournés
+```json
+[
+  {
+    "type": "FREE",
+    "name": "Gratuit",
+    "monthlyTokenLimit": 10000,
+    "dailyMessageLimit": 10,
+    "perMessageTokenLimit": 1000
+  },
+  {
+    "type": "PLUS",
+    "name": "Plus",
+    "monthlyTokenLimit": 100000,
+    "dailyMessageLimit": 50,
+    "perMessageTokenLimit": 4000
+  },
+  {
+    "type": "MAX",
+    "name": "Max",
+    "monthlyTokenLimit": 500000,
+    "dailyMessageLimit": 200,
+    "perMessageTokenLimit": 8000
+  }
+]
+```
+
+| Champ                | Type    | Description                        |
+|----------------------|---------|------------------------------------|
+| `type`               | string  | Identifiant du plan (`FREE`, `PLUS`, `MAX`) |
+| `name`               | string  | Nom d'affichage du plan            |
+| `monthlyTokenLimit`  | integer | Limite mensuelle de tokens         |
+| `dailyMessageLimit`  | integer | Limite quotidienne de messages     |
+| `perMessageTokenLimit`| integer| Limite de tokens par message       |
+
+---
+
 > 🔒 **Authentification requise:** Header `Authorization: Bearer <token>`
 
 ### GET `/api/subscription/status`
@@ -552,6 +597,18 @@ Change le plan d'abonnement de l'utilisateur authentifié.
       "content": "string"
     }
   ]
+}
+```
+
+### PlanDTO
+
+```json
+{
+  "type": "string (FREE | PLUS | MAX)",
+  "name": "string",
+  "monthlyTokenLimit": "integer",
+  "dailyMessageLimit": "integer",
+  "perMessageTokenLimit": "integer"
 }
 ```
 
