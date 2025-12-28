@@ -8,7 +8,7 @@ import {ChatService} from '../../core/services/chat.service';
 import {SubscriptionService} from '../../core/services/subscription.service';
 import {ButtonComponent} from '../../shared/ui/button/button.component';
 import {AlertComponent} from '../../shared/ui/alert/alert.component';
-import {PlanDTO, PlanType, getPlanByType} from '../../core/models/subscription.model';
+import {getPlanByType, PlanType} from '../../core/models/subscription.model';
 
 // Ordre d'affichage des plans
 const PLAN_ORDER: PlanType[] = ['FREE', 'PLUS', 'MAX'];
@@ -37,7 +37,6 @@ export class ProfileComponent implements OnInit {
   protected readonly errorMessage = signal('');
   protected readonly successMessage = signal('');
 
-  // Plans triés dans l'ordre : Gratuit / Plus / Max
   protected readonly sortedPlans = computed(() => {
     const plans = this.subscriptionService.plans();
     return [...plans].sort((a, b) => {
@@ -45,7 +44,6 @@ export class ProfileComponent implements OnInit {
     });
   });
 
-  // Vérifie si un plan peut être sélectionné (pas le plan actuel)
   protected readonly canConfirmChange = computed(() => {
     const selected = this.selectedPlan();
     return selected !== null && selected !== this.subscriptionService.planName();

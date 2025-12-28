@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { checkPasswordCriteria, PasswordValidationResult } from '../../../core/validators/password.validator';
+import {ChangeDetectionStrategy, Component, computed, input} from '@angular/core';
+import {checkPasswordCriteria, PasswordValidationResult} from '../../../core/validators/password.validator';
 
 @Component({
   selector: 'app-password-strength',

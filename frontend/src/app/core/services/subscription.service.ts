@@ -1,12 +1,7 @@
 import {computed, inject, Injectable, signal} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {catchError, finalize, Observable, tap, throwError} from 'rxjs';
-import {
-  ChangePlanRequestDTO,
-  PlanDTO,
-  PlanType,
-  SubscriptionStatusDTO
-} from '../models/subscription.model';
+import {ChangePlanRequestDTO, PlanDTO, PlanType, SubscriptionStatusDTO} from '../models/subscription.model';
 import {environment} from '../../../environments/environment';
 
 @Injectable({
@@ -41,7 +36,6 @@ export class SubscriptionService {
   readonly tokensUsagePercent = computed(() => {
     const s = this.statusSignal();
     if (!s || s.monthlyTokenLimit === 0) return 0;
-    console.log(Math.min(100, (s.tokensUsedThisMonth / s.monthlyTokenLimit) * 100))
     return Math.min(100, (s.tokensUsedThisMonth / s.monthlyTokenLimit) * 100);
   });
 
