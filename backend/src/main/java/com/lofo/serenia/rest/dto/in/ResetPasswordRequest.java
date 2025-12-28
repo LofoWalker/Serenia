@@ -1,7 +1,7 @@
 package com.lofo.serenia.rest.dto.in;
 
+import com.lofo.serenia.validation.annotation.ValidPassword;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
 /**
  * DTO for resetting password with a valid token.
@@ -11,7 +11,7 @@ public record ResetPasswordRequest(
         String token,
 
         @NotBlank(message = "New password is required")
-        @Size(min = 8, message = "Password must be at least 8 characters")
+        @ValidPassword
         String newPassword
 ) {
 }

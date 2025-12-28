@@ -1,10 +1,10 @@
-import { TestBed } from '@angular/core/testing';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideHttpClient } from '@angular/common/http';
-import { AuthService } from './auth.service';
-import { AuthStateService } from './auth-state.service';
-import { AuthResponse, LoginRequest, RegistrationRequest, User } from '../models/user.model';
-import { environment } from '../../../environments/environment';
+import {TestBed} from '@angular/core/testing';
+import {HttpTestingController, provideHttpClientTesting} from '@angular/common/http/testing';
+import {provideHttpClient} from '@angular/common/http';
+import {AuthService} from './auth.service';
+import {AuthStateService} from './auth-state.service';
+import {AuthResponse, LoginRequest, RegistrationRequest, User} from '../models/user.model';
+import {environment} from '../../../environments/environment';
 
 describe('AuthService', () => {
   let service: AuthService;

@@ -14,7 +14,7 @@ public interface MessageMapper {
         if (message == null) {
             return null;
         }
-        return new ChatMessage(message.getRole(), decryptedContent);
+        return new ChatMessage(message.getRole(), decryptedContent, message.getTimestamp());
     }
 }
 

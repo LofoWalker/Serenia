@@ -4,6 +4,7 @@ import com.lofo.serenia.config.SereniaConfig;
 import com.lofo.serenia.persistence.entity.conversation.Conversation;
 import com.lofo.serenia.persistence.entity.conversation.Message;
 import com.lofo.serenia.persistence.entity.conversation.MessageRole;
+import com.lofo.serenia.service.subscription.QuotaService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,12 +43,15 @@ class ChatOrchestratorTest {
     @Mock
     private SereniaConfig sereniaConfig;
 
+    @Mock
+    private QuotaService quotaService;
+
     private ChatOrchestrator chatOrchestrator;
 
     @BeforeEach
     void setup() {
         chatOrchestrator = new ChatOrchestrator(conversationService, messageService, chatCompletionService,
-                sereniaConfig);
+                sereniaConfig, quotaService);
     }
 
     @Test

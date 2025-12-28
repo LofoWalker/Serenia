@@ -2,6 +2,7 @@ package com.lofo.serenia.exception;
 
 import com.lofo.serenia.exception.exceptions.ForbiddenAccessException;
 import com.lofo.serenia.exception.exceptions.InvalidTokenException;
+import com.lofo.serenia.exception.exceptions.SereniaException;
 import com.lofo.serenia.rest.dto.out.ApiMessageResponse;
 import com.lofo.serenia.exception.exceptions.AuthenticationFailedException;
 import com.lofo.serenia.exception.exceptions.UnactivatedAccountException;
@@ -27,6 +28,9 @@ public class AuthExceptionMapper implements ExceptionMapper<RuntimeException> {
         LOG.debugf("AuthExceptionMapper: handling exception=%s, message=%s",
                    exception.getClass().getSimpleName(), exception.getMessage());
 
+        if (exception instanceof SereniaException ex) {
+            return handleSereniaException(ex);
+        }
         if (exception instanceof AuthenticationFailedException ex) {
             return handleAuthenticationFailed(ex);
         }
@@ -46,6 +50,16 @@ public class AuthExceptionMapper implements ExceptionMapper<RuntimeException> {
         LOG.warnf("Unhandled exception: %s - %s", exception.getClass().getName(), exception.getMessage());
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .entity(new ApiMessageResponse("Une erreur interne est survenue"))
+                .build();
+    }
+
+    /**
+     * Handles SereniaException with appropriate HTTP status from the exception.
+     */
+    private Response handleSereniaException(SereniaException ex) {
+        LOG.debugf("AuthExceptionMapper: SereniaException [%s] - %s", ex.getErrorCode(), ex.getMessage());
+        return Response.status(ex.getHttpStatus())
+                .entity(new ApiMessageResponse(ex.getMessage()))
                 .build();
     }
 

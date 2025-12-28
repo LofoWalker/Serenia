@@ -2,8 +2,15 @@
   [class]="containerClasses()"
   [attr.aria-label]="ariaLabel()"
 >
-  <div [class]="bubbleClasses()">
-    <p class="text-sm sm:text-base whitespace-pre-wrap break-words">{{ message().content }}</p>
+  <div class="flex flex-col" [class.items-end]="isUser()" [class.items-start]="!isUser()">
+    @if (message().timestamp) {
+      <p class="text-xs mb-1 text-primary-300">
+        {{ message().timestamp | date:'dd/MM/yyyy HH:mm' }}
+      </p>
+    }
+    <div [class]="bubbleClasses()">
+      <p class="text-sm sm:text-base whitespace-pre-wrap break-words">{{ message().content }}</p>
+    </div>
   </div>
 </div>
 

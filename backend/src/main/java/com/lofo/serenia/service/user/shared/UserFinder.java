@@ -8,6 +8,7 @@ import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Centralized service for finding users.
@@ -59,6 +60,20 @@ public class UserFinder {
      */
     public boolean existsByEmail(String email) {
         return userRepository.find("email", email).firstResultOptional().isPresent();
+    }
+
+    /**
+     * Finds a user by ID or throws NotFoundException.
+     *
+     * @param userId the user's UUID
+     * @return the user entity
+     * @throws NotFoundException if user with given ID does not exist
+     */
+    public User findByIdOrThrow(UUID userId) {
+        log.debug("Fetching user by id={}", userId);
+        return userRepository.find("id", userId)
+                .firstResultOptional()
+                .orElseThrow(() -> new NotFoundException(ERROR_USER_NOT_FOUND));
     }
 }
 

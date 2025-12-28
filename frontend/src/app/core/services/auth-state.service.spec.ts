@@ -1,6 +1,6 @@
-import { TestBed } from '@angular/core/testing';
-import { AuthStateService } from './auth-state.service';
-import { User } from '../models/user.model';
+import {TestBed} from '@angular/core/testing';
+import {AuthStateService} from './auth-state.service';
+import {User} from '../models/user.model';
 
 describe('AuthStateService', () => {
   let service: AuthStateService;

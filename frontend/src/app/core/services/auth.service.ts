@@ -12,6 +12,7 @@ import {
   User
 } from '../models/user.model';
 import {AuthStateService} from './auth-state.service';
+import {SubscriptionService} from './subscription.service';
 import {environment} from '../../../environments/environment';
 
 @Injectable({
@@ -20,6 +21,7 @@ import {environment} from '../../../environments/environment';
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly authState = inject(AuthStateService);
+  private readonly subscriptionService = inject(SubscriptionService);
   private readonly authUrl = `${environment.apiUrl}/auth`;
   private readonly profileUrl = `${environment.apiUrl}/profile`;
   private readonly passwordUrl = `${environment.apiUrl}/password`;
@@ -67,6 +69,7 @@ export class AuthService {
 
   logout(): void {
     this.authState.clear();
+    this.subscriptionService.clearStatus();
   }
 
   forgotPassword(request: ForgotPasswordRequest): Observable<ApiMessageResponse> {

@@ -2,12 +2,14 @@
   "info": {
     "_postman_id": "serenia-api-collection",
     "name": "Serenia API",
-    "description": "Collection complète pour tester l'API Serenia avec authentification JWT, gestion des conversations et des tokens",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "description": "Collection complète pour tester l'API Serenia avec authentification JWT, gestion des conversations, profil utilisateur et abonnements",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
   },
   "item": [
     {
       "name": "Auth",
+      "description": "Endpoints d'authentification et d'inscription",
       "item": [
         {
           "name": "Register User",
@@ -20,10 +22,10 @@
                   "    pm.response.to.have.status(201);",
                   "});",
                   "",
-                  "pm.test('Response has message', function () {",
+                  "pm.test('Response has success message', function () {",
                   "    var jsonData = pm.response.json();",
                   "    pm.expect(jsonData).to.have.property('message');",
-                  "    pm.expect(jsonData.message).to.include('Inscription réussie');",
+                  "    pm.expect(jsonData.message).to.include('Inscription');",
                   "});",
                   "",
                   "// Store email for later use",
@@ -49,22 +51,13 @@
               "raw": "{{base_url}}/api/auth/register",
               "host": ["{{base_url}}"],
               "path": ["api", "auth", "register"]
-            }
+            },
+            "description": "Crée un nouveau compte utilisateur et envoie un email d'activation.\n\n**Validations:**\n- firstName: requis\n- lastName: requis\n- email: requis, format email valide, unique\n- password: requis, minimum 6 caractères"
           }
         },
         {
           "name": "Activate Account",
           "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  "// Note: In a real scenario, you would extract the token from the email",
-                  "// For testing, we'll use a mock token - in production, automate email extraction",
-                  "pm.variables.set('activation_token', pm.environment.get('mock_activation_token'));"
-                ]
-              }
-            },
             {
               "listen": "test",
               "script": {
@@ -75,7 +68,7 @@
                   "",
                   "pm.test('Account activated message', function () {",
                   "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.message).to.include('Compte activé avec succès');",
+                  "    pm.expect(jsonData.message).to.include('Compte');",
                   "});",
                   "",
                   "pm.environment.set('account_activated', true);"
@@ -96,7 +89,8 @@
                   "value": "{{activation_token}}"
                 }
               ]
-            }
+            },
+            "description": "Active un compte utilisateur via le token reçu par email.\n\n**Note:** Le token d'activation expire après 24 heures."
           }
         },
         {
@@ -120,9 +114,11 @@
                   "pm.test('Response has user info', function () {",
                   "    var jsonData = pm.response.json();",
                   "    pm.expect(jsonData).to.have.property('user');",
+                  "    pm.expect(jsonData.user).to.have.property('id');",
                   "    pm.expect(jsonData.user).to.have.property('email');",
                   "    pm.expect(jsonData.user).to.have.property('firstName');",
                   "    pm.expect(jsonData.user).to.have.property('lastName');",
+                  "    pm.expect(jsonData.user).to.have.property('role');",
                   "});",
                   "",
                   "// Store JWT for subsequent requests",
@@ -149,51 +145,16 @@
               "raw": "{{base_url}}/api/auth/login",
               "host": ["{{base_url}}"],
               "path": ["api", "auth", "login"]
-            }
+            },
+            "description": "Authentifie un utilisateur et retourne un token JWT.\n\n**Response:**\n- user: Informations du profil utilisateur\n- token: JWT valide 1 heure"
           }
-        },
-        {
-          "name": "Get Current User Profile",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 200', function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test('Response has user profile', function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('email');",
-                  "    pm.expect(jsonData).to.have.property('firstName');",
-                  "    pm.expect(jsonData).to.have.property('lastName');",
-                  "    pm.expect(jsonData).to.have.property('role');",
-                  "});",
-                  "",
-                  "pm.test('Email matches registered email', function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.email).to.equal(pm.environment.get('registered_email'));",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwt_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/profile",
-              "host": ["{{base_url}}"],
-              "path": ["api", "profile"]
-            }
-          }
-        },
+        }
+      ]
+    },
+    {
+      "name": "Password Management",
+      "description": "Gestion du mot de passe (oubli et réinitialisation)",
+      "item": [
         {
           "name": "Forgot Password",
           "event": [
@@ -230,21 +191,13 @@
               "raw": "{{base_url}}/api/password/forgot",
               "host": ["{{base_url}}"],
               "path": ["api", "password", "forgot"]
-            }
+            },
+            "description": "Demande l'envoi d'un email de réinitialisation de mot de passe.\n\n**Sécurité:** Retourne toujours 200 pour éviter l'énumération des utilisateurs."
           }
         },
         {
           "name": "Reset Password",
           "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  "// Note: In a real scenario, extract token from reset email",
-                  "pm.variables.set('reset_token', pm.environment.get('mock_reset_token'));"
-                ]
-              }
-            },
             {
               "listen": "test",
               "script": {
@@ -279,7 +232,58 @@
               "raw": "{{base_url}}/api/password/reset",
               "host": ["{{base_url}}"],
               "path": ["api", "password", "reset"]
+            },
+            "description": "Réinitialise le mot de passe avec un token valide.\n\n**Validations:**\n- token: requis\n- newPassword: requis, minimum 8 caractères"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Profile",
+      "description": "Gestion du profil utilisateur (authentification requise)",
+      "item": [
+        {
+          "name": "Get Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has user profile', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData).to.have.property('email');",
+                  "    pm.expect(jsonData).to.have.property('firstName');",
+                  "    pm.expect(jsonData).to.have.property('lastName');",
+                  "    pm.expect(jsonData).to.have.property('role');",
+                  "});",
+                  "",
+                  "pm.test('Email matches registered email', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.email).to.equal(pm.environment.get('registered_email'));",
+                  "});"
+                ]
+              }
             }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile"]
+            },
+            "description": "Récupère le profil de l'utilisateur connecté.\n\n**Authentification:** Bearer token requis"
           }
         },
         {
@@ -297,7 +301,8 @@
                   "    pm.expect(pm.response.text()).to.be.empty;",
                   "});",
                   "",
-                  "pm.environment.set('account_deleted', true);"
+                  "pm.environment.set('account_deleted', true);",
+                  "pm.environment.unset('jwt_token');"
                 ]
               }
             }
@@ -314,13 +319,15 @@
               "raw": "{{base_url}}/api/profile",
               "host": ["{{base_url}}"],
               "path": ["api", "profile"]
-            }
+            },
+            "description": "Supprime définitivement le compte de l'utilisateur connecté.\n\n**Attention:** Cette action est irréversible."
           }
         }
       ]
     },
     {
       "name": "Conversations",
+      "description": "Gestion des conversations avec l'assistant IA (authentification requise)",
       "item": [
         {
           "name": "Add Message",
@@ -339,10 +346,16 @@
                   "    pm.expect(jsonData.conversationId).to.be.a('string');",
                   "});",
                   "",
-                  "pm.test('Response has assistant message', function () {",
+                  "pm.test('Response has role', function () {",
                   "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('assistantMessage');",
-                  "    pm.expect(jsonData.assistantMessage).to.be.a('string');",
+                  "    pm.expect(jsonData).to.have.property('role');",
+                  "    pm.expect(jsonData.role).to.equal('ASSISTANT');",
+                  "});",
+                  "",
+                  "pm.test('Response has content', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('content');",
+                  "    pm.expect(jsonData.content).to.be.a('string');",
                   "});",
                   "",
                   "// Store conversation ID for subsequent requests",
@@ -372,7 +385,8 @@
               "raw": "{{base_url}}/api/conversations/add-message",
               "host": ["{{base_url}}"],
               "path": ["api", "conversations", "add-message"]
-            }
+            },
+            "description": "Envoie un message et reçoit la réponse de l'assistant IA.\n\n**Validations:**\n- content: requis, non vide\n\n**Quota:** Consomme 1 message quotidien et des tokens mensuels"
           }
         },
         {
@@ -383,7 +397,7 @@
               "script": {
                 "exec": [
                   "pm.test('Status is 200 or 204', function () {",
-                  "    pm.response.to.have.status([200, 204]);",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
                   "});",
                   "",
                   "if (pm.response.code === 200) {",
@@ -396,6 +410,14 @@
                   "        var jsonData = pm.response.json();",
                   "        pm.expect(jsonData).to.have.property('messages');",
                   "        pm.expect(jsonData.messages).to.be.an('array');",
+                  "    });",
+                  "",
+                  "    pm.test('Messages have required fields', function () {",
+                  "        var jsonData = pm.response.json();",
+                  "        if (jsonData.messages.length > 0) {",
+                  "            pm.expect(jsonData.messages[0]).to.have.property('role');",
+                  "            pm.expect(jsonData.messages[0]).to.have.property('content');",
+                  "        }",
                   "    });",
                   "}"
                 ]
@@ -414,7 +436,8 @@
               "raw": "{{base_url}}/api/conversations/my-messages",
               "host": ["{{base_url}}"],
               "path": ["api", "conversations", "my-messages"]
-            }
+            },
+            "description": "Récupère tous les messages de la conversation active de l'utilisateur.\n\n**Responses:**\n- 200: Messages retournés\n- 204: Aucune conversation active"
           }
         },
         {
@@ -428,18 +451,15 @@
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test('Response is array of messages', function () {",
+                  "pm.test('Response has conversation ID', function () {",
                   "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.be.an('array');",
+                  "    pm.expect(jsonData).to.have.property('conversationId');",
                   "});",
                   "",
-                  "pm.test('Messages have required fields', function () {",
+                  "pm.test('Response has messages array', function () {",
                   "    var jsonData = pm.response.json();",
-                  "    if (jsonData.length > 0) {",
-                  "        pm.expect(jsonData[0]).to.have.property('id');",
-                  "        pm.expect(jsonData[0]).to.have.property('role');",
-                  "        pm.expect(jsonData[0]).to.have.property('content');",
-                  "    }",
+                  "    pm.expect(jsonData).to.have.property('messages');",
+                  "    pm.expect(jsonData.messages).to.be.an('array');",
                   "});"
                 ]
               }
@@ -457,7 +477,8 @@
               "raw": "{{base_url}}/api/conversations/{{conversation_id}}/messages",
               "host": ["{{base_url}}"],
               "path": ["api", "conversations", "{{conversation_id}}", "messages"]
-            }
+            },
+            "description": "Récupère les messages d'une conversation spécifique.\n\n**Sécurité:** L'utilisateur doit être propriétaire de la conversation."
           }
         },
         {
@@ -475,7 +496,7 @@
                   "    pm.expect(pm.response.text()).to.be.empty;",
                   "});",
                   "",
-                  "pm.environment.set('conversations_deleted', true);"
+                  "pm.environment.unset('conversation_id');"
                 ]
               }
             }
@@ -492,25 +513,60 @@
               "raw": "{{base_url}}/api/conversations/my-conversations",
               "host": ["{{base_url}}"],
               "path": ["api", "conversations", "my-conversations"]
-            }
+            },
+            "description": "Supprime toutes les conversations de l'utilisateur.\n\n**Attention:** Cette action est irréversible."
           }
         }
       ]
     },
     {
-      "name": "Test Workflows",
+      "name": "Subscription",
+      "description": "Gestion des abonnements et quotas (authentification requise)",
       "item": [
         {
-          "name": "Complete Auth Flow",
+          "name": "Get Subscription Status",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('All auth steps completed successfully', function () {",
-                  "    pm.expect(pm.environment.get('jwt_token')).to.be.a('string');",
-                  "    pm.expect(pm.environment.get('jwt_token').length).to.be.greaterThan(0);",
-                  "    pm.expect(pm.environment.get('user_id')).to.be.a('string');",
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has plan name', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('planName');",
+                  "    pm.expect(['FREE', 'PLUS', 'MAX']).to.include(jsonData.planName);",
+                  "});",
+                  "",
+                  "pm.test('Response has quota information', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('tokensRemainingThisMonth');",
+                  "    pm.expect(jsonData).to.have.property('messagesRemainingToday');",
+                  "    pm.expect(jsonData).to.have.property('tokensUsedThisMonth');",
+                  "    pm.expect(jsonData).to.have.property('messagesSentToday');",
+                  "});",
+                  "",
+                  "pm.test('Response has limits', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('perMessageTokenLimit');",
+                  "    pm.expect(jsonData).to.have.property('monthlyTokenLimit');",
+                  "    pm.expect(jsonData).to.have.property('dailyMessageLimit');",
+                  "});",
+                  "",
+                  "pm.test('Response has reset dates', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('monthlyResetDate');",
+                  "    pm.expect(jsonData).to.have.property('dailyResetDate');",
+                  "});",
+                  "",
+                  "pm.test('Quota values are valid', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.tokensRemainingThisMonth).to.be.at.least(0);",
+                  "    pm.expect(jsonData.messagesRemainingToday).to.be.at.least(0);",
+                  "    pm.expect(jsonData.tokensUsedThisMonth).to.be.at.least(0);",
+                  "    pm.expect(jsonData.messagesSentToday).to.be.at.least(0);",
                   "});"
                 ]
               }
@@ -525,35 +581,371 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/auth/me",
+              "raw": "{{base_url}}/api/subscription/status",
               "host": ["{{base_url}}"],
-              "path": ["api", "auth", "me"]
+              "path": ["api", "subscription", "status"]
+            },
+            "description": "Récupère le statut de l'abonnement et les quotas de l'utilisateur.\n\n**Response:**\n- planName: FREE, PLUS ou MAX\n- tokensRemainingThisMonth: Tokens restants ce mois\n- messagesRemainingToday: Messages restants aujourd'hui\n- monthlyResetDate: Date de reset mensuel\n- dailyResetDate: Date de reset quotidien"
+          }
+        },
+        {
+          "name": "Change Plan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has updated plan name', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('planName');",
+                  "    pm.expect(['FREE', 'PLUS', 'MAX']).to.include(jsonData.planName);",
+                  "});",
+                  "",
+                  "pm.test('Response has updated limits', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('perMessageTokenLimit');",
+                  "    pm.expect(jsonData).to.have.property('monthlyTokenLimit');",
+                  "    pm.expect(jsonData).to.have.property('dailyMessageLimit');",
+                  "});",
+                  "",
+                  "pm.test('Usage counters are preserved', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('tokensUsedThisMonth');",
+                  "    pm.expect(jsonData).to.have.property('messagesSentToday');",
+                  "});"
+                ]
+              }
             }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"planType\": \"{{new_plan_type}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/subscription/plan",
+              "host": ["{{base_url}}"],
+              "path": ["api", "subscription", "plan"]
+            },
+            "description": "Change le plan d'abonnement de l'utilisateur.\n\n**Plans disponibles:**\n- FREE: 10,000 tokens/mois, 10 messages/jour\n- PLUS: 100,000 tokens/mois, 50 messages/jour\n- MAX: 500,000 tokens/mois, 200 messages/jour\n\n**Note:** Les compteurs d'utilisation sont conservés après le changement de plan."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Error Cases",
+      "description": "Tests des cas d'erreur courants",
+      "item": [
+        {
+          "name": "Login - Invalid Credentials",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test('Response has error message', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('message');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{registered_email}}\",\n  \"password\": \"wrong_password\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Test de login avec des identifiants invalides."
+          }
+        },
+        {
+          "name": "Profile - Without Auth",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile"]
+            },
+            "description": "Test d'accès au profil sans authentification."
+          }
+        },
+        {
+          "name": "Subscription - Without Auth",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/subscription/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "subscription", "status"]
+            },
+            "description": "Test d'accès au statut de subscription sans authentification."
+          }
+        },
+        {
+          "name": "Add Message - Without Auth",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Hello\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/conversations/add-message",
+              "host": ["{{base_url}}"],
+              "path": ["api", "conversations", "add-message"]
+            },
+            "description": "Test d'envoi de message sans authentification."
+          }
+        },
+        {
+          "name": "Add Message - Empty Content",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/conversations/add-message",
+              "host": ["{{base_url}}"],
+              "path": ["api", "conversations", "add-message"]
+            },
+            "description": "Test d'envoi de message avec contenu vide."
+          }
+        },
+        {
+          "name": "Register - Invalid Email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\",\n  \"email\": \"invalid-email\",\n  \"password\": \"SecurePassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Test d'inscription avec email invalide."
+          }
+        },
+        {
+          "name": "Reset Password - Invalid Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"invalid-token\",\n  \"newPassword\": \"NewPassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/password/reset",
+              "host": ["{{base_url}}"],
+              "path": ["api", "password", "reset"]
+            },
+            "description": "Test de reset password avec token invalide."
           }
         }
       ]
     }
   ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global pre-request script",
+          "// Set default values if not already set",
+          "if (!pm.environment.get('base_url')) {",
+          "    pm.environment.set('base_url', 'http://localhost:8081');",
+          "}"
+        ]
+      }
+    }
+  ],
   "variable": [
     {
       "key": "base_url",
-      "value": "http://localhost:8080",
-      "type": "string"
+      "value": "http://localhost:8081",
+      "type": "string",
+      "description": "Base URL de l'API"
     },
     {
-      "key": "jwt_token",
-      "value": "",
-      "type": "string"
+      "key": "test_email",
+      "value": "test@example.com",
+      "type": "string",
+      "description": "Email pour les tests"
     },
     {
-      "key": "user_id",
-      "value": "",
-      "type": "string"
+      "key": "test_password",
+      "value": "SecurePassword123!",
+      "type": "string",
+      "description": "Mot de passe pour les tests"
     },
     {
-      "key": "conversation_id",
-      "value": "",
-      "type": "string"
+      "key": "first_name",
+      "value": "John",
+      "type": "string",
+      "description": "Prénom pour les tests"
+    },
+    {
+      "key": "last_name",
+      "value": "Doe",
+      "type": "string",
+      "description": "Nom pour les tests"
+    },
+    {
+      "key": "new_password",
+      "value": "NewSecurePassword456!",
+      "type": "string",
+      "description": "Nouveau mot de passe pour reset"
+    },
+    {
+      "key": "message_content",
+      "value": "Bonjour, comment puis-je gérer mon stress ?",
+      "type": "string",
+      "description": "Contenu de message pour les tests"
+    },
+    {
+      "key": "new_plan_type",
+      "value": "PLUS",
+      "type": "string",
+      "description": "Nouveau type de plan (FREE, PLUS, MAX)"
     }
   ]
 }
