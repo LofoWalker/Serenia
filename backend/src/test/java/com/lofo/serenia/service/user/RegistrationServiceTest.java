@@ -4,6 +4,7 @@ import com.lofo.serenia.exception.exceptions.SereniaException;
 import com.lofo.serenia.persistence.entity.user.User;
 import com.lofo.serenia.persistence.repository.UserRepository;
 import com.lofo.serenia.rest.dto.in.RegistrationRequestDTO;
+import com.lofo.serenia.service.subscription.SubscriptionService;
 import com.lofo.serenia.service.user.activation.AccountActivationService;
 import com.lofo.serenia.service.user.registration.RegistrationService;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
@@ -38,6 +39,8 @@ class RegistrationServiceTest {
     @Mock
     private AccountActivationService accountActivationService;
     @Mock
+    private SubscriptionService subscriptionService;
+    @Mock
     private PanacheQuery<User> panacheQuery;
     private RegistrationService registrationService;
     @BeforeEach
@@ -45,7 +48,8 @@ class RegistrationServiceTest {
         registrationService = new RegistrationService(
                 userRepository,
                 sereniaConfig,
-                accountActivationService
+                accountActivationService,
+                subscriptionService
         );
     }
     @Test
