@@ -21,7 +21,6 @@ import java.util.UUID;
 public class QuotaService {
 
     private final SubscriptionRepository subscriptionRepository;
-    private final SubscriptionService subscriptionService;
     private final TokenCountingService tokenCountingService;
 
     /**
@@ -33,7 +32,7 @@ public class QuotaService {
      */
     @Transactional
     public void checkQuotaBeforeCall(UUID userId) {
-        Subscription subscription = getOrCreateSubscriptionForUpdate(userId);
+        Subscription subscription = getSubscriptionForUpdate(userId);
         resetExpiredPeriods(subscription);
 
         validateMonthlyTokenLimit(userId, subscription);
@@ -51,7 +50,7 @@ public class QuotaService {
      */
     @Transactional
     public void recordUsage(UUID userId, String userMessage, String assistantResponse) {
-        Subscription subscription = getSubscriptionForUpdateOrThrow(userId);
+        Subscription subscription = getSubscriptionForUpdate(userId);
 
         int tokensUsed = tokenCountingService.countExchangeTokens(userMessage, assistantResponse);
         updateUsageCounters(subscription, tokensUsed);
@@ -83,14 +82,12 @@ public class QuotaService {
 
     // ========== Méthodes privées ==========
 
-    private Subscription getOrCreateSubscriptionForUpdate(UUID userId) {
+    private Subscription getSubscriptionForUpdate(UUID userId) {
         return subscriptionRepository.findByUserIdForUpdate(userId)
-                .orElseGet(() -> subscriptionService.createDefaultSubscription(userId));
-    }
-
-    private Subscription getSubscriptionForUpdateOrThrow(UUID userId) {
-        return subscriptionRepository.findByUserIdForUpdate(userId)
-                .orElseThrow(() -> new IllegalStateException("Subscription not found for user: " + userId));
+                .orElseThrow(() -> {
+                    log.error("Subscription not found for user {} - this should never happen", userId);
+                    return new IllegalStateException("Subscription not found for user: " + userId);
+                });
     }
 
     private void validateMonthlyTokenLimit(UUID userId, Subscription subscription) {

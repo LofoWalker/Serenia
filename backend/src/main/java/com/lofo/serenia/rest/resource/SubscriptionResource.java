@@ -1,7 +1,10 @@
 package com.lofo.serenia.rest.resource;
+
+import com.lofo.serenia.rest.dto.in.ChangePlanRequestDTO;
 import com.lofo.serenia.rest.dto.out.SubscriptionStatusDTO;
 import com.lofo.serenia.service.subscription.SubscriptionService;
 import io.quarkus.security.Authenticated;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -12,6 +15,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+
 import java.util.UUID;
 /**
  * Resource REST pour la gestion des subscriptions et l'observabilité des quotas.
@@ -51,6 +55,39 @@ public class SubscriptionResource {
         SubscriptionStatusDTO status = subscriptionService.getStatus(userId);
         return Response.ok(status).build();
     }
+
+    @PUT
+    @Path("/plan")
+    @Operation(
+            summary = "Change subscription plan",
+            description = "Changes the subscription plan for the authenticated user."
+    )
+    @APIResponses({
+            @APIResponse(
+                    responseCode = "200",
+                    description = "Plan changed successfully",
+                    content = @Content(schema = @Schema(implementation = SubscriptionStatusDTO.class))
+            ),
+            @APIResponse(
+                    responseCode = "400",
+                    description = "Invalid plan type"
+            ),
+            @APIResponse(
+                    responseCode = "401",
+                    description = "User not authenticated"
+            ),
+            @APIResponse(
+                    responseCode = "404",
+                    description = "Plan not found"
+            )
+    })
+    public Response changePlan(@Valid ChangePlanRequestDTO request) {
+        UUID userId = getAuthenticatedUserId();
+        subscriptionService.changePlan(userId, request.planType());
+        SubscriptionStatusDTO status = subscriptionService.getStatus(userId);
+        return Response.ok(status).build();
+    }
+
     private UUID getAuthenticatedUserId() {
         String subject = jwt.getSubject();
         return UUID.fromString(subject);

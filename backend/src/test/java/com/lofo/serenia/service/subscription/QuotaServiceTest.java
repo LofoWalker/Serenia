@@ -28,9 +28,6 @@ class QuotaServiceTest {
     private SubscriptionRepository subscriptionRepository;
 
     @Mock
-    private SubscriptionService subscriptionService;
-
-    @Mock
     private TokenCountingService tokenCountingService;
 
     private QuotaService quotaService;
@@ -40,7 +37,7 @@ class QuotaServiceTest {
 
     @BeforeEach
     void setUp() {
-        quotaService = new QuotaService(subscriptionRepository, subscriptionService, tokenCountingService);
+        quotaService = new QuotaService(subscriptionRepository, tokenCountingService);
         Plan freePlan = Plan.builder()
                 .id(UUID.randomUUID())
                 .name(PlanType.FREE)
@@ -102,14 +99,12 @@ class QuotaServiceTest {
         }
 
         @Test
-        @DisplayName("should create subscription if not exists")
-        void should_create_subscription_if_not_exists() {
+        @DisplayName("should throw exception when subscription not found")
+        void should_throw_exception_when_subscription_not_found() {
             when(subscriptionRepository.findByUserIdForUpdate(USER_ID))
                     .thenReturn(Optional.empty());
-            when(subscriptionService.createDefaultSubscription(USER_ID))
-                    .thenReturn(subscription);
-            assertDoesNotThrow(() -> quotaService.checkQuotaBeforeCall(USER_ID));
-            verify(subscriptionService).createDefaultSubscription(USER_ID);
+            assertThrows(IllegalStateException.class,
+                    () -> quotaService.checkQuotaBeforeCall(USER_ID));
         }
 
         @Test

@@ -65,6 +65,17 @@
       @if (errorMessage()) {
         <div class="mt-4">
           <app-alert type="error" [message]="errorMessage()" />
+          @if (quotaError()) {
+            <div class="mt-3 flex justify-center">
+              <app-button
+                variant="primary"
+                size="sm"
+                (clicked)="goToProfile()"
+              >
+                Changer de plan
+              </app-button>
+            </div>
+          }
         </div>
       }
     </div>
@@ -72,6 +83,19 @@
 
   <div class="border-t border-primary-800 bg-primary-900/50 backdrop-blur-sm p-4">
     <div class="max-w-3xl mx-auto">
+      <!-- Indicateur de messages restants -->
+      @if (subscriptionService.status(); as status) {
+        <div class="text-xs text-center mb-2"
+             [class.text-primary-500]="status.messagesRemainingToday > 2"
+             [class.text-yellow-500]="status.messagesRemainingToday <= 2 && status.messagesRemainingToday > 0"
+             [class.text-red-400]="status.messagesRemainingToday === 0">
+          @if (status.messagesRemainingToday === 0) {
+            <span>Aucun message restant aujourd'hui - <a routerLink="/profile" class="underline hover:text-red-300">Changer de plan</a></span>
+          } @else {
+            <span>{{ status.messagesRemainingToday }} message{{ status.messagesRemainingToday > 1 ? 's' : '' }} restant{{ status.messagesRemainingToday > 1 ? 's' : '' }} aujourd'hui</span>
+          }
+        </div>
+      }
       <app-chat-input
         #chatInput
         (messageSent)="onSendMessage($event)"
