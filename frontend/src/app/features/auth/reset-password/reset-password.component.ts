@@ -8,11 +8,13 @@ import {AuthStateService} from '../../../core/services/auth-state.service';
 import {ButtonComponent} from '../../../shared/ui/button/button.component';
 import {InputComponent} from '../../../shared/ui/input/input.component';
 import {AlertComponent} from '../../../shared/ui/alert/alert.component';
+import {PasswordStrengthComponent} from '../../../shared/ui/password-strength/password-strength.component';
+import {passwordValidator} from '../../../core/validators/password.validator';
 
 @Component({
   selector: 'app-reset-password',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink, ButtonComponent, InputComponent, AlertComponent],
+  imports: [ReactiveFormsModule, RouterLink, ButtonComponent, InputComponent, AlertComponent, PasswordStrengthComponent],
   templateUrl: './reset-password.component.html',
   styleUrl: './reset-password.component.css'
 })
@@ -28,11 +30,15 @@ export class ResetPasswordComponent implements OnInit {
   private token = '';
 
   protected readonly form = this.fb.nonNullable.group({
-    newPassword: ['', [Validators.required, Validators.minLength(8)]],
+    newPassword: ['', [Validators.required, passwordValidator()]],
     confirmPassword: ['', [Validators.required]]
   }, {
     validators: [this.passwordMatchValidator]
   });
+
+  protected get passwordValue(): string {
+    return this.form.get('newPassword')?.value || '';
+  }
 
   ngOnInit(): void {
     this.token = this.route.snapshot.queryParamMap.get('token') ?? '';
@@ -51,7 +57,7 @@ export class ResetPasswordComponent implements OnInit {
     const control = this.form.get(field);
     if (!control?.touched || !control.errors) return '';
     if (control.errors['required']) return 'Ce champ est requis';
-    if (control.errors['minlength']) return 'Le mot de passe doit contenir au moins 8 caractères.';
+    if (control.errors['passwordPolicy']) return '';  // Géré par le composant password-strength
     return '';
   }
 

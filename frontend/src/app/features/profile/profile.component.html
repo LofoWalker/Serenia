@@ -202,8 +202,11 @@
       <div class="space-y-6">
         <div class="p-4 bg-primary-900 border border-primary-800 rounded-lg">
           <h4 class="text-primary-200 font-medium mb-2">Supprimer mes conversations</h4>
-          <p class="text-primary-400 text-sm mb-4">
+          <p class="text-primary-400 text-sm mb-2">
             Cette action supprimera toutes vos conversations de manière définitive.
+          </p>
+          <p class="text-primary-500 text-xs mb-4">
+            Note : Les quotas de tokens et de messages ne seront pas réinitialisés.
           </p>
 
           @if (!showDeleteConversationsConfirm()) {

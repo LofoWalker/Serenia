@@ -8,11 +8,13 @@ import {AuthStateService} from '../../../core/services/auth-state.service';
 import {ButtonComponent} from '../../../shared/ui/button/button.component';
 import {InputComponent} from '../../../shared/ui/input/input.component';
 import {AlertComponent} from '../../../shared/ui/alert/alert.component';
+import {PasswordStrengthComponent} from '../../../shared/ui/password-strength/password-strength.component';
+import {passwordValidator} from '../../../core/validators/password.validator';
 
 @Component({
   selector: 'app-register',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink, ButtonComponent, InputComponent, AlertComponent],
+  imports: [ReactiveFormsModule, RouterLink, ButtonComponent, InputComponent, AlertComponent, PasswordStrengthComponent],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
 })
@@ -26,14 +28,19 @@ export class RegisterComponent {
     lastName: ['', [Validators.required]],
     firstName: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]]
+    password: ['', [Validators.required, passwordValidator()]]
   });
+
+  protected get passwordValue(): string {
+    return this.form.get('password')?.value || '';
+  }
+
   protected getFieldError(field: 'lastName' | 'firstName' | 'email' | 'password'): string {
     const control = this.form.get(field);
     if (!control?.touched || !control.errors) return '';
     if (control.errors['required']) return 'Ce champ est requis';
     if (control.errors['email']) return 'Email invalide';
-    if (control.errors['minlength']) return 'Minimum 6 caractères';
+    if (control.errors['passwordPolicy']) return '';  // Géré par le composant password-strength
     return '';
   }
   protected onSubmit(): void {

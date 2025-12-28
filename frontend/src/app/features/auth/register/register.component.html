@@ -50,11 +50,12 @@
           label="Mot de passe"
           type="password"
           formControlName="password"
-          placeholder="Minimum 6 caractères"
+          placeholder="Minimum 8 caractères"
           autocomplete="new-password"
           [required]="true"
           [error]="getFieldError('password')"
         />
+        <app-password-strength [password]="passwordValue" />
       </div>
 
       <div class="pt-4">
