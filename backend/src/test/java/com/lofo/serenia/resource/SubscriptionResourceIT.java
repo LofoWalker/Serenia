@@ -45,8 +45,8 @@ class SubscriptionResourceIT {
     private static final String TEST_EMAIL = "subscription-test@example.com";
 
     private UUID testUserId;
-    private UUID freePlanId;
-    private UUID plusPlanId;
+    private Plan freePlan;
+    private Plan plusPlan;
 
     @BeforeEach
     @Transactional
@@ -55,31 +55,11 @@ class SubscriptionResourceIT {
         subscriptionRepository.deleteAll();
         userRepository.deleteAll();
 
-        Plan freePlan = planRepository.findByName(PlanType.FREE)
-                .orElseGet(() -> {
-                    Plan plan = Plan.builder()
-                            .name(PlanType.FREE)
-                            .perMessageTokenLimit(1000)
-                            .monthlyTokenLimit(10000)
-                            .dailyMessageLimit(10)
-                            .build();
-                    planRepository.persist(plan);
-                    return plan;
-                });
-        freePlanId = freePlan.getId();
-
-        Plan plusPlan = planRepository.findByName(PlanType.PLUS)
-                .orElseGet(() -> {
-                    Plan plan = Plan.builder()
-                            .name(PlanType.PLUS)
-                            .perMessageTokenLimit(4000)
-                            .monthlyTokenLimit(100000)
-                            .dailyMessageLimit(50)
-                            .build();
-                    planRepository.persist(plan);
-                    return plan;
-                });
-        plusPlanId = plusPlan.getId();
+        // Load plans from database (seeded by Liquibase migration)
+        freePlan = planRepository.findByName(PlanType.FREE)
+                .orElseThrow(() -> new IllegalStateException("FREE plan not found in database"));
+        plusPlan = planRepository.findByName(PlanType.PLUS)
+                .orElseThrow(() -> new IllegalStateException("PLUS plan not found in database"));
 
         User testUser = User.builder()
                 .email(TEST_EMAIL)
@@ -106,19 +86,26 @@ class SubscriptionResourceIT {
     @Test
     @DisplayName("should return subscription status for authenticated user")
     void should_return_subscription_status_for_authenticated_user() {
+        final int tokensUsed = 1500;
+        final int messagesSent = 3;
+
         QuarkusTransaction.requiringNew().run(() -> {
             User user = userRepository.find("id", testUserId).firstResult();
-            Plan plan = planRepository.find("id", freePlanId).firstResult();
+            Plan plan = planRepository.findByName(PlanType.FREE).orElseThrow();
             Subscription subscription = Subscription.builder()
                     .user(user)
                     .plan(plan)
-                    .tokensUsedThisMonth(1500)
-                    .messagesSentToday(3)
+                    .tokensUsedThisMonth(tokensUsed)
+                    .messagesSentToday(messagesSent)
                     .monthlyPeriodStart(LocalDateTime.now())
                     .dailyPeriodStart(LocalDateTime.now())
                     .build();
             subscriptionRepository.persist(subscription);
         });
+
+        int expectedTokensRemaining = freePlan.getMonthlyTokenLimit() - tokensUsed;
+        int expectedMessagesRemaining = freePlan.getDailyMessageLimit() - messagesSent;
+
         String token = JwtTestTokenGenerator.generateToken(TEST_EMAIL, testUserId, "USER");
         given()
                 .header("Authorization", "Bearer " + token)
@@ -127,13 +114,13 @@ class SubscriptionResourceIT {
                 .then()
                 .statusCode(200)
                 .body("planName", equalTo("FREE"))
-                .body("tokensUsedThisMonth", equalTo(1500))
-                .body("messagesSentToday", equalTo(3))
-                .body("tokensRemainingThisMonth", equalTo(8500))
-                .body("messagesRemainingToday", equalTo(7))
-                .body("perMessageTokenLimit", equalTo(1000))
-                .body("monthlyTokenLimit", equalTo(10000))
-                .body("dailyMessageLimit", equalTo(10))
+                .body("tokensUsedThisMonth", equalTo(tokensUsed))
+                .body("messagesSentToday", equalTo(messagesSent))
+                .body("tokensRemainingThisMonth", equalTo(expectedTokensRemaining))
+                .body("messagesRemainingToday", equalTo(expectedMessagesRemaining))
+                .body("perMessageTokenLimit", equalTo(freePlan.getPerMessageTokenLimit()))
+                .body("monthlyTokenLimit", equalTo(freePlan.getMonthlyTokenLimit()))
+                .body("dailyMessageLimit", equalTo(freePlan.getDailyMessageLimit()))
                 .body("monthlyResetDate", notNullValue())
                 .body("dailyResetDate", notNullValue());
     }
@@ -153,19 +140,23 @@ class SubscriptionResourceIT {
     @Test
     @DisplayName("should return correct remaining quotas when near limit")
     void should_return_correct_remaining_quotas_when_near_limit() {
+        final int tokensUsed = freePlan.getMonthlyTokenLimit() - 1;
+        final int messagesSent = freePlan.getDailyMessageLimit() - 1;
+
         QuarkusTransaction.requiringNew().run(() -> {
             User user = userRepository.find("id", testUserId).firstResult();
-            Plan plan = planRepository.find("id", freePlanId).firstResult();
+            Plan plan = planRepository.findByName(PlanType.FREE).orElseThrow();
             Subscription subscription = Subscription.builder()
                     .user(user)
                     .plan(plan)
-                    .tokensUsedThisMonth(9999)
-                    .messagesSentToday(9)
+                    .tokensUsedThisMonth(tokensUsed)
+                    .messagesSentToday(messagesSent)
                     .monthlyPeriodStart(LocalDateTime.now())
                     .dailyPeriodStart(LocalDateTime.now())
                     .build();
             subscriptionRepository.persist(subscription);
         });
+
         String token = JwtTestTokenGenerator.generateToken(TEST_EMAIL, testUserId, "USER");
         given()
                 .header("Authorization", "Bearer " + token)
@@ -180,19 +171,23 @@ class SubscriptionResourceIT {
     @Test
     @DisplayName("should return zero remaining when at limit")
     void should_return_zero_remaining_when_at_limit() {
+        final int tokensUsed = freePlan.getMonthlyTokenLimit();
+        final int messagesSent = freePlan.getDailyMessageLimit();
+
         QuarkusTransaction.requiringNew().run(() -> {
             User user = userRepository.find("id", testUserId).firstResult();
-            Plan plan = planRepository.find("id", freePlanId).firstResult();
+            Plan plan = planRepository.findByName(PlanType.FREE).orElseThrow();
             Subscription subscription = Subscription.builder()
                     .user(user)
                     .plan(plan)
-                    .tokensUsedThisMonth(10000)
-                    .messagesSentToday(10)
+                    .tokensUsedThisMonth(tokensUsed)
+                    .messagesSentToday(messagesSent)
                     .monthlyPeriodStart(LocalDateTime.now())
                     .dailyPeriodStart(LocalDateTime.now())
                     .build();
             subscriptionRepository.persist(subscription);
         });
+
         String token = JwtTestTokenGenerator.generateToken(TEST_EMAIL, testUserId, "USER");
         given()
                 .header("Authorization", "Bearer " + token)
@@ -221,14 +216,17 @@ class SubscriptionResourceIT {
     @Test
     @DisplayName("should change plan from FREE to PLUS")
     void should_change_plan_from_free_to_plus() {
+        final int tokensUsed = 500;
+        final int messagesSent = 2;
+
         QuarkusTransaction.requiringNew().run(() -> {
             User user = userRepository.find("id", testUserId).firstResult();
-            Plan plan = planRepository.find("id", freePlanId).firstResult();
+            Plan plan = planRepository.findByName(PlanType.FREE).orElseThrow();
             Subscription subscription = Subscription.builder()
                     .user(user)
                     .plan(plan)
-                    .tokensUsedThisMonth(500)
-                    .messagesSentToday(2)
+                    .tokensUsedThisMonth(tokensUsed)
+                    .messagesSentToday(messagesSent)
                     .monthlyPeriodStart(LocalDateTime.now())
                     .dailyPeriodStart(LocalDateTime.now())
                     .build();
@@ -246,24 +244,27 @@ class SubscriptionResourceIT {
                 .then()
                 .statusCode(200)
                 .body("planName", equalTo("PLUS"))
-                .body("monthlyTokenLimit", equalTo(100000))
-                .body("dailyMessageLimit", equalTo(50))
-                .body("perMessageTokenLimit", equalTo(4000))
-                .body("tokensUsedThisMonth", equalTo(500))
-                .body("messagesSentToday", equalTo(2));
+                .body("monthlyTokenLimit", equalTo(plusPlan.getMonthlyTokenLimit()))
+                .body("dailyMessageLimit", equalTo(plusPlan.getDailyMessageLimit()))
+                .body("perMessageTokenLimit", equalTo(plusPlan.getPerMessageTokenLimit()))
+                .body("tokensUsedThisMonth", equalTo(tokensUsed))
+                .body("messagesSentToday", equalTo(messagesSent));
     }
 
     @Test
     @DisplayName("should change plan from PLUS to FREE")
     void should_change_plan_from_plus_to_free() {
+        final int tokensUsed = 1000;
+        final int messagesSent = 5;
+
         QuarkusTransaction.requiringNew().run(() -> {
             User user = userRepository.find("id", testUserId).firstResult();
-            Plan plan = planRepository.find("id", plusPlanId).firstResult();
+            Plan plan = planRepository.findByName(PlanType.PLUS).orElseThrow();
             Subscription subscription = Subscription.builder()
                     .user(user)
                     .plan(plan)
-                    .tokensUsedThisMonth(1000)
-                    .messagesSentToday(5)
+                    .tokensUsedThisMonth(tokensUsed)
+                    .messagesSentToday(messagesSent)
                     .monthlyPeriodStart(LocalDateTime.now())
                     .dailyPeriodStart(LocalDateTime.now())
                     .build();
@@ -281,8 +282,8 @@ class SubscriptionResourceIT {
                 .then()
                 .statusCode(200)
                 .body("planName", equalTo("FREE"))
-                .body("monthlyTokenLimit", equalTo(10000))
-                .body("dailyMessageLimit", equalTo(10));
+                .body("monthlyTokenLimit", equalTo(freePlan.getMonthlyTokenLimit()))
+                .body("dailyMessageLimit", equalTo(freePlan.getDailyMessageLimit()));
     }
 
     @Test
@@ -290,7 +291,7 @@ class SubscriptionResourceIT {
     void should_return_400_when_plan_type_is_missing() {
         QuarkusTransaction.requiringNew().run(() -> {
             User user = userRepository.find("id", testUserId).firstResult();
-            Plan plan = planRepository.find("id", freePlanId).firstResult();
+            Plan plan = planRepository.findByName(PlanType.FREE).orElseThrow();
             Subscription subscription = Subscription.builder()
                     .user(user)
                     .plan(plan)

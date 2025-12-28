@@ -153,13 +153,13 @@ databaseChangeLog:
                   value: FREE
               - column:
                   name: per_message_token_limit
-                  valueNumeric: 1000
+                  valueNumeric: 80
               - column:
                   name: monthly_token_limit
-                  valueNumeric: 10000
+                  valueNumeric: 48000
               - column:
                   name: daily_message_limit
-                  valueNumeric: 10
+                  valueNumeric: 20
               - column:
                   name: created_at
                   valueComputed: NOW()
@@ -178,13 +178,13 @@ databaseChangeLog:
                   value: PLUS
               - column:
                   name: per_message_token_limit
-                  valueNumeric: 4000
+                  valueNumeric: 250
               - column:
                   name: monthly_token_limit
-                  valueNumeric: 100000
+                  valueNumeric: 300000
               - column:
                   name: daily_message_limit
-                  valueNumeric: 50
+                  valueNumeric: 40
               - column:
                   name: created_at
                   valueComputed: NOW()
@@ -203,13 +203,13 @@ databaseChangeLog:
                   value: MAX
               - column:
                   name: per_message_token_limit
-                  valueNumeric: 8000
+                  valueNumeric: 500
               - column:
                   name: monthly_token_limit
-                  valueNumeric: 500000
+                  valueNumeric: 1200000
               - column:
                   name: daily_message_limit
-                  valueNumeric: 200
+                  valueNumeric: 80
               - column:
                   name: created_at
                   valueComputed: NOW()
@@ -241,4 +241,3 @@ databaseChangeLog:
               WHERE NOT EXISTS (
                   SELECT 1 FROM subscriptions s WHERE s.user_id = u.id
               )
-

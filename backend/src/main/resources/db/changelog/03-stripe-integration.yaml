@@ -1,0 +1,118 @@
+databaseChangeLog:
+  # ==========================================
+  # Stripe Integration Migration
+  # ==========================================
+  - changeSet:
+      id: 03-stripe-integration-plans
+      author: serenia
+      comment: "Add Stripe fields to plans table"
+      changes:
+        - addColumn:
+            tableName: plans
+            columns:
+              - column:
+                  name: price_cents
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+                  defaultValueNumeric: 0
+
+        - addColumn:
+            tableName: plans
+            columns:
+              - column:
+                  name: currency
+                  type: varchar(3)
+                  constraints:
+                    nullable: false
+                  defaultValue: 'EUR'
+
+        - addColumn:
+            tableName: plans
+            columns:
+              - column:
+                  name: stripe_price_id
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+
+  - changeSet:
+      id: 03-stripe-integration-subscriptions
+      author: serenia
+      comment: "Add Stripe fields to subscriptions table"
+      changes:
+        - addColumn:
+            tableName: subscriptions
+            columns:
+              - column:
+                  name: stripe_customer_id
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+
+        - addColumn:
+            tableName: subscriptions
+            columns:
+              - column:
+                  name: stripe_subscription_id
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+
+        - addColumn:
+            tableName: subscriptions
+            columns:
+              - column:
+                  name: status
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+                  defaultValue: 'ACTIVE'
+
+        - addColumn:
+            tableName: subscriptions
+            columns:
+              - column:
+                  name: current_period_end
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: true
+
+        - addColumn:
+            tableName: subscriptions
+            columns:
+              - column:
+                  name: cancel_at_period_end
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
+                  defaultValueBoolean: false
+
+  - changeSet:
+      id: 03-stripe-integration-update-plans-prices
+      author: serenia
+      comment: "Set prices for existing plans"
+      changes:
+        - update:
+            tableName: plans
+            columns:
+              - column:
+                  name: price_cents
+                  valueNumeric: 0
+            where: name = 'FREE'
+
+        - update:
+            tableName: plans
+            columns:
+              - column:
+                  name: price_cents
+                  valueNumeric: 500
+            where: name = 'PLUS'
+
+        - update:
+            tableName: plans
+            columns:
+              - column:
+                  name: price_cents
+                  valueNumeric: 1000
+            where: name = 'MAX'

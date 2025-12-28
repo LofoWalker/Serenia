@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Service de gestion des subscriptions utilisateurs.
- * Gère la création, récupération et modification des abonnements.
+ * User subscription management service.
+ * Handles subscription creation, retrieval, and modification.
  */
 @Slf4j
 @ApplicationScoped
@@ -33,10 +33,10 @@ public class SubscriptionService {
     private final UserFinder userFinder;
 
     /**
-     * Crée une subscription avec le plan FREE par défaut.
+     * Creates a subscription with the default FREE plan.
      *
-     * @param userId l'identifiant de l'utilisateur
-     * @return la subscription créée
+     * @param userId the user identifier
+     * @return the created subscription
      */
     @Transactional
     public Subscription createDefaultSubscription(UUID userId) {
@@ -44,12 +44,12 @@ public class SubscriptionService {
     }
 
     /**
-     * Crée une subscription pour un utilisateur avec le plan spécifié.
+     * Creates a subscription for a user with the specified plan.
      *
-     * @param userId   l'identifiant de l'utilisateur
-     * @param planType le type de plan à associer
-     * @return la subscription créée
-     * @throws SereniaException si l'utilisateur a déjà une subscription ou n'existe pas
+     * @param userId   the user identifier
+     * @param planType the plan type to associate
+     * @return the created subscription
+     * @throws SereniaException if the user already has a subscription or doesn't exist
      */
     @Transactional
     public Subscription createSubscription(UUID userId, PlanType planType) {
@@ -66,12 +66,12 @@ public class SubscriptionService {
     }
 
     /**
-     * Récupère la subscription d'un utilisateur.
-     * La subscription doit exister (créée à l'inscription).
+     * Retrieves a user's subscription.
+     * The subscription must exist (created at registration).
      *
-     * @param userId l'identifiant de l'utilisateur
-     * @return la subscription de l'utilisateur
-     * @throws SereniaException si la subscription n'existe pas
+     * @param userId the user identifier
+     * @return the user's subscription
+     * @throws SereniaException if the subscription doesn't exist
      */
     @Transactional
     public Subscription getSubscription(UUID userId) {
@@ -83,12 +83,12 @@ public class SubscriptionService {
     }
 
     /**
-     * Change le plan d'un utilisateur.
+     * Changes a user's plan.
      *
-     * @param userId      l'identifiant de l'utilisateur
-     * @param newPlanType le nouveau type de plan
-     * @return la subscription mise à jour
-     * @throws SereniaException si la subscription ou le plan n'existe pas
+     * @param userId      the user identifier
+     * @param newPlanType the new plan type
+     * @return the updated subscription
+     * @throws SereniaException if the subscription or plan doesn't exist
      */
     @Transactional
     public Subscription changePlan(UUID userId, PlanType newPlanType) {
@@ -104,10 +104,10 @@ public class SubscriptionService {
     }
 
     /**
-     * Récupère le statut complet de la subscription d'un utilisateur.
+     * Retrieves the complete subscription status of a user.
      *
-     * @param userId l'identifiant de l'utilisateur
-     * @return le DTO contenant le statut de la subscription
+     * @param userId the user identifier
+     * @return the DTO containing the subscription status
      */
     @Transactional
     public SubscriptionStatusDTO getStatus(UUID userId) {
@@ -116,17 +116,15 @@ public class SubscriptionService {
     }
 
     /**
-     * Récupère la liste de tous les plans disponibles.
+     * Retrieves the list of all available plans.
      *
-     * @return la liste des plans sous forme de DTO
+     * @return the list of plans as DTOs
      */
     public List<PlanDTO> getAllPlans() {
         return planRepository.listAll().stream()
                 .map(PlanDTO::from)
                 .toList();
     }
-
-    // ========== Méthodes privées ==========
 
     private void validateNoExistingSubscription(UUID userId) {
         if (subscriptionRepository.existsByUserId(userId)) {
@@ -162,6 +160,9 @@ public class SubscriptionService {
         LocalDateTime monthlyResetDate = subscription.getMonthlyPeriodStart().plusMonths(1);
         LocalDateTime dailyResetDate = subscription.getDailyPeriodStart().plusDays(1);
 
+        boolean hasStripeSubscription = subscription.getStripeSubscriptionId() != null
+                && !subscription.getStripeSubscriptionId().isEmpty();
+
         return new SubscriptionStatusDTO(
                 plan.getName().name(),
                 tokensRemaining,
@@ -172,7 +173,13 @@ public class SubscriptionService {
                 subscription.getTokensUsedThisMonth(),
                 subscription.getMessagesSentToday(),
                 monthlyResetDate,
-                dailyResetDate
+                dailyResetDate,
+                subscription.getStatus().name(),
+                subscription.getCurrentPeriodEnd(),
+                subscription.getCancelAtPeriodEnd() != null && subscription.getCancelAtPeriodEnd(),
+                plan.getPriceCents(),
+                plan.getCurrency(),
+                hasStripeSubscription
         );
     }
 }

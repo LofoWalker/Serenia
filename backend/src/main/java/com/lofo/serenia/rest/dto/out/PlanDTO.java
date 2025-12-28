@@ -4,31 +4,29 @@ import com.lofo.serenia.persistence.entity.subscription.Plan;
 import com.lofo.serenia.persistence.entity.subscription.PlanType;
 
 /**
- * DTO représentant un plan d'abonnement disponible.
+ * DTO representing an available subscription plan.
  */
 public record PlanDTO(
         PlanType type,
         String name,
         Integer monthlyTokenLimit,
         Integer dailyMessageLimit,
-        Integer perMessageTokenLimit
+        Integer perMessageTokenLimit,
+        Integer priceCents,
+        String currency
 ) {
-    /**
-     * Crée un PlanDTO à partir d'une entité Plan.
-     */
     public static PlanDTO from(Plan plan) {
         return new PlanDTO(
                 plan.getName(),
                 getDisplayName(plan.getName()),
                 plan.getMonthlyTokenLimit(),
                 plan.getDailyMessageLimit(),
-                plan.getPerMessageTokenLimit()
+                plan.getPerMessageTokenLimit(),
+                plan.getPriceCents(),
+                plan.getCurrency()
         );
     }
 
-    /**
-     * Retourne le nom d'affichage du plan.
-     */
     private static String getDisplayName(PlanType type) {
         return switch (type) {
             case FREE -> "Gratuit";

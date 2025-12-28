@@ -8,6 +8,9 @@ export type PlanType = 'FREE' | 'PLUS' | 'MAX';
 // Types de quota pour les erreurs
 export type QuotaType = 'DAILY_MESSAGE_LIMIT' | 'MONTHLY_TOKEN_LIMIT' | 'MESSAGE_TOKEN_LIMIT';
 
+// Statuts d'abonnement Stripe
+export type SubscriptionStatusType = 'ACTIVE' | 'CANCELED' | 'PAST_DUE' | 'INCOMPLETE' | 'UNPAID';
+
 /**
  * DTO du statut d'abonnement (réponse API)
  */
@@ -22,6 +25,13 @@ export interface SubscriptionStatusDTO {
   messagesSentToday: number;
   monthlyResetDate: string;  // ISO 8601
   dailyResetDate: string;    // ISO 8601
+  // Champs Stripe
+  status: SubscriptionStatusType;
+  currentPeriodEnd: string | null;  // ISO 8601
+  cancelAtPeriodEnd: boolean;
+  priceCents: number;
+  currency: string;
+  hasStripeSubscription: boolean;
 }
 
 /**
@@ -43,6 +53,28 @@ export interface ChangePlanRequestDTO {
 }
 
 /**
+ * DTO pour la requête de checkout Stripe
+ */
+export interface CheckoutRequestDTO {
+  planType: PlanType;
+}
+
+/**
+ * DTO pour la réponse de session Checkout Stripe
+ */
+export interface CheckoutSessionDTO {
+  sessionId: string;
+  url: string;
+}
+
+/**
+ * DTO pour la réponse de session Portail Stripe
+ */
+export interface PortalSessionDTO {
+  url: string;
+}
+
+/**
  * DTO d'un plan (réponse API GET /api/subscription/plans)
  */
 export interface PlanDTO {
@@ -51,6 +83,8 @@ export interface PlanDTO {
   monthlyTokenLimit: number;
   dailyMessageLimit: number;
   perMessageTokenLimit: number;
+  priceCents: number;
+  currency: string;
 }
 
 /**
@@ -58,5 +92,16 @@ export interface PlanDTO {
  */
 export function getPlanByType(plans: PlanDTO[], planType: PlanType): PlanDTO | undefined {
   return plans.find(plan => plan.type === planType);
+}
+
+/**
+ * Formate un prix en centimes vers une chaîne de caractères
+ */
+export function formatPrice(priceCents: number, currency: string = 'EUR'): string {
+  const price = priceCents / 100;
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: currency.toUpperCase()
+  }).format(price);
 }
 
