@@ -1,0 +1,5 @@
+# By default ignore what is unnecessary
+/target/
+/.idea/
+*.iml
+/.git/

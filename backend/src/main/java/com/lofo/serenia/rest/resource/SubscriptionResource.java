@@ -29,7 +29,7 @@ import java.util.UUID;
  * REST resource for subscription management and quota observability.
  */
 @Authenticated
-@Path("/api/subscription")
+@Path("/subscription")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Tag(name = "Subscription", description = "Manage subscription and view quota status")

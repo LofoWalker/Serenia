@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Authenticated
-@Path("/api/conversations")
+@Path("/conversations")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Tag(name = "Conversations", description = "Manage chat conversations and messages")

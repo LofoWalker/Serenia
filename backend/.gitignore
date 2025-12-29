@@ -30,8 +30,4 @@ keys/
 .DS_Store
 Thumbs.db
 
-# Maven wrapper cache
-/.mvn/
-/mvnw
-/mvnw.cmd
-
+.github/

@@ -23,7 +23,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
  * Handles password reset requests and token-based password resets.
  */
 @Slf4j
-@Path("/api/password")
+@Path("/password")
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "Password Management")
 public class PasswordManagementResource {

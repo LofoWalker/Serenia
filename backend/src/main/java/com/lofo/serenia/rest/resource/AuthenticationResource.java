@@ -24,7 +24,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
  * Handles credentials validation and JWT token generation.
  */
 @Slf4j
-@Path("/api/auth/login")
+@Path("/auth/login")
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "Authentication")
 public class AuthenticationResource {

@@ -1,24 +1,30 @@
-# Dockerfile for running a local PostgreSQL instance compatible with Serenity backend
-FROM postgres:16-alpine
+# Build stage
+FROM maven:3.9.6-eclipse-temurin-21 AS build
+WORKDIR /project
 
-LABEL maintainer="Serenia" \
-      org.opencontainers.image.source="https://github.com/lofo/serenia" \
-      org.opencontainers.image.description="PostgreSQL database for Serenity backend"
+COPY pom.xml /project/
+RUN mvn -B -ntp -DskipTests dependency:go-offline
+COPY src src
 
-ENV POSTGRES_DB=serenia \
-    POSTGRES_USER=serenia \
-    POSTGRES_PASSWORD=serenia \
-    PGDATA=/var/lib/postgresql/data/pgdata
+RUN mvn -B -ntp package -DskipTests -Dquarkus.package.type=fast-jar
 
-# Expose default PostgreSQL port
-EXPOSE 5432
+# Runtime stage
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /work
 
-# Persist database files
-VOLUME ["/var/lib/postgresql/data"]
+RUN addgroup -g 1000 app && adduser -D -u 1000 -G app app
 
-# Simple healthcheck to ensure PostgreSQL is accepting connections
-HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=5 \
-    CMD pg_isready -d "$POSTGRES_DB" -U "$POSTGRES_USER" || exit 1
+COPY --from=build --chown=app:app /project/target/quarkus-app/app /work/app
+COPY --from=build --chown=app:app /project/target/quarkus-app/quarkus /work/quarkus
+COPY --from=build --chown=app:app /project/target/quarkus-app/lib /work/lib
+COPY --from=build --chown=app:app /project/target/quarkus-app/quarkus-run.jar /work/application.jar
 
-# Default entrypoint/cmd provided by postgres image will start the database
+# Entrypoint
+COPY docker-entrypoint.sh /work/docker-entrypoint.sh
+RUN chmod 775 /work /work/docker-entrypoint.sh
 
+USER app
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-Dquarkus.http.host=0.0.0.0", "-jar", "/work/application.jar"]

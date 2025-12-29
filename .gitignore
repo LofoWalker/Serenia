@@ -27,12 +27,8 @@ backend/failsafe-reports/
 backend/.env
 backend/.env.*
 
-# Dependency downloads
-backend/.mvn/wrapper/maven-wrapper.jar
-backend/.mvn/wrapper/maven-wrapper.properties
-backend/mvnw
-backend/mvnw.cmd
+traefik/acme.json
 
-.github
+.github/agents
 
 .env
