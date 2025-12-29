@@ -27,6 +27,7 @@
         <lombok.version>1.18.30</lombok.version>
         <openai-java-version>4.7.1</openai-java-version>
         <assertj.version>3.24.2</assertj.version>
+        <stripe.version>28.2.0</stripe.version>
     </properties>
 
     <dependencies>
@@ -138,6 +139,19 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-mailer</artifactId>
+        </dependency>
+
+        <!-- Gson is needed at compile time for Stripe webhooks - must be declared before Stripe -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
+
+        <!-- Stripe Payment -->
+        <dependency>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+            <version>${stripe.version}</version>
         </dependency>
 
         <!-- Test Dependencies -->

@@ -1,8 +1,12 @@
 package com.lofo.serenia.rest.resource;
 
 import com.lofo.serenia.rest.dto.in.ChangePlanRequestDTO;
+import com.lofo.serenia.rest.dto.in.CheckoutRequestDTO;
+import com.lofo.serenia.rest.dto.out.CheckoutSessionDTO;
 import com.lofo.serenia.rest.dto.out.PlanDTO;
+import com.lofo.serenia.rest.dto.out.PortalSessionDTO;
 import com.lofo.serenia.rest.dto.out.SubscriptionStatusDTO;
+import com.lofo.serenia.service.subscription.StripeService;
 import com.lofo.serenia.service.subscription.SubscriptionService;
 import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
@@ -20,8 +24,9 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.util.List;
 import java.util.UUID;
+
 /**
- * Resource REST pour la gestion des subscriptions et l'observabilité des quotas.
+ * REST resource for subscription management and quota observability.
  */
 @Authenticated
 @Path("/api/subscription")
@@ -29,10 +34,16 @@ import java.util.UUID;
 @Consumes(MediaType.APPLICATION_JSON)
 @Tag(name = "Subscription", description = "Manage subscription and view quota status")
 public class SubscriptionResource {
+
     private final SubscriptionService subscriptionService;
+    private final StripeService stripeService;
     private final JsonWebToken jwt;
-    public SubscriptionResource(SubscriptionService subscriptionService, JsonWebToken jwt) {
+
+    public SubscriptionResource(SubscriptionService subscriptionService,
+                                 StripeService stripeService,
+                                 JsonWebToken jwt) {
         this.subscriptionService = subscriptionService;
+        this.stripeService = stripeService;
         this.jwt = jwt;
     }
 
@@ -109,6 +120,62 @@ public class SubscriptionResource {
         subscriptionService.changePlan(userId, request.planType());
         SubscriptionStatusDTO status = subscriptionService.getStatus(userId);
         return Response.ok(status).build();
+    }
+
+    @POST
+    @Path("/checkout")
+    @Operation(
+            summary = "Create Stripe Checkout session",
+            description = "Creates a Stripe Checkout session for subscribing to a paid plan. " +
+                    "Returns a URL to redirect the user to Stripe's payment page."
+    )
+    @APIResponses({
+            @APIResponse(
+                    responseCode = "200",
+                    description = "Checkout session created successfully",
+                    content = @Content(schema = @Schema(implementation = CheckoutSessionDTO.class))
+            ),
+            @APIResponse(
+                    responseCode = "400",
+                    description = "Invalid plan type (e.g., trying to checkout for FREE plan)"
+            ),
+            @APIResponse(
+                    responseCode = "401",
+                    description = "User not authenticated"
+            )
+    })
+    public Response createCheckoutSession(@Valid CheckoutRequestDTO request) {
+        UUID userId = getAuthenticatedUserId();
+        CheckoutSessionDTO session = stripeService.createCheckoutSession(userId, request.planType());
+        return Response.ok(session).build();
+    }
+
+    @POST
+    @Path("/portal")
+    @Operation(
+            summary = "Create Stripe Customer Portal session",
+            description = "Creates a Stripe Customer Portal session for managing subscription. " +
+                    "Returns a URL to redirect the user to Stripe's customer portal."
+    )
+    @APIResponses({
+            @APIResponse(
+                    responseCode = "200",
+                    description = "Portal session created successfully",
+                    content = @Content(schema = @Schema(implementation = PortalSessionDTO.class))
+            ),
+            @APIResponse(
+                    responseCode = "400",
+                    description = "User has no Stripe customer (never subscribed)"
+            ),
+            @APIResponse(
+                    responseCode = "401",
+                    description = "User not authenticated"
+            )
+    })
+    public Response createPortalSession() {
+        UUID userId = getAuthenticatedUserId();
+        PortalSessionDTO session = stripeService.createPortalSession(userId);
+        return Response.ok(session).build();
     }
 
     private UUID getAuthenticatedUserId() {

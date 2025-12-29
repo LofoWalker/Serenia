@@ -38,6 +38,15 @@ public class Plan {
     @Column(name = "daily_message_limit", nullable = false)
     private Integer dailyMessageLimit;
 
+    @Column(name = "price_cents", nullable = false)
+    private Integer priceCents;
+
+    @Column(name = "currency", nullable = false, length = 3)
+    private String currency;
+
+    @Column(name = "stripe_price_id", length = 255)
+    private String stripePriceId;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

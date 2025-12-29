@@ -52,6 +52,24 @@ public class Subscription {
     @Column(name = "daily_period_start", nullable = false)
     private LocalDateTime dailyPeriodStart;
 
+    @Column(name = "stripe_customer_id", length = 255)
+    private String stripeCustomerId;
+
+    @Column(name = "stripe_subscription_id", length = 255)
+    private String stripeSubscriptionId;
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    @Column(name = "status", nullable = false, length = 32)
+    private SubscriptionStatus status = SubscriptionStatus.ACTIVE;
+
+    @Column(name = "current_period_end")
+    private LocalDateTime currentPeriodEnd;
+
+    @Builder.Default
+    @Column(name = "cancel_at_period_end", nullable = false)
+    private Boolean cancelAtPeriodEnd = false;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
