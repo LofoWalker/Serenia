@@ -1,0 +1,11 @@
+# Ignorer par défaut ce qui est inutile
+/target/
+/.idea/
+*.iml
+/.git/
+
+# Maven Wrapper requis pour builder dans l'image
+!/.mvn/
+!/.mvn/**
+!/mvnw
+!/mvnw.cmd

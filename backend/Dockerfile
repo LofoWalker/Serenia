@@ -1,24 +1,36 @@
-# Dockerfile for running a local PostgreSQL instance compatible with Serenity backend
-FROM postgres:16-alpine
+# Build stage - Quarkus native (GraalVM)
+FROM quay.io/quarkus/ubi-quarkus-mandrel-builder-image:23.1-java21 AS build
+WORKDIR /project
 
-LABEL maintainer="Serenia" \
-      org.opencontainers.image.source="https://github.com/lofo/serenia" \
-      org.opencontainers.image.description="PostgreSQL database for Serenity backend"
+# Optionnel: éviter les prompts + s'assurer des paquets requis pour l'édition de liens
+USER root
+RUN microdnf install -y findutils && microdnf clean all
+USER 1001
 
-ENV POSTGRES_DB=serenia \
-    POSTGRES_USER=serenia \
-    POSTGRES_PASSWORD=serenia \
-    PGDATA=/var/lib/postgresql/data/pgdata
+# Copier d'abord les fichiers de build pour maximiser le cache Docker
+COPY --chown=1001:root pom.xml mvnw /project/
+COPY --chown=1001:root .mvn /project/.mvn
 
-# Expose default PostgreSQL port
-EXPOSE 5432
+# Pré-télécharger les dépendances
+RUN ./mvnw -B -ntp dependency:go-offline
 
-# Persist database files
-VOLUME ["/var/lib/postgresql/data"]
+# Copier ensuite les sources
+COPY --chown=1001:root src src
 
-# Simple healthcheck to ensure PostgreSQL is accepting connections
-HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=5 \
-    CMD pg_isready -d "$POSTGRES_DB" -U "$POSTGRES_USER" || exit 1
+# Build natif (le profil s'active via -Dnative)
+RUN ./mvnw -B -ntp package -Dnative -DskipTests
 
-# Default entrypoint/cmd provided by postgres image will start the database
+# Runtime stage - minimal image
+FROM quay.io/quarkus/quarkus-micro-image:2.0
+WORKDIR /work/
 
+# Quarkus produit: target/*-runner
+COPY --from=build /project/target/*-runner /work/application
+
+# Entrypoint: injecte les secrets (fichiers) en variables d'env attendues par Quarkus
+COPY docker-entrypoint.sh /work/docker-entrypoint.sh
+RUN chmod 775 /work /work/application /work/docker-entrypoint.sh
+
+EXPOSE 8080
+ENTRYPOINT ["/work/docker-entrypoint.sh"]
+CMD ["/work/application", "-Dquarkus.http.host=0.0.0.0"]

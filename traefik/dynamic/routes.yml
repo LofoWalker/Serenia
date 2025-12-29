@@ -1,0 +1,32 @@
+http:
+  routers:
+    serenia-frontend:
+      rule: "Host(`serenia.studio`)"
+      entryPoints:
+        - web
+      service: serenia-frontend
+      middlewares:
+        - security-headers
+        - compress
+
+    serenia-backend:
+      rule: "Host(`serenia.studio`) && PathPrefix(`/api`)"
+      entryPoints:
+        - web
+      service: serenia-backend
+      middlewares:
+        - api-strip
+        - security-headers
+        - compress
+
+  services:
+    # En mode 'file provider' on route vers les services docker par leur nom DNS (réseau bridge)
+    serenia-frontend:
+      loadBalancer:
+        servers:
+          - url: "http://serenia-frontend:80"
+
+    serenia-backend:
+      loadBalancer:
+        servers:
+          - url: "http://serenia-backend:8080"

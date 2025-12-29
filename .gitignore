@@ -33,6 +33,6 @@ backend/.mvn/wrapper/maven-wrapper.properties
 backend/mvnw
 backend/mvnw.cmd
 
-.github
+.github/agents
 
 .env

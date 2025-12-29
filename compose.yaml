@@ -1,0 +1,166 @@
+name: serenia
+
+services:
+  traefik:
+    image: traefik:v3.2
+    container_name: serenia-traefik
+    restart: unless-stopped
+    command:
+      - --providers.file.directory=/etc/traefik/dynamic
+      - --providers.file.watch=true
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_ACME_EMAIL}
+      - --certificatesresolvers.letsencrypt.acme.storage=/etc/traefik/acme.json
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+      - --log.level=INFO
+      - --accesslog=true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/dynamic:/etc/traefik/dynamic:ro
+      - ./traefik/acme.json:/etc/traefik/acme.json
+    networks:
+      - serenia-network
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: serenia-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    volumes:
+      - serenia_db_data:/var/lib/postgresql/data
+    secrets:
+      - db_password
+    networks:
+      - serenia-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $$POSTGRES_DB -U $$POSTGRES_USER"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  backend:
+    image: ghcr.io/LofoWalker/serenia-backend:latest
+    container_name: serenia-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - serenia-network
+    environment:
+      QUARKUS_HTTP_PORT: "8080"
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      QUARKUS_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      # Mot de passe injecté via Docker secret par docker-entrypoint.sh
+
+      # CORS
+      CORS_ENABLED: "true"
+      CORS_ORIGINS: https://${SERENIA_DOMAIN}
+
+      # JWT: les clés sont des fichiers (secrets)
+      SMALLRYE_JWT_SIGN_KEY_LOCATION: /run/secrets/jwt_private_key
+      MP_JWT_VERIFY_PUBLICKEY_LOCATION: /run/secrets/jwt_public_key
+
+      # Auth & Quotas
+      SERENIA_AUTH_EXPIRATION_TIME: ${SERENIA_AUTH_EXPIRATION_TIME}
+      SERENIA_AUTH_MAX_USERS: ${SERENIA_AUTH_MAX_USERS}
+      SERENIA_AUTH_JWT_ISSUER: ${SERENIA_AUTH_JWT_ISSUER}
+      SERENIA_TOKENS_INPUT_LIMIT_DEFAULT: ${SERENIA_TOKENS_INPUT_LIMIT_DEFAULT}
+      SERENIA_TOKENS_OUTPUT_LIMIT_DEFAULT: ${SERENIA_TOKENS_OUTPUT_LIMIT_DEFAULT}
+      SERENIA_TOKENS_TOTAL_LIMIT_DEFAULT: ${SERENIA_TOKENS_TOTAL_LIMIT_DEFAULT}
+
+      # App URLs & System Prompt
+      SERENIA_SYSTEM_PROMPT: ${SERENIA_SYSTEM_PROMPT}
+      SERENIA_URL: https://${SERENIA_DOMAIN}
+      SERENIA_FRONT_URL: https://${SERENIA_DOMAIN}
+
+      # OpenAI & Stripe
+      OPENAI_MODEL: ${OPENAI_MODEL}
+      STRIPE_SUCCESS_URL: https://${SERENIA_DOMAIN}/profile?payment=success
+      STRIPE_CANCEL_URL: https://${SERENIA_DOMAIN}/profile?payment=cancel
+
+      # SMTP Brevo
+      QUARKUS_MAILER_HOST: ${QUARKUS_MAILER_HOST}
+      QUARKUS_MAILER_PORT: ${QUARKUS_MAILER_PORT}
+      QUARKUS_MAILER_FROM: ${QUARKUS_MAILER_FROM}
+      QUARKUS_MAILER_USERNAME: ${QUARKUS_MAILER_USERNAME}
+      QUARKUS_MAILER_START_TLS: ${QUARKUS_MAILER_START_TLS}
+
+    secrets:
+      - db_password
+      - jwt_private_key
+      - jwt_public_key
+      - security_key
+      - openai_api_key
+      - stripe_secret_key
+      - stripe_webhook_secret
+      - smtp_password
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 8080 && echo 'healthy'"]
+      interval: 5s
+      timeout: 2s
+      retries: 5
+      start_period: 5s
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=serenia-network
+      - traefik.http.routers.backend.rule=Host(`${SERENIA_DOMAIN}`) && PathPrefix(`/api`)
+      - traefik.http.routers.backend.entrypoints=websecure
+      - traefik.http.routers.backend.tls.certresolver=letsencrypt
+      - traefik.http.services.backend.loadbalancer.server.port=8080
+      - traefik.http.routers.backend.middlewares=api-strip@file,security-headers@file,compress@file
+
+  frontend:
+    image: ghcr.io/yourname/serenia-frontend:latest
+    container_name: serenia-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - serenia-network
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=serenia-network
+      - traefik.http.routers.frontend.rule=Host(`${SERENIA_DOMAIN}`)
+      - traefik.http.routers.frontend.entrypoints=websecure
+      - traefik.http.routers.frontend.tls.certresolver=letsencrypt
+      - traefik.http.services.frontend.loadbalancer.server.port=80
+      - traefik.http.routers.frontend.middlewares=security-headers@file,compress@file
+
+secrets:
+  db_password:
+    file: ./secrets/db_password
+  jwt_private_key:
+    file: ./secrets/jwt_private_key.pem
+  jwt_public_key:
+    file: ./secrets/jwt_public_key.pem
+  openai_api_key:
+    file: ./secrets/openai_api_key
+  stripe_secret_key:
+    file: ./secrets/stripe_secret_key
+  stripe_webhook_secret:
+    file: ./secrets/stripe_webhook_secret
+  smtp_password:
+    file: ./secrets/smtp_password
+  security_key:
+    file: ./secrets/security_key
+
+volumes:
+  serenia_db_data:
+
+networks:
+  serenia-network:
+    name: serenia-network
+    driver: bridge
