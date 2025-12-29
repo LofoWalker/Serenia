@@ -25,7 +25,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
  * Handles user registration workflow and email verification tokens.
  */
 @Slf4j
-@Path("/api/auth")
+@Path("/auth")
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "Registration")
 public class RegistrationResource {

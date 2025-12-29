@@ -1,36 +1,39 @@
-# Build stage - Quarkus native (GraalVM)
-FROM quay.io/quarkus/ubi-quarkus-mandrel-builder-image:23.1-java21 AS build
+# Build stage
+FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /project
 
-# Optionnel: éviter les prompts + s'assurer des paquets requis pour l'édition de liens
-USER root
-RUN microdnf install -y findutils && microdnf clean all
-USER 1001
-
-# Copier d'abord les fichiers de build pour maximiser le cache Docker
-COPY --chown=1001:root pom.xml mvnw /project/
-COPY --chown=1001:root .mvn /project/.mvn
+# Copier uniquement les fichiers de dépendances en premier (pour meilleur cache)
+COPY pom.xml mvnw /project/
+COPY .mvn /project/.mvn
 
 # Pré-télécharger les dépendances
-RUN ./mvnw -B -ntp dependency:go-offline
+RUN mvn -B -ntp -DskipTests dependency:go-offline
 
-# Copier ensuite les sources
-COPY --chown=1001:root src src
+# Copier les sources APRÈS les dépendances
+COPY src src
 
-# Build natif (le profil s'active via -Dnative)
-RUN ./mvnw -B -ntp package -Dnative -DskipTests
+# Build
+RUN mvn -B -ntp package -DskipTests -Dquarkus.package.type=fast-jar
 
-# Runtime stage - minimal image
-FROM quay.io/quarkus/quarkus-micro-image:2.0
-WORKDIR /work/
+# Runtime stage
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /work
 
-# Quarkus produit: target/*-runner
-COPY --from=build /project/target/*-runner /work/application
+# Créer un utilisateur non-root
+RUN addgroup -g 1000 app && adduser -D -u 1000 -G app app
 
-# Entrypoint: injecte les secrets (fichiers) en variables d'env attendues par Quarkus
-COPY docker-entrypoint.sh /work/docker-entrypoint.sh
-RUN chmod 775 /work /work/application /work/docker-entrypoint.sh
+# Copier les artefacts depuis le build
+COPY --from=build --chown=app:app /project/target/quarkus-app/app /work/app
+COPY --from=build --chown=app:app /project/target/quarkus-app/quarkus /work/quarkus
+COPY --from=build --chown=app:app /project/target/quarkus-app/lib /work/lib
+COPY --from=build --chown=app:app /project/target/quarkus-app/quarkus-run.jar /work/application.jar
+
+# Permissions appropriées
+RUN chmod 755 /work
+
+# Switcher vers l'utilisateur non-root
+USER app
 
 EXPOSE 8080
-ENTRYPOINT ["/work/docker-entrypoint.sh"]
-CMD ["/work/application", "-Dquarkus.http.host=0.0.0.0"]
+
+ENTRYPOINT ["java", "-jar", "/work/application.jar", "-Dquarkus.http.host=0.0.0.0"]

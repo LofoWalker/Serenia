@@ -2,28 +2,27 @@ name: serenia
 
 services:
   traefik:
-    image: traefik:v3.2
+    image: traefik:v3.6.1
     container_name: serenia-traefik
     restart: unless-stopped
+    environment:
+      - DOCKER_API_VERSION=1.44
     command:
-      - --providers.file.directory=/etc/traefik/dynamic
-      - --providers.file.watch=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
       - --entrypoints.web.address=:80
       - --entrypoints.web.http.redirections.entrypoint.to=websecure
-      - --entrypoints.web.http.redirections.entrypoint.scheme=https
       - --entrypoints.websecure.address=:443
       - --certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_ACME_EMAIL}
       - --certificatesresolvers.letsencrypt.acme.storage=/etc/traefik/acme.json
       - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
       - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
       - --log.level=INFO
-      - --accesslog=true
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./traefik/dynamic:/etc/traefik/dynamic:ro
       - ./traefik/acme.json:/etc/traefik/acme.json
     networks:
       - serenia-network
@@ -36,6 +35,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    ports:
+      - "127.0.0.1:5432:5432"
     volumes:
       - serenia_db_data:/var/lib/postgresql/data
     secrets:
@@ -43,36 +44,33 @@ services:
     networks:
       - serenia-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d $$POSTGRES_DB -U $$POSTGRES_USER"]
+      test: [ "CMD-SHELL", "pg_isready -d $$POSTGRES_DB -U $$POSTGRES_USER" ]
       interval: 10s
       timeout: 3s
       retries: 10
       start_period: 10s
 
   backend:
-    image: ghcr.io/LofoWalker/serenia-backend:latest
+    image: ${BACK_IMAGE}
     container_name: serenia-backend
     restart: unless-stopped
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
     networks:
       - serenia-network
     environment:
       QUARKUS_HTTP_PORT: "8080"
       QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
       QUARKUS_DATASOURCE_USERNAME: ${POSTGRES_USER}
-      # Mot de passe injecté via Docker secret par docker-entrypoint.sh
 
-      # CORS
-      CORS_ENABLED: "true"
-      CORS_ORIGINS: https://${SERENIA_DOMAIN}
+      QUARKUS_HTTP_CORS: "true"
+      QUARKUS_HTTP_CORS_ORIGINS: "https://${SERENIA_DOMAIN},https://www.${SERENIA_DOMAIN}"
+      QUARKUS_HTTP_CORS_METHODS: "GET,POST,PUT,DELETE,OPTIONS,PATCH"
+      QUARKUS_HTTP_CORS_HEADERS: "accept,authorization,content-type,x-requested-with"
 
-      # JWT: les clés sont des fichiers (secrets)
       SMALLRYE_JWT_SIGN_KEY_LOCATION: /run/secrets/jwt_private_key
       MP_JWT_VERIFY_PUBLICKEY_LOCATION: /run/secrets/jwt_public_key
 
-      # Auth & Quotas
       SERENIA_AUTH_EXPIRATION_TIME: ${SERENIA_AUTH_EXPIRATION_TIME}
       SERENIA_AUTH_MAX_USERS: ${SERENIA_AUTH_MAX_USERS}
       SERENIA_AUTH_JWT_ISSUER: ${SERENIA_AUTH_JWT_ISSUER}
@@ -80,22 +78,21 @@ services:
       SERENIA_TOKENS_OUTPUT_LIMIT_DEFAULT: ${SERENIA_TOKENS_OUTPUT_LIMIT_DEFAULT}
       SERENIA_TOKENS_TOTAL_LIMIT_DEFAULT: ${SERENIA_TOKENS_TOTAL_LIMIT_DEFAULT}
 
-      # App URLs & System Prompt
       SERENIA_SYSTEM_PROMPT: ${SERENIA_SYSTEM_PROMPT}
-      SERENIA_URL: https://${SERENIA_DOMAIN}
+      SERENIA_URL: https://api.${SERENIA_DOMAIN}
       SERENIA_FRONT_URL: https://${SERENIA_DOMAIN}
 
-      # OpenAI & Stripe
       OPENAI_MODEL: ${OPENAI_MODEL}
       STRIPE_SUCCESS_URL: https://${SERENIA_DOMAIN}/profile?payment=success
       STRIPE_CANCEL_URL: https://${SERENIA_DOMAIN}/profile?payment=cancel
 
-      # SMTP Brevo
       QUARKUS_MAILER_HOST: ${QUARKUS_MAILER_HOST}
       QUARKUS_MAILER_PORT: ${QUARKUS_MAILER_PORT}
       QUARKUS_MAILER_FROM: ${QUARKUS_MAILER_FROM}
       QUARKUS_MAILER_USERNAME: ${QUARKUS_MAILER_USERNAME}
       QUARKUS_MAILER_START_TLS: ${QUARKUS_MAILER_START_TLS}
+
+      SERENIA_ROOT_PATH: ${SERENIA_ROOT_PATH}
 
     secrets:
       - db_password
@@ -107,37 +104,34 @@ services:
       - stripe_webhook_secret
       - smtp_password
     healthcheck:
-      test: ["CMD-SHELL", "nc -z localhost 8080 && echo 'healthy'"]
-      interval: 5s
-      timeout: 2s
-      retries: 5
-      start_period: 5s
+      test: [ "CMD-SHELL", "nc -z localhost 8080 || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     labels:
-      - traefik.enable=true
-      - traefik.docker.network=serenia-network
-      - traefik.http.routers.backend.rule=Host(`${SERENIA_DOMAIN}`) && PathPrefix(`/api`)
-      - traefik.http.routers.backend.entrypoints=websecure
-      - traefik.http.routers.backend.tls.certresolver=letsencrypt
-      - traefik.http.services.backend.loadbalancer.server.port=8080
-      - traefik.http.routers.backend.middlewares=api-strip@file,security-headers@file,compress@file
+      - "traefik.enable=true"
+      - "traefik.docker.network=serenia-network"
+      - "traefik.http.routers.backend-router.rule=Host(`api.${SERENIA_DOMAIN}`)"
+      - "traefik.http.routers.backend-router.entrypoints=websecure"
+      - "traefik.http.routers.backend-router.tls.certresolver=letsencrypt"
+      - "traefik.http.services.backend-service.loadbalancer.server.port=8080"
 
   frontend:
-    image: ghcr.io/yourname/serenia-frontend:latest
+    image: ${FRONT_IMAGE}
     container_name: serenia-frontend
     restart: unless-stopped
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend
     networks:
       - serenia-network
     labels:
-      - traefik.enable=true
-      - traefik.docker.network=serenia-network
-      - traefik.http.routers.frontend.rule=Host(`${SERENIA_DOMAIN}`)
-      - traefik.http.routers.frontend.entrypoints=websecure
-      - traefik.http.routers.frontend.tls.certresolver=letsencrypt
-      - traefik.http.services.frontend.loadbalancer.server.port=80
-      - traefik.http.routers.frontend.middlewares=security-headers@file,compress@file
+      - "traefik.enable=true"
+      - "traefik.docker.network=serenia-network"
+      - "traefik.http.routers.frontend-router.rule=Host(`${SERENIA_DOMAIN}`)"
+      - "traefik.http.routers.frontend-router.entrypoints=websecure"
+      - "traefik.http.routers.frontend-router.tls.certresolver=letsencrypt"
+      - "traefik.http.services.frontend-service.loadbalancer.server.port=80"
 
 secrets:
   db_password:
