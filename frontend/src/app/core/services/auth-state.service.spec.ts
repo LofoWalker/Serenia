@@ -10,7 +10,7 @@ describe('AuthStateService', () => {
     lastName: 'Doe',
     firstName: 'John',
     email: 'john.doe@example.com',
-    roles: ['USER']
+    role: 'USER'
   };
 
   beforeEach(() => {
