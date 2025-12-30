@@ -27,4 +27,4 @@ USER app
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-Dquarkus.http.host=0.0.0.0", "-jar", "/work/application.jar"]
+ENTRYPOINT ["/work/docker-entrypoint.sh", "java", "-Dquarkus.http.host=0.0.0.0", "-jar", "/work/application.jar"]
