@@ -12,6 +12,8 @@ RUN find /app/dist -name "*.map" -type f -delete
 
 FROM nginx:1.27-alpine
 
+RUN apk add --no-cache wget
+
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist/frontend/browser /usr/share/nginx/html
 
@@ -21,4 +23,3 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
-
