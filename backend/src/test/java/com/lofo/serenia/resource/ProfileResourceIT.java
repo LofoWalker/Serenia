@@ -25,7 +25,7 @@ class ProfileResourceIT {
     @Inject
     UserRepository userRepository;
 
-    private static final String PROFILE_PATH = "/api/profile";
+    private static final String PROFILE_PATH = "/profile";
     private static final String TEST_EMAIL = "user@example.com";
     private static final String TEST_PASSWORD = "SecurePassword123!";
     private static final String TEST_FIRST_NAME = "John";

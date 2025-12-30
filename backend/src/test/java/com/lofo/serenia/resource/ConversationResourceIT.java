@@ -42,7 +42,7 @@ class ConversationResourceIT {
     @Inject
     MessageRepository messageRepository;
 
-    private static final String CONVERSATIONS_PATH = "/api/conversations";
+    private static final String CONVERSATIONS_PATH = "/conversations";
     private static final String ADD_MESSAGE_PATH = CONVERSATIONS_PATH + "/add-message";
     private static final String MY_MESSAGES_PATH = CONVERSATIONS_PATH + "/my-messages";
     private static final String DELETE_CONVERSATIONS_PATH = CONVERSATIONS_PATH + "/my-conversations";

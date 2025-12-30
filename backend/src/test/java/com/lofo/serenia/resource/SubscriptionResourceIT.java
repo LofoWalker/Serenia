@@ -40,8 +40,8 @@ class SubscriptionResourceIT {
     @Inject
     SubscriptionRepository subscriptionRepository;
 
-    private static final String SUBSCRIPTION_STATUS_PATH = "/api/subscription/status";
-    private static final String CHANGE_PLAN_PATH = "/api/subscription/plan";
+    private static final String SUBSCRIPTION_STATUS_PATH = "/subscription/status";
+    private static final String CHANGE_PLAN_PATH = "/subscription/plan";
     private static final String TEST_EMAIL = "subscription-test@example.com";
 
     private UUID testUserId;

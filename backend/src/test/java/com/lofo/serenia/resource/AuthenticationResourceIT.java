@@ -26,7 +26,7 @@ class AuthenticationResourceIT {
     @Inject
     UserRepository userRepository;
 
-    private static final String LOGIN_PATH = "/api/auth/login";
+    private static final String LOGIN_PATH = "/auth/login";
     private static final String TEST_EMAIL = "user@example.com";
     private static final String TEST_PASSWORD = "SecurePassword123!";
     private static final String TEST_FIRST_NAME = "John";

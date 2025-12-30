@@ -28,8 +28,8 @@ class RegistrationResourceIT {
     UserRepository userRepository;
     @Inject
     BaseTokenRepository baseTokenRepository;
-    private static final String REGISTER_PATH = "/api/auth/register";
-    private static final String ACTIVATE_PATH = "/api/auth/activate";
+    private static final String REGISTER_PATH = "/auth/register";
+    private static final String ACTIVATE_PATH = "/auth/activate";
     private static final String TEST_EMAIL = "newuser@example.com";
     private static final String TEST_PASSWORD = "SecurePassword123!";
     private static final String TEST_FIRST_NAME = "Jane";
