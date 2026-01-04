@@ -70,6 +70,26 @@ public class Subscription {
     @Column(name = "cancel_at_period_end", nullable = false)
     private Boolean cancelAtPeriodEnd = false;
 
+    // Promotion code discount fields - read-only, updated only via webhooks
+    @Column(name = "stripe_coupon_id", length = 255)
+    private String stripeCouponId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "discount_type", length = 32)
+    private DiscountType discountType;
+
+    @Column(name = "discount_value")
+    private Double discountValue;
+
+    @Column(name = "discount_end_date")
+    private LocalDateTime discountEndDate;
+
+    @Column(name = "last_invoice_amount")
+    private Integer lastInvoiceAmount;
+
+    @Column(name = "currency", length = 3)
+    private String currency;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

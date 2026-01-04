@@ -8,4 +8,5 @@
     <include file="db/changelog/01-init-datamodel.yaml"/>
     <include file="db/changelog/02-plans-subscriptions.yaml"/>
     <include file="db/changelog/03-stripe-integration.yaml"/>
+    <include file="db/changelog/04-promotion-codes-discounts.yaml"/>
 </databaseChangeLog>

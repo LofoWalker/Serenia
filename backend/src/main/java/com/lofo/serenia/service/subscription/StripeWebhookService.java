@@ -50,6 +50,8 @@ public class StripeWebhookService {
             case "customer.subscription.deleted" -> handleSubscriptionDeleted(event);
             case "invoice.payment_succeeded" -> handleInvoicePaymentSucceeded(event);
             case "invoice.payment_failed" -> handleInvoicePaymentFailed(event);
+            case "invoice.paid" -> handleInvoicePaid(event);
+            case "checkout.session.expired" -> handleCheckoutSessionExpired(event);
             default -> log.debug("Unhandled event type: {}", eventType);
         }
     }
@@ -79,6 +81,8 @@ public class StripeWebhookService {
         if (subscription.getStripeSubscriptionId() == null) {
             subscription.setStripeSubscriptionId(stripeSubscriptionId);
             subscription.setStatus(SubscriptionStatus.ACTIVE);
+            // Discount data will be extracted when customer.subscription.created/updated events fire
+            // At this point, the Stripe subscription doesn't have the discount attached yet
             subscriptionRepository.persist(subscription);
         }
     }
@@ -129,6 +133,7 @@ public class StripeWebhookService {
         Plan freePlan = planRepository.getFreePlan();
         subscription.setPlan(freePlan);
         subscription.setStripeSubscriptionId(null);
+        subscription.setStripeCustomerId(null);
         subscription.setStatus(SubscriptionStatus.ACTIVE);
         subscription.setCancelAtPeriodEnd(false);
         subscription.setCurrentPeriodEnd(null);
@@ -213,6 +218,46 @@ public class StripeWebhookService {
             );
         }
 
+        // Extract and update discount data from the subscription object
+        // This is the source of truth once the subscription is created in Stripe.
+        // It supersedes any discount extracted from the checkout session.
+        if (stripeSubscription.getDiscount() != null) {
+            StripeDiscountHelper.DiscountData discountData =
+                    StripeDiscountHelper.extractDiscountData(stripeSubscription.getDiscount());
+            if (discountData != null) {
+                // Discount is currently active on the subscription
+                subscription.setStripeCouponId(discountData.couponId());
+                subscription.setDiscountType(discountData.type());
+                subscription.setDiscountValue(discountData.value());
+                subscription.setDiscountEndDate(discountData.endDate());
+                log.info("Updated subscription discount: coupon={}, type={}, value={}, endDate={}",
+                        discountData.couponId(), discountData.type(), discountData.value(), discountData.endDate());
+            } else {
+                // Discount was removed - clear all discount fields
+                subscription.setStripeCouponId(null);
+                subscription.setDiscountType(null);
+                subscription.setDiscountValue(null);
+                subscription.setDiscountEndDate(null);
+                log.info("Discount removed from subscription");
+            }
+        } else if (subscription.getDiscountEndDate() != null &&
+                   StripeDiscountHelper.isDiscountExpired(subscription.getDiscountEndDate())) {
+            // Discount has expired based on our stored end date
+            subscription.setStripeCouponId(null);
+            subscription.setDiscountType(null);
+            subscription.setDiscountValue(null);
+            subscription.setDiscountEndDate(null);
+            log.info("Discount expired for subscription {}", stripeSubscription.getId());
+        } else if (stripeSubscription.getDiscount() == null && subscription.getStripeCouponId() != null) {
+            // Subscription has no discount in Stripe but our DB has one - this means it was removed
+            // Clear the discount data from our database
+            subscription.setStripeCouponId(null);
+            subscription.setDiscountType(null);
+            subscription.setDiscountValue(null);
+            subscription.setDiscountEndDate(null);
+            log.info("Clearing expired or removed discount for subscription");
+        }
+
         updatePlanFromStripeSubscription(subscription, stripeSubscription);
 
         subscriptionRepository.persist(subscription);
@@ -239,6 +284,63 @@ public class StripeWebhookService {
         } else {
             log.warn("No plan found for Stripe price ID: {}", priceId);
         }
+    }
+
+    private void handleInvoicePaid(Event event) {
+        Invoice invoice = deserializeObject(event, Invoice.class);
+        if (invoice == null) {
+            throw new WebhookProcessingException("Failed to deserialize invoice");
+        }
+
+        String customerId = invoice.getCustomer();
+        long amountPaid = invoice.getAmountPaid();
+        String currency = invoice.getCurrency();
+
+        log.info("Invoice paid for customer: {}, amount: {} {}",
+                customerId, amountPaid / 100.0, currency);
+
+        Optional<Subscription> subscriptionOpt = subscriptionRepository
+                .find("stripeCustomerId", customerId)
+                .firstResultOptional();
+
+        if (subscriptionOpt.isPresent()) {
+            Subscription subscription = subscriptionOpt.get();
+            // Store the last invoice amount paid and currency for auditability
+            subscription.setLastInvoiceAmount((int) amountPaid);
+            subscription.setCurrency(currency);
+
+            // Log discount information if applicable
+            if (subscription.getStripeCouponId() != null) {
+                log.info("Invoice paid with active discount - coupon: {}, type: {}, value: {}, " +
+                        "amountAfterDiscount: {} {}",
+                        subscription.getStripeCouponId(),
+                        subscription.getDiscountType(),
+                        subscription.getDiscountValue(),
+                        amountPaid / 100.0,
+                        currency);
+            }
+
+            subscriptionRepository.persist(subscription);
+
+            log.debug("Updated subscription with last invoice amount and currency");
+        } else {
+            log.warn("No subscription found for customer: {} when processing invoice.paid", customerId);
+        }
+    }
+
+    private void handleCheckoutSessionExpired(Event event) {
+        Session session = deserializeObject(event, Session.class);
+        if (session == null) {
+            throw new WebhookProcessingException("Failed to deserialize checkout session");
+        }
+
+        String customerId = session.getCustomer();
+        String sessionId = session.getId();
+
+        log.warn("Checkout session expired for customer: {}, sessionId: {}", customerId, sessionId);
+
+        // Note: We don't need to update the subscription here since the checkout
+        // was never completed. This event is logged for analytics/support purposes.
     }
 
     private SubscriptionStatus mapStripeStatus(String stripeStatus) {

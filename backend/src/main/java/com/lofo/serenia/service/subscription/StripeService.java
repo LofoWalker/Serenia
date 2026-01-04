@@ -71,6 +71,7 @@ public class StripeService {
                     .setCustomer(customerId)
                     .setSuccessUrl(stripeConfig.successUrl())
                     .setCancelUrl(stripeConfig.cancelUrl())
+                    .setAllowPromotionCodes(true)
                     .addLineItem(
                             SessionCreateParams.LineItem.builder()
                                     .setPrice(targetPlan.getStripePriceId())

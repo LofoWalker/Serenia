@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 /**
  * DTO representing a user's subscription status.
+ * Includes discount information if an active promotion code discount applies.
  */
 public record SubscriptionStatusDTO(
         String planName,
@@ -21,6 +22,12 @@ public record SubscriptionStatusDTO(
         boolean cancelAtPeriodEnd,
         Integer priceCents,
         String currency,
-        boolean hasStripeSubscription
+        boolean hasStripeSubscription,
+        // Discount information - all nullable, only present if discount is active
+        boolean hasActiveDiscount,
+        String discountDescription,
+        LocalDateTime discountEndDate
 ) {
 }
+
+

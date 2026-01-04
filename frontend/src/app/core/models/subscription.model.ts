@@ -32,6 +32,10 @@ export interface SubscriptionStatusDTO {
   priceCents: number;
   currency: string;
   hasStripeSubscription: boolean;
+  // Discount information from promotion codes
+  hasActiveDiscount: boolean;
+  discountDescription: string;  // Human-readable: "10% off", "€5 off for 3 months"
+  discountEndDate: string | null;  // ISO 8601, null if permanent
 }
 
 /**

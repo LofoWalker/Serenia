@@ -163,6 +163,11 @@ public class SubscriptionService {
         boolean hasStripeSubscription = subscription.getStripeSubscriptionId() != null
                 && !subscription.getStripeSubscriptionId().isEmpty();
 
+        // Build discount information
+        boolean hasActiveDiscount = isDiscountActive(subscription);
+        String discountDescription = buildDiscountDescription(subscription);
+        LocalDateTime discountEndDate = subscription.getDiscountEndDate();
+
         return new SubscriptionStatusDTO(
                 plan.getName().name(),
                 tokensRemaining,
@@ -179,7 +184,70 @@ public class SubscriptionService {
                 subscription.getCancelAtPeriodEnd() != null && subscription.getCancelAtPeriodEnd(),
                 plan.getPriceCents(),
                 plan.getCurrency(),
-                hasStripeSubscription
+                hasStripeSubscription,
+                hasActiveDiscount,
+                discountDescription,
+                discountEndDate
         );
+    }
+
+    /**
+     * Checks if a discount is currently active on the subscription.
+     * A discount is active if it exists and has not expired.
+     */
+    private boolean isDiscountActive(Subscription subscription) {
+        if (subscription.getDiscountType() == null || subscription.getDiscountValue() == null) {
+            return false;
+        }
+        if (subscription.getDiscountEndDate() == null) {
+            return true; // Permanent discount
+        }
+        return !StripeDiscountHelper.isDiscountExpired(subscription.getDiscountEndDate());
+    }
+
+    /**
+     * Builds a human-readable discount description.
+     * Examples: "10% off", "€5 off for 3 months"
+     */
+    private String buildDiscountDescription(Subscription subscription) {
+        if (!isDiscountActive(subscription)) {
+            return "";
+        }
+
+        return switch (subscription.getDiscountType()) {
+            case PERCENTAGE -> String.format("%.0f%% off", subscription.getDiscountValue());
+            case AMOUNT -> {
+                String currency = subscription.getCurrency() != null ?
+                        subscription.getCurrency() :
+                        subscription.getPlan().getCurrency();
+                double amountValue = subscription.getDiscountValue();
+
+                if (subscription.getDiscountEndDate() != null) {
+                    // Calculate approximate months remaining
+                    long monthsRemaining = java.time.temporal.ChronoUnit.MONTHS
+                            .between(LocalDateTime.now(), subscription.getDiscountEndDate());
+                    if (monthsRemaining > 0) {
+                        yield String.format("%s%.2f off for ~%d month%s",
+                                getCurrencySymbol(currency), amountValue, monthsRemaining,
+                                monthsRemaining == 1 ? "" : "s");
+                    }
+                }
+                yield String.format("%s%.2f off", getCurrencySymbol(currency), amountValue);
+            }
+        };
+    }
+
+    /**
+     * Returns a currency symbol for display purposes.
+     * Fallback to currency code if symbol not recognized.
+     */
+    private String getCurrencySymbol(String currencyCode) {
+        return switch (currencyCode != null ? currencyCode.toUpperCase() : "") {
+            case "USD" -> "$";
+            case "EUR" -> "€";
+            case "GBP" -> "£";
+            case "JPY" -> "¥";
+            default -> currencyCode != null ? currencyCode + " " : "";
+        };
     }
 }
