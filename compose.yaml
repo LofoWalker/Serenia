@@ -70,6 +70,7 @@ services:
       QUARKUS_HTTP_CORS_METHODS: "GET,POST,PUT,DELETE,OPTIONS,PATCH"
       QUARKUS_HTTP_CORS_HEADERS: "accept,authorization,content-type,x-requested-with"
       QUARKUS_HTTP_CORS_ACCESS_CONTROL_ALLOW_CREDENTIALS: "true"
+      QUARKUS_HTTP_PROXY_PROXY_ADDRESS_FORWARDING: "true"
 
       SMALLRYE_JWT_SIGN_KEY_LOCATION: /run/secrets/jwt_private_key
       MP_JWT_VERIFY_PUBLICKEY_LOCATION: /run/secrets/jwt_public_key
