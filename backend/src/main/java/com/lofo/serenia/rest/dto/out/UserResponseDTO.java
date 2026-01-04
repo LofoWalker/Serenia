@@ -1,6 +1,5 @@
 package com.lofo.serenia.rest.dto.out;
 
-import java.util.Set;
 import java.util.UUID;
 
 /**

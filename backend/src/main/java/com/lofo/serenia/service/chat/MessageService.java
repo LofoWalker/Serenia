@@ -1,9 +1,9 @@
 package com.lofo.serenia.service.chat;
 
+import com.lofo.serenia.mapper.MessageMapper;
 import com.lofo.serenia.persistence.entity.conversation.ChatMessage;
 import com.lofo.serenia.persistence.entity.conversation.Message;
 import com.lofo.serenia.persistence.entity.conversation.MessageRole;
-import com.lofo.serenia.mapper.MessageMapper;
 import com.lofo.serenia.persistence.repository.ConversationRepository;
 import com.lofo.serenia.persistence.repository.MessageRepository;
 import jakarta.enterprise.context.ApplicationScoped;

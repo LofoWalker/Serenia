@@ -1,12 +1,15 @@
 package com.lofo.serenia.service.chat;
 
 import com.lofo.serenia.config.OpenAIConfig;
-import com.lofo.serenia.persistence.entity.conversation.ChatMessage;
 import com.lofo.serenia.mapper.ChatMessageMapper;
+import com.lofo.serenia.persistence.entity.conversation.ChatMessage;
 import com.openai.client.OpenAIClient;
 import com.openai.client.okhttp.OpenAIOkHttpClient;
 import com.openai.models.ReasoningEffort;
-import com.openai.models.chat.completions.*;
+import com.openai.models.chat.completions.ChatCompletion;
+import com.openai.models.chat.completions.ChatCompletionCreateParams;
+import com.openai.models.chat.completions.ChatCompletionMessageParam;
+import com.openai.models.chat.completions.ChatCompletionSystemMessageParam;
 import com.openai.models.completions.CompletionUsage;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

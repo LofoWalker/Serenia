@@ -4,7 +4,6 @@ import com.lofo.serenia.exception.handler.ExceptionHandler;
 import com.lofo.serenia.exception.model.ErrorResponse;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
-import jakarta.inject.Inject;
 import lombok.AllArgsConstructor;
 
 import java.util.Comparator;

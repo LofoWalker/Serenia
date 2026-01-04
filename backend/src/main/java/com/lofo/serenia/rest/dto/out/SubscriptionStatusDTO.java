@@ -23,9 +23,4 @@ public record SubscriptionStatusDTO(
         Integer priceCents,
         String currency,
         boolean hasStripeSubscription
-) {
-}
-
-
-
-
+) {}

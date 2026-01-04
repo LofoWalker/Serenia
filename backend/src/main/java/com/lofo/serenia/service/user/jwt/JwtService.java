@@ -1,8 +1,8 @@
 package com.lofo.serenia.service.user.jwt;
 
 import com.lofo.serenia.config.SereniaConfig;
-import com.lofo.serenia.rest.dto.out.UserResponseDTO;
 import com.lofo.serenia.mapper.UserMapper;
+import com.lofo.serenia.rest.dto.out.UserResponseDTO;
 import io.smallrye.jwt.build.Jwt;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.AllArgsConstructor;

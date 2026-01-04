@@ -1,8 +1,0 @@
-databaseChangeLog:
-  # ==========================================
-  # NOTE: Promotion codes are NOT tracked in the database
-  # ==========================================
-  # Stripe is the single source of truth for all discount information.
-  # Promotion codes and coupons are applied and managed entirely in Stripe.
-  # The application does not persist discount data locally.
-  # ==========================================
