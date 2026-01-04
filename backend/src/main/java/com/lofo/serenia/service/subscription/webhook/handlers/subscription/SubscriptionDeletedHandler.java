@@ -7,7 +7,6 @@ import com.lofo.serenia.persistence.entity.subscription.SubscriptionStatus;
 import com.lofo.serenia.persistence.repository.PlanRepository;
 import com.lofo.serenia.persistence.repository.SubscriptionRepository;
 import com.lofo.serenia.service.subscription.StripeEventType;
-import com.lofo.serenia.service.subscription.discount.DiscountProcessor;
 import com.lofo.serenia.service.subscription.mapper.StripeObjectMapper;
 import com.lofo.serenia.service.subscription.webhook.handlers.StripeEventHandler;
 import com.stripe.model.Event;
@@ -29,7 +28,6 @@ public class SubscriptionDeletedHandler implements StripeEventHandler {
     private final SubscriptionRepository subscriptionRepository;
     private final PlanRepository planRepository;
     private final StripeObjectMapper stripeObjectMapper;
-    private final DiscountProcessor discountProcessor;
 
     @Override
     public StripeEventType getEventType() {
@@ -53,7 +51,6 @@ public class SubscriptionDeletedHandler implements StripeEventHandler {
         subscription.setStatus(SubscriptionStatus.ACTIVE);
         subscription.setCancelAtPeriodEnd(false);
         subscription.setCurrentPeriodEnd(null);
-        discountProcessor.clearDiscount(subscription);
 
         subscriptionRepository.persist(subscription);
         log.info("User {} returned to FREE plan after subscription deletion", subscription.getUser().getId());

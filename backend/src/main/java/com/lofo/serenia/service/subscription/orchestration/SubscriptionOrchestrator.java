@@ -4,7 +4,6 @@ import com.lofo.serenia.persistence.entity.subscription.Plan;
 import com.lofo.serenia.persistence.entity.subscription.Subscription;
 import com.lofo.serenia.persistence.repository.PlanRepository;
 import com.lofo.serenia.persistence.repository.SubscriptionRepository;
-import com.lofo.serenia.service.subscription.discount.DiscountProcessor;
 import com.lofo.serenia.service.subscription.mapper.DateTimeConverter;
 import com.lofo.serenia.service.subscription.mapper.StripeStatusMapper;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -15,8 +14,11 @@ import java.util.Optional;
 
 /**
  * Orchestrates subscription updates from Stripe data.
- * Coordinates synchronization of basic fields, discounts, and plans.
+ * Coordinates synchronization of basic fields and plans.
  * Provides a clear, single entry point for subscription synchronization logic.
+ *
+ * NOTE: Discounts are NOT tracked in the database because they are fully auditable
+ * in Stripe. The source of truth for all discount information is Stripe itself.
  */
 @Slf4j
 @ApplicationScoped
@@ -29,11 +31,11 @@ public class SubscriptionOrchestrator {
     private final PlanRepository planRepository;
     private final StripeStatusMapper statusMapper;
     private final DateTimeConverter dateTimeConverter;
-    private final DiscountProcessor discountProcessor;
 
     /**
      * Synchronizes a subscription with data from a Stripe subscription object.
-     * Updates basic fields, discount information, and plan association.
+     * Updates basic fields and plan association.
+     * Discounts are not persisted - they are queried from Stripe when needed.
      *
      * @param subscription the internal subscription to update
      * @param stripeSubscription the Stripe subscription object as source of truth
@@ -43,7 +45,6 @@ public class SubscriptionOrchestrator {
             com.stripe.model.Subscription stripeSubscription) {
 
         updateBasicFields(subscription, stripeSubscription);
-        updateDiscount(subscription, stripeSubscription);
         updatePlan(subscription, stripeSubscription);
 
         subscriptionRepository.persist(subscription);
@@ -63,37 +64,13 @@ public class SubscriptionOrchestrator {
         subscription.setCancelAtPeriodEnd(stripeSubscription.getCancelAtPeriodEnd());
 
         if (stripeSubscription.getCurrentPeriodEnd() != null) {
-            subscription.setCurrentPeriodEnd(
-                    dateTimeConverter.convertEpochToDateTime(stripeSubscription.getCurrentPeriodEnd())
-            );
+            subscription.setCurrentPeriodEnd(dateTimeConverter.convertEpochToDateTime(stripeSubscription.getCurrentPeriodEnd()));
         }
 
         log.debug("Updated basic fields for subscription {}: status={}, cancelAtPeriodEnd={}",
                 stripeSubscription.getId(),
                 stripeSubscription.getStatus(),
                 stripeSubscription.getCancelAtPeriodEnd());
-    }
-
-    /**
-     * Updates discount information from Stripe subscription.
-     * Handles three scenarios:
-     * - Discount is currently active: applies it
-     * - Discount has expired: clears expired data
-     * - Discount was removed: clears any previous discount data
-     */
-    private void updateDiscount(
-            Subscription subscription,
-            com.stripe.model.Subscription stripeSubscription) {
-
-        if (stripeSubscription.getDiscount() != null) {
-            discountProcessor.applyDiscount(subscription, stripeSubscription.getDiscount());
-        } else if (discountProcessor.isDiscountExpired(subscription)) {
-            log.info("Discount expired for subscription {}", stripeSubscription.getId());
-            discountProcessor.clearDiscount(subscription);
-        } else if (subscription.getStripeCouponId() != null) {
-            log.info("Clearing removed discount for subscription {}", stripeSubscription.getId());
-            discountProcessor.clearDiscount(subscription);
-        }
     }
 
     /**
@@ -129,4 +106,6 @@ public class SubscriptionOrchestrator {
         }
     }
 }
+
+
 

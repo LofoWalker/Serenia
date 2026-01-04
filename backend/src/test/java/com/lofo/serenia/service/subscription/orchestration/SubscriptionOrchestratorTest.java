@@ -6,7 +6,6 @@ import com.lofo.serenia.persistence.entity.subscription.SubscriptionStatus;
 import com.lofo.serenia.persistence.entity.user.User;
 import com.lofo.serenia.persistence.repository.PlanRepository;
 import com.lofo.serenia.persistence.repository.SubscriptionRepository;
-import com.lofo.serenia.service.subscription.discount.DiscountProcessor;
 import com.lofo.serenia.service.subscription.mapper.DateTimeConverter;
 import com.lofo.serenia.service.subscription.mapper.StripeStatusMapper;
 import com.stripe.model.Subscription;
@@ -43,9 +42,6 @@ class SubscriptionOrchestratorTest {
     @Mock
     private DateTimeConverter dateTimeConverter;
 
-    @Mock
-    private DiscountProcessor discountProcessor;
-
     private com.lofo.serenia.persistence.entity.subscription.Subscription internalSubscription;
     private Subscription stripeSubscription;
     private Plan planPlus;
@@ -56,8 +52,7 @@ class SubscriptionOrchestratorTest {
                 subscriptionRepository,
                 planRepository,
                 statusMapper,
-                dateTimeConverter,
-                discountProcessor
+                dateTimeConverter
         );
 
         User user = User.builder()
@@ -123,7 +118,6 @@ class SubscriptionOrchestratorTest {
 
             orchestrator.synchronizeFromStripe(internalSubscription, stripeSubscription);
 
-            verify(discountProcessor).applyDiscount(internalSubscription, stripeDiscount);
             verify(subscriptionRepository).persist(internalSubscription);
         }
     }

@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 /**
  * DTO representing a user's subscription status.
- * Includes discount information if an active promotion code discount applies.
+ * Discount information is NOT tracked - it is fully auditable in Stripe.
  */
 public record SubscriptionStatusDTO(
         String planName,
@@ -22,12 +22,10 @@ public record SubscriptionStatusDTO(
         boolean cancelAtPeriodEnd,
         Integer priceCents,
         String currency,
-        boolean hasStripeSubscription,
-        // Discount information - all nullable, only present if discount is active
-        boolean hasActiveDiscount,
-        String discountDescription,
-        LocalDateTime discountEndDate
+        boolean hasStripeSubscription
 ) {
 }
+
+
 
 

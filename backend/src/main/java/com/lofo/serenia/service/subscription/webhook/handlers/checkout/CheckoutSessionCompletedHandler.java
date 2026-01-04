@@ -16,6 +16,10 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Handles checkout.session.completed events.
  * Links the Stripe subscription ID to the internal subscription record.
+ *
+ * NOTE: Discounts applied via promotion codes are NOT tracked because:
+ * - They are fully auditable in Stripe
+ * - Stripe is the single source of truth for all discount information
  */
 @Slf4j
 @ApplicationScoped
@@ -35,7 +39,6 @@ public class CheckoutSessionCompletedHandler implements StripeEventHandler {
     @Override
     public void handle(Event event) {
         Session session = stripeObjectMapper.deserialize(event, Session.class);
-
         String customerId = session.getCustomer();
         String stripeSubscriptionId = session.getSubscription();
 
@@ -44,14 +47,35 @@ public class CheckoutSessionCompletedHandler implements StripeEventHandler {
 
         Subscription subscription = findSubscriptionByCustomerId(customerId);
 
-        if (subscription.getStripeSubscriptionId() == null) {
-            subscription.setStripeSubscriptionId(stripeSubscriptionId);
-            subscription.setStatus(SubscriptionStatus.ACTIVE);
-            subscriptionRepository.persist(subscription);
-            log.info("Updated subscription with Stripe subscription ID: {}", stripeSubscriptionId);
+        if (isSubscriptionNotLinked(subscription)) {
+            linkSubscriptionToStripe(subscription, stripeSubscriptionId);
         } else {
             log.debug("Subscription already has Stripe subscription ID, skipping update");
         }
+    }
+
+    /**
+     * Checks if the internal subscription is not yet linked to Stripe.
+     *
+     * @param subscription the internal subscription
+     * @return true if the Stripe subscription ID is not set
+     */
+    private boolean isSubscriptionNotLinked(Subscription subscription) {
+        return subscription.getStripeSubscriptionId() == null;
+    }
+
+    /**
+     * Links the internal subscription to the Stripe subscription.
+     *
+     * @param subscription the internal subscription
+     * @param stripeSubscriptionId the Stripe subscription ID
+     */
+    private void linkSubscriptionToStripe(Subscription subscription, String stripeSubscriptionId) {
+        subscription.setStripeSubscriptionId(stripeSubscriptionId);
+        subscription.setStatus(SubscriptionStatus.ACTIVE);
+
+        subscriptionRepository.persist(subscription);
+        log.info("Updated subscription with Stripe subscription ID: {}", stripeSubscriptionId);
     }
 
     /**

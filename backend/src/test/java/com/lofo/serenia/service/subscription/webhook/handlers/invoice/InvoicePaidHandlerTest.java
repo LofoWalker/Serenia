@@ -4,7 +4,6 @@ import com.lofo.serenia.persistence.entity.subscription.Plan;
 import com.lofo.serenia.persistence.entity.subscription.PlanType;
 import com.lofo.serenia.persistence.entity.subscription.Subscription;
 import com.lofo.serenia.persistence.entity.subscription.SubscriptionStatus;
-import com.lofo.serenia.persistence.entity.subscription.DiscountType;
 import com.lofo.serenia.persistence.entity.user.User;
 import com.lofo.serenia.persistence.repository.SubscriptionRepository;
 import com.lofo.serenia.service.subscription.StripeEventType;
@@ -91,36 +90,16 @@ class InvoicePaidHandlerTest {
         }
 
         @Test
-        @DisplayName("should update last invoice amount and currency")
-        void should_update_invoice_amount() {
+        @DisplayName("should log invoice paid when subscription exists")
+        void should_log_invoice_paid_when_subscription_found() {
             when(objectMapper.deserialize(event, Invoice.class)).thenReturn(invoice);
             when(subscriptionRepository.find("stripeCustomerId", CUSTOMER_ID)).thenReturn(query);
             when(query.firstResultOptional()).thenReturn(Optional.of(subscription));
 
             handler.handle(event);
 
-            assertEquals((int) AMOUNT_PAID, subscription.getLastInvoiceAmount());
-            assertEquals(CURRENCY, subscription.getCurrency());
-            verify(subscriptionRepository).persist(subscription);
-        }
-
-        @Test
-        @DisplayName("should log when discount is active")
-        void should_log_discount_info() {
-            subscription.setStripeCouponId("coupon_test");
-            subscription.setDiscountType(DiscountType.PERCENTAGE);
-            subscription.setDiscountValue(10.0);
-            subscription.setDiscountEndDate(LocalDateTime.now().plusMonths(1));
-
-            when(objectMapper.deserialize(event, Invoice.class)).thenReturn(invoice);
-            when(subscriptionRepository.find("stripeCustomerId", CUSTOMER_ID)).thenReturn(query);
-            when(query.firstResultOptional()).thenReturn(Optional.of(subscription));
-
-            handler.handle(event);
-
-            assertEquals((int) AMOUNT_PAID, subscription.getLastInvoiceAmount());
-            assertEquals("coupon_test", subscription.getStripeCouponId());
-            verify(subscriptionRepository).persist(subscription);
+            verify(subscriptionRepository).find("stripeCustomerId", CUSTOMER_ID);
+            verify(subscriptionRepository, never()).persist(any(Subscription.class));
         }
 
         @Test

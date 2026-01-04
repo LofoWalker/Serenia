@@ -37,41 +37,17 @@ public class InvoicePaidHandler implements StripeEventHandler {
         Invoice invoice = stripeObjectMapper.deserialize(event, Invoice.class);
 
         String customerId = invoice.getCustomer();
-        long amountPaid = invoice.getAmountPaid();
-        String currency = invoice.getCurrency();
 
-        log.info("Invoice paid for customer: {}, amount: {} {}", customerId, amountPaid / 100.0, currency);
+        log.info("Invoice paid for customer: {}", customerId);
 
         Optional<Subscription> subscriptionOpt = subscriptionRepository
                 .find(STRIPE_CUSTOMER_ID, customerId)
                 .firstResultOptional();
 
         if (subscriptionOpt.isPresent()) {
-            Subscription subscription = subscriptionOpt.get();
-            subscription.setLastInvoiceAmount((int) amountPaid);
-            subscription.setCurrency(currency);
-
-            logInvoicePaidWithDiscount(subscription, amountPaid, currency);
-
-            subscriptionRepository.persist(subscription);
-            log.debug("Updated subscription with last invoice amount and currency");
+            log.debug("Invoice paid for customer: {}", customerId);
         } else {
             log.warn("No subscription found for customer: {} when processing invoice.paid", customerId);
-        }
-    }
-
-    /**
-     * Logs invoice payment details, including discount information if applicable.
-     */
-    private void logInvoicePaidWithDiscount(Subscription subscription, long amountPaid, String currency) {
-        if (subscription.getStripeCouponId() != null) {
-            log.info("Invoice paid with active discount - coupon: {}, type: {}, value: {}, " +
-                    "amountAfterDiscount: {} {}",
-                    subscription.getStripeCouponId(),
-                    subscription.getDiscountType(),
-                    subscription.getDiscountValue(),
-                    amountPaid / 100.0,
-                    currency);
         }
     }
 }

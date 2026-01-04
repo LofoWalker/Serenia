@@ -9,7 +9,6 @@ import com.lofo.serenia.persistence.entity.user.User;
 import com.lofo.serenia.persistence.repository.PlanRepository;
 import com.lofo.serenia.persistence.repository.SubscriptionRepository;
 import com.lofo.serenia.service.subscription.StripeEventType;
-import com.lofo.serenia.service.subscription.discount.DiscountProcessor;
 import com.lofo.serenia.service.subscription.mapper.StripeObjectMapper;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,9 +42,6 @@ class SubscriptionDeletedHandlerTest {
     private StripeObjectMapper objectMapper;
 
     @Mock
-    private DiscountProcessor discountProcessor;
-
-    @Mock
     private Event event;
 
     @Mock
@@ -62,8 +58,7 @@ class SubscriptionDeletedHandlerTest {
         handler = new SubscriptionDeletedHandler(
                 subscriptionRepository,
                 planRepository,
-                objectMapper,
-                discountProcessor
+                objectMapper
         );
 
         User user = User.builder()
@@ -124,7 +119,6 @@ class SubscriptionDeletedHandlerTest {
             assertFalse(subscription.getCancelAtPeriodEnd());
             assertNull(subscription.getCurrentPeriodEnd());
 
-            verify(discountProcessor).clearDiscount(subscription);
             verify(subscriptionRepository).persist(subscription);
         }
 

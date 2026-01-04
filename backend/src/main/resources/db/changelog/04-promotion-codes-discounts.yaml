@@ -1,68 +1,8 @@
 databaseChangeLog:
   # ==========================================
-  # Promotion Code Discount Fields
+  # NOTE: Promotion codes are NOT tracked in the database
   # ==========================================
-  - changeSet:
-      id: 04-promotion-codes-discounts
-      author: serenia
-      comment: "Add promotion code discount tracking fields to subscriptions table"
-      changes:
-        - addColumn:
-            tableName: subscriptions
-            columns:
-              - column:
-                  name: stripe_coupon_id
-                  type: varchar(255)
-                  constraints:
-                    nullable: true
-
-        - addColumn:
-            tableName: subscriptions
-            columns:
-              - column:
-                  name: discount_type
-                  type: varchar(32)
-                  constraints:
-                    nullable: true
-                  remarks: "PERCENTAGE or AMOUNT"
-
-        - addColumn:
-            tableName: subscriptions
-            columns:
-              - column:
-                  name: discount_value
-                  type: DECIMAL(10, 2)
-                  constraints:
-                    nullable: true
-                  remarks: "Percentage (e.g., 10.0) or amount in currency units"
-
-        - addColumn:
-            tableName: subscriptions
-            columns:
-              - column:
-                  name: discount_end_date
-                  type: TIMESTAMP WITH TIME ZONE
-                  constraints:
-                    nullable: true
-                  remarks: "When the discount expires; null = permanent/recurring"
-
-        - addColumn:
-            tableName: subscriptions
-            columns:
-              - column:
-                  name: last_invoice_amount
-                  type: INTEGER
-                  constraints:
-                    nullable: true
-                  remarks: "Last invoice amount paid in cents (for auditability)"
-
-        - addColumn:
-            tableName: subscriptions
-            columns:
-              - column:
-                  name: currency
-                  type: varchar(3)
-                  constraints:
-                    nullable: true
-                  remarks: "Currency code from last invoice"
-
+  # Stripe is the single source of truth for all discount information.
+  # Promotion codes and coupons are applied and managed entirely in Stripe.
+  # The application does not persist discount data locally.
+  # ==========================================
