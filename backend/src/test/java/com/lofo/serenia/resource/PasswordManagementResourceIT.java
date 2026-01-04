@@ -24,8 +24,8 @@ class PasswordManagementResourceIT {
     @Inject
     UserRepository userRepository;
 
-    private static final String FORGOT_PATH = "/api/password/forgot";
-    private static final String RESET_PATH = "/api/password/reset";
+    private static final String FORGOT_PATH = "/password/forgot";
+    private static final String RESET_PATH = "/password/reset";
     private static final String TEST_EMAIL = "user@example.com";
     private static final String NEW_PASSWORD = "NewPassword456!";
 

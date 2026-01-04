@@ -21,7 +21,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
  * Requires valid JWT authentication for all operations.
  */
 @Slf4j
-@Path("/api/profile")
+@Path("/profile")
 @Produces(MediaType.APPLICATION_JSON)
 @Authenticated
 @Tag(name = "Profile")

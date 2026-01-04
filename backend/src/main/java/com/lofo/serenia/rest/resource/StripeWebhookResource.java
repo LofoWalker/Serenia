@@ -26,7 +26,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
  * This endpoint must be publicly accessible as Stripe calls it directly.
  */
 @Slf4j
-@Path("/api/stripe")
+@Path("/stripe")
 @Produces(MediaType.APPLICATION_JSON)
 @RequiredArgsConstructor
 @Tag(name = "Stripe Webhook", description = "Stripe webhook endpoint")

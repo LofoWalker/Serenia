@@ -3,6 +3,7 @@ import {HttpTestingController, provideHttpClientTesting} from '@angular/common/h
 import {provideHttpClient} from '@angular/common/http';
 import {AuthService} from './auth.service';
 import {AuthStateService} from './auth-state.service';
+import {SubscriptionService} from './subscription.service';
 import {AuthResponse, LoginRequest, RegistrationRequest, User} from '../models/user.model';
 import {environment} from '../../../environments/environment';
 
@@ -16,16 +17,21 @@ describe('AuthService', () => {
     clear: ReturnType<typeof vi.fn>;
     token: ReturnType<typeof vi.fn>;
   };
+  let subscriptionServiceSpy: {
+    clearStatus: ReturnType<typeof vi.fn>;
+  };
 
   const mockUser: User = {
     id: '123',
     lastName: 'Doe',
     firstName: 'John',
     email: 'john.doe@example.com',
-    roles: ['USER']
+    role: 'USER'
   };
 
-  const apiUrl = `${environment.apiUrl}/auth`;
+  const authUrl = `${environment.apiUrl}/auth`;
+  const profileUrl = `${environment.apiUrl}/profile`;
+  const passwordUrl = `${environment.apiUrl}/password`;
 
   beforeEach(() => {
     authStateSpy = {
@@ -36,11 +42,16 @@ describe('AuthService', () => {
       token: vi.fn().mockReturnValue('mock-token')
     };
 
+    subscriptionServiceSpy = {
+      clearStatus: vi.fn()
+    };
+
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: AuthStateService, useValue: authStateSpy }
+        { provide: AuthStateService, useValue: authStateSpy },
+        { provide: SubscriptionService, useValue: subscriptionServiceSpy }
       ]
     });
 
@@ -72,7 +83,7 @@ describe('AuthService', () => {
 
       expect(authStateSpy.setLoading).toHaveBeenCalledWith(true);
 
-      const req = httpMock.expectOne(`${apiUrl}/register`);
+      const req = httpMock.expectOne(`${authUrl}/register`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(request);
       req.flush(response);
@@ -92,7 +103,7 @@ describe('AuthService', () => {
 
       expect(authStateSpy.setLoading).toHaveBeenCalledWith(true);
 
-      const req = httpMock.expectOne(`${apiUrl}/activate?token=${token}`);
+      const req = httpMock.expectOne(`${authUrl}/activate?token=${token}`);
       expect(req.request.method).toBe('GET');
       req.flush(response);
 
@@ -117,7 +128,7 @@ describe('AuthService', () => {
 
       expect(authStateSpy.setLoading).toHaveBeenCalledWith(true);
 
-      const req = httpMock.expectOne(`${apiUrl}/login`);
+      const req = httpMock.expectOne(`${authUrl}/login`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(request);
       req.flush(response);
@@ -134,7 +145,7 @@ describe('AuthService', () => {
         expect(result).toEqual(mockUser);
       });
 
-      const req = httpMock.expectOne(`${apiUrl}/me`);
+      const req = httpMock.expectOne(`${profileUrl}`);
       expect(req.request.method).toBe('GET');
       req.flush(mockUser);
 
@@ -148,20 +159,22 @@ describe('AuthService', () => {
 
       expect(authStateSpy.setLoading).toHaveBeenCalledWith(true);
 
-      const req = httpMock.expectOne(`${apiUrl}/me`);
+      const req = httpMock.expectOne(`${profileUrl}`);
       expect(req.request.method).toBe('DELETE');
       req.flush(null);
 
       expect(authStateSpy.clear).toHaveBeenCalled();
+      expect(subscriptionServiceSpy.clearStatus).toHaveBeenCalled();
       expect(authStateSpy.setLoading).toHaveBeenCalledWith(false);
     });
   });
 
   describe('logout', () => {
-    it('should_clear_auth_state', () => {
+    it('should_clear_auth_state_and_subscription_status', () => {
       service.logout();
 
       expect(authStateSpy.clear).toHaveBeenCalled();
+      expect(subscriptionServiceSpy.clearStatus).toHaveBeenCalled();
     });
   });
 
@@ -173,8 +186,11 @@ describe('AuthService', () => {
         expect(result).toEqual(mockUser);
       });
 
-      const req = httpMock.expectOne(`${apiUrl}/me`);
+      const req = httpMock.expectOne(`${profileUrl}`);
+      expect(req.request.method).toBe('GET');
       req.flush(mockUser);
+
+      expect(authStateSpy.setUser).toHaveBeenCalledWith(mockUser);
     });
 
     it('should_return_null_when_no_token', () => {
@@ -184,7 +200,7 @@ describe('AuthService', () => {
         expect(result).toBeNull();
       });
 
-      httpMock.expectNone(`${apiUrl}/me`);
+      httpMock.expectNone(`${profileUrl}`);
     });
 
     it('should_clear_state_and_return_null_on_error', () => {
@@ -194,7 +210,7 @@ describe('AuthService', () => {
         expect(result).toBeNull();
       });
 
-      const req = httpMock.expectOne(`${apiUrl}/me`);
+      const req = httpMock.expectOne(`${profileUrl}`);
       req.flush(null, { status: 401, statusText: 'Unauthorized' });
 
       expect(authStateSpy.clear).toHaveBeenCalled();

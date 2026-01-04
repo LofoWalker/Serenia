@@ -28,6 +28,7 @@
         <openai-java-version>4.7.1</openai-java-version>
         <assertj.version>3.24.2</assertj.version>
         <stripe.version>28.2.0</stripe.version>
+        <quarkus.native.additional-build-args>-J-Xmx4g</quarkus.native.additional-build-args>
     </properties>
 
     <dependencies>
@@ -90,7 +91,10 @@
             <artifactId>jbcrypt</artifactId>
             <version>0.4</version>
         </dependency>
-
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-health</artifactId>
+        </dependency>
         <!-- Validation & Mappers -->
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -270,6 +274,8 @@
             <properties>
                 <skipITs>false</skipITs>
                 <quarkus.native.enabled>true</quarkus.native.enabled>
+                <quarkus.native.additional-build-args>-J-Xmx8g,--enable-url-protocols=https,--enable-all-security-services</quarkus.native.additional-build-args>
+                <quarkus.native.resources.includes>META-INF/services/**,META-INF/native-image/**,kotlin/**</quarkus.native.resources.includes>
             </properties>
         </profile>
     </profiles>
