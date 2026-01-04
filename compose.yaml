@@ -107,7 +107,7 @@ services:
       - stripe_webhook_secret
       - smtp_password
     healthcheck:
-      test: [ "CMD-SHELL", "wget -qO- http://localhost:8080/ || exit 1" ]
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8080/api/q/health/live || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 3
