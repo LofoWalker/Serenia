@@ -1,5 +1,6 @@
 package com.lofo.serenia.service.subscription.webhook;
 
+import com.lofo.serenia.exception.exceptions.WebhookHandlerNotFoundException;
 import com.lofo.serenia.service.subscription.StripeEventType;
 import com.lofo.serenia.service.subscription.webhook.handlers.StripeEventHandler;
 import com.stripe.model.Event;
@@ -50,6 +51,7 @@ public class StripeWebhookService {
      *
      * @param eventType the typed event type
      * @param event the Stripe event to process
+     * @throws WebhookHandlerNotFoundException if no handler is registered for the event type
      */
     private void delegateToHandler(StripeEventType eventType, Event event) {
         var handler = findHandlerForEventType(eventType);
@@ -58,7 +60,9 @@ public class StripeWebhookService {
             log.debug("Delegating event {} to handler {}", event.getId(), handler.get().getClass().getSimpleName());
             handler.get().handle(event);
         } else {
-            log.warn("No handler found for event type: {}", eventType);
+            String errorMsg = String.format("No handler registered for event type: %s (id: %s)", eventType, event.getId());
+            log.error(errorMsg);
+            throw new WebhookHandlerNotFoundException(errorMsg);
         }
     }
 
@@ -69,14 +73,10 @@ public class StripeWebhookService {
      * @return an Optional containing the handler if found
      */
     private java.util.Optional<StripeEventHandler> findHandlerForEventType(StripeEventType eventType) {
-        if (handlers == null) {
-            return java.util.Optional.empty();
-        }
+        java.util.Objects.requireNonNull(handlers, "StripeEventHandler CDI instance must not be null");
 
         java.util.Iterator<StripeEventHandler> iterator = handlers.iterator();
-        if (iterator == null) {
-            return java.util.Optional.empty();
-        }
+        java.util.Objects.requireNonNull(iterator, "Iterator over StripeEventHandler instances must not be null");
 
         while (iterator.hasNext()) {
             StripeEventHandler handler = iterator.next();

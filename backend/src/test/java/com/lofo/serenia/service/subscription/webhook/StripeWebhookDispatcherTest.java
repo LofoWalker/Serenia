@@ -1,5 +1,6 @@
 package com.lofo.serenia.service.subscription.webhook;
 
+import com.lofo.serenia.exception.exceptions.WebhookHandlerNotFoundException;
 import com.lofo.serenia.service.subscription.StripeEventType;
 import com.lofo.serenia.service.subscription.webhook.handlers.StripeEventHandler;
 import com.stripe.model.Event;
@@ -15,7 +16,7 @@ import jakarta.enterprise.inject.Instance;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -86,6 +87,24 @@ class StripeWebhookDispatcherTest {
             when(event.getType()).thenReturn("unknown.event");
 
             assertDoesNotThrow(() -> webhookService.handleEvent(event));
+        }
+
+        @Test
+        @DisplayName("should throw WebhookHandlerNotFoundException when no handler found for recognized event type")
+        void should_throw_when_handler_not_found() {
+            when(event.getType()).thenReturn("customer.subscription.created");
+            when(event.getId()).thenReturn("evt_test123");
+
+            List<StripeEventHandler> handlers = new ArrayList<>();
+            when(handlersInstance.iterator()).thenReturn(handlers.iterator());
+
+            WebhookHandlerNotFoundException exception = assertThrows(
+                    WebhookHandlerNotFoundException.class,
+                    () -> webhookService.handleEvent(event)
+            );
+
+            assertTrue(exception.getMessage().contains("No handler registered"));
+            assertTrue(exception.getMessage().contains("evt_test123"));
         }
 
         @Test

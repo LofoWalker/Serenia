@@ -114,7 +114,7 @@ class SubscriptionDeletedHandlerTest {
 
             assertEquals(freePlan, subscription.getPlan());
             assertNull(subscription.getStripeSubscriptionId());
-            assertNull(subscription.getStripeCustomerId());
+            assertEquals(CUSTOMER_ID, subscription.getStripeCustomerId());
             assertEquals(SubscriptionStatus.ACTIVE, subscription.getStatus());
             assertFalse(subscription.getCancelAtPeriodEnd());
             assertNull(subscription.getCurrentPeriodEnd());

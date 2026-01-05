@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Handles customer.subscription.deleted events.
- * Downgraded the user to the FREE plan and clears subscription data.
+ * Downgrades the user to the FREE plan and clears subscription data.
  */
 @Slf4j
 @ApplicationScoped
@@ -47,7 +47,6 @@ public class SubscriptionDeletedHandler implements StripeEventHandler {
         Plan freePlan = planRepository.getFreePlan();
         subscription.setPlan(freePlan);
         subscription.setStripeSubscriptionId(null);
-        subscription.setStripeCustomerId(null);
         subscription.setStatus(SubscriptionStatus.ACTIVE);
         subscription.setCancelAtPeriodEnd(false);
         subscription.setCurrentPeriodEnd(null);

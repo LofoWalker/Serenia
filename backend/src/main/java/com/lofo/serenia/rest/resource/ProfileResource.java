@@ -16,7 +16,6 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
-import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 /**
@@ -47,11 +46,15 @@ public class ProfileResource {
     @GET
     @Operation(summary = "Get current user profile",
                description = "Returns the authenticated user's profile information.")
-    @APIResponses({
-            @APIResponse(responseCode = "200", description = "User profile retrieved successfully",
-                        content = @Content(schema = @Schema(implementation = UserResponseDTO.class))),
-            @APIResponse(responseCode = "401", description = "User not authenticated")
-    })
+    @APIResponse(
+            responseCode = "200",
+            description = "User profile retrieved successfully",
+            content = @Content(schema = @Schema(implementation = UserResponseDTO.class))
+    )
+    @APIResponse(
+            responseCode = "401",
+            description = "User not authenticated"
+    )
     public Response getProfile() {
         String email = securityIdentity.getPrincipal().getName();
         log.debug("User profile requested for email=%s", email);
@@ -69,10 +72,14 @@ public class ProfileResource {
     @DELETE
     @Operation(summary = "Delete current user account",
                description = "Permanently deletes the authenticated user's account and all associated data.")
-    @APIResponses({
-            @APIResponse(responseCode = "204", description = "Account successfully deleted"),
-            @APIResponse(responseCode = "401", description = "User not authenticated")
-    })
+    @APIResponse(
+            responseCode = "204",
+            description = "Account successfully deleted"
+    )
+    @APIResponse(
+            responseCode = "401",
+            description = "User not authenticated"
+    )
     public Response deleteProfile() {
         String email = securityIdentity.getPrincipal().getName();
         log.info("User account deletion requested for email=%s", email);
