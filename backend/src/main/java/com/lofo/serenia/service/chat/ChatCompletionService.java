@@ -7,6 +7,7 @@ import com.openai.client.OpenAIClient;
 import com.openai.client.okhttp.OpenAIOkHttpClient;
 import com.openai.models.ReasoningEffort;
 import com.openai.models.chat.completions.*;
+import com.openai.models.completions.CompletionUsage;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,8 @@ public class ChatCompletionService {
     private final OpenAIConfig config;
     private final ChatMessageMapper chatMessageMapper;
 
+    public record ChatCompletionResult(String content, int totalTokensUsed) {}
+
     @Inject
     public ChatCompletionService(OpenAIConfig config, ChatMessageMapper chatMessageMapper) {
         this.config = config;
@@ -37,8 +40,9 @@ public class ChatCompletionService {
 
     /**
      * Generates an assistant reply using the system prompt plus decrypted conversation history.
+     * Returns both the response content and the actual tokens consumed by OpenAI.
      */
-    public String generateReply(String systemPrompt, List<ChatMessage> conversationMessages) {
+    public ChatCompletionResult generateReply(String systemPrompt, List<ChatMessage> conversationMessages) {
         List<ChatCompletionMessageParam> messages = new ArrayList<>();
 
         addSystemInstructionsToRequest(systemPrompt, messages);
@@ -52,15 +56,25 @@ public class ChatCompletionService {
 
         ChatCompletion completion = sendRequestAndGetCompletion(params);
 
-        return parseCompletionAndReturnResponse(completion);
+        return parseCompletionAndReturnResult(completion);
     }
 
-    private static @NotNull String parseCompletionAndReturnResponse(ChatCompletion completion) {
-        if (completion.choices().isEmpty()) {
-            return "";
+    private static @NotNull ChatCompletionResult parseCompletionAndReturnResult(ChatCompletion completion) {
+        String content = "";
+        int totalTokensUsed = 0;
+
+        if (!completion.choices().isEmpty()) {
+            content = completion.choices().getFirst().message().content().orElse("");
         }
 
-        return completion.choices().getFirst().message().content().orElse("");
+        if (completion.usage().isPresent()) {
+            totalTokensUsed = Math.toIntExact(completion.usage().map(CompletionUsage::totalTokens).orElse(0L));
+            log.debug(totalTokensUsed + " tokens used by OpenAI API");
+        } else {
+            log.warn("OpenAI API did not return usage information");
+        }
+
+        return new ChatCompletionResult(content, totalTokensUsed);
     }
 
     private @NotNull ChatCompletion sendRequestAndGetCompletion(ChatCompletionCreateParams params) {

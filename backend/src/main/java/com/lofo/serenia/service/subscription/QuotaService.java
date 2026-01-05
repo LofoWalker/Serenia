@@ -14,6 +14,7 @@ import java.util.UUID;
 /**
  * Service de gestion des quotas d'utilisation.
  * Gère la vérification et l'enregistrement de la consommation des utilisateurs.
+ * Les tokens sont maintenant enregistrés directement depuis l'API OpenAI, sans approximation.
  */
 @Slf4j
 @ApplicationScoped
@@ -21,7 +22,6 @@ import java.util.UUID;
 public class QuotaService {
 
     private final SubscriptionRepository subscriptionRepository;
-    private final TokenCountingService tokenCountingService;
 
     /**
      * Vérifie que l'utilisateur dispose encore de quota avant un appel.
@@ -42,23 +42,21 @@ public class QuotaService {
     }
 
     /**
-     * Enregistre l'utilisation d'un échange (message utilisateur + réponse).
+     * Enregistre l'utilisation réelle de tokens retournée par l'API OpenAI.
      *
      * @param userId l'identifiant de l'utilisateur
-     * @param userMessage le message de l'utilisateur
-     * @param assistantResponse la réponse de l'assistant
+     * @param actualTokensUsed les tokens réels consommés (provenant de ChatCompletion.usage().totalTokens())
      */
     @Transactional
-    public void recordUsage(UUID userId, String userMessage, String assistantResponse) {
+    public void recordUsage(UUID userId, int actualTokensUsed) {
         Subscription subscription = getSubscriptionForUpdate(userId);
 
-        int tokensUsed = tokenCountingService.countExchangeTokens(userMessage, assistantResponse);
-        updateUsageCounters(subscription, tokensUsed);
+        updateUsageCounters(subscription, actualTokensUsed);
 
         subscriptionRepository.persist(subscription);
 
         log.debug("Recorded usage for user {}: {} tokens (total: {}), {} messages today",
-                userId, tokensUsed, subscription.getTokensUsedThisMonth(),
+                userId, actualTokensUsed, subscription.getTokensUsedThisMonth(),
                 subscription.getMessagesSentToday());
     }
 
