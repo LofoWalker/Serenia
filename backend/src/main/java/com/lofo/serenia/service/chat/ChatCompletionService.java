@@ -68,8 +68,8 @@ public class ChatCompletionService {
         }
 
         if (completion.usage().isPresent()) {
-            totalTokensUsed = Math.toIntExact(completion.usage().map(CompletionUsage::totalTokens).orElse(0L));
-            log.debug(totalTokensUsed + " tokens used by OpenAI API");
+            totalTokensUsed = Math.toIntExact(completion.usage().get().totalTokens());
+            log.debug("{} tokens used by OpenAI API", totalTokensUsed);
         } else {
             log.warn("OpenAI API did not return usage information");
         }

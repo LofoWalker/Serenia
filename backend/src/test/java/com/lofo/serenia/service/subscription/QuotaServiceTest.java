@@ -175,6 +175,7 @@ class QuotaServiceTest {
             quotaService.recordUsage(USER_ID, 200);
             assertEquals(300, subscription.getTokensUsedThisMonth());
             assertEquals(2, subscription.getMessagesSentToday());
+            verify(subscriptionRepository, times(2)).persist(subscription);
         }
     }
 

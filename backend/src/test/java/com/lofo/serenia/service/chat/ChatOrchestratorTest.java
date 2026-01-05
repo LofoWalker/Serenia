@@ -86,31 +86,6 @@ class ChatOrchestratorTest {
         verify(quotaService).recordUsage(FIXED_USER_ID, 432);
     }
 
-    @Test
-    @DisplayName("Should propagate actual tokens from ChatCompletion to QuotaService")
-    void should_propagate_actual_tokens_to_quota_service() {
-        Conversation conv = new Conversation();
-        conv.setId(FIXED_CONV_ID);
-
-        int actualTokensUsed = 789;
-        ChatCompletionService.ChatCompletionResult completionResult =
-                new ChatCompletionService.ChatCompletionResult("Assistant response", actualTokensUsed);
-
-        when(conversationService.getOrCreateActiveConversation(FIXED_USER_ID)).thenReturn(conv);
-        when(sereniaConfig.systemPrompt()).thenReturn("System prompt");
-        when(messageService.decryptConversationMessages(FIXED_USER_ID, FIXED_CONV_ID))
-                .thenReturn(Collections.emptyList());
-        when(messageService.persistAssistantMessage(eq(FIXED_USER_ID), eq(FIXED_CONV_ID), nullable(String.class)))
-                .thenReturn(messageWithRole(MessageRole.ASSISTANT));
-        when(chatCompletionService.generateReply(anyString(), anyList()))
-                .thenReturn(completionResult);
-
-        ProcessedMessageResult result = chatOrchestrator.processUserMessage(FIXED_USER_ID, "Test message");
-
-        assertNotNull(result);
-        verify(quotaService).recordUsage(FIXED_USER_ID, actualTokensUsed);
-    }
-
     private Message messageWithRole(MessageRole role) {
         Message message = new Message();
         message.setRole(role);
