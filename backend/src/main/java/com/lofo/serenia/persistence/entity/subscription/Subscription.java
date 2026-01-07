@@ -70,6 +70,7 @@ public class Subscription {
     @Column(name = "cancel_at_period_end", nullable = false)
     private Boolean cancelAtPeriodEnd = false;
 
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

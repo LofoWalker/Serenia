@@ -3,8 +3,8 @@ package com.lofo.serenia.rest.resource;
 import com.lofo.serenia.rest.dto.in.RegistrationRequestDTO;
 import com.lofo.serenia.rest.dto.out.ActivationResponseDTO;
 import com.lofo.serenia.rest.dto.out.ApiMessageResponse;
-import com.lofo.serenia.service.user.registration.RegistrationService;
 import com.lofo.serenia.service.user.activation.AccountActivationService;
+import com.lofo.serenia.service.user.registration.RegistrationService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -17,7 +17,6 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
-import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 /**
@@ -45,11 +44,15 @@ public class RegistrationResource {
     @Operation(summary = "Register user",
                description = "Creates a new user account and sends an activation email.")
     @RequestBody(content = @Content(schema = @Schema(implementation = RegistrationRequestDTO.class)))
-    @APIResponses({
-            @APIResponse(responseCode = "201", description = "User registered successfully",
-                        content = @Content(schema = @Schema(implementation = ApiMessageResponse.class))),
-            @APIResponse(responseCode = "400", description = "Invalid payload or user already exists")
-    })
+    @APIResponse(
+            responseCode = "201",
+            description = "User registered successfully",
+            content = @Content(schema = @Schema(implementation = ApiMessageResponse.class))
+    )
+    @APIResponse(
+            responseCode = "400",
+            description = "Invalid payload or user already exists"
+    )
     public Response register(@Valid RegistrationRequestDTO dto) {
         log.info("User registration requested for email=%s", dto.email());
         registrationService.register(dto);
@@ -69,11 +72,15 @@ public class RegistrationResource {
     @Path("/activate")
     @Operation(summary = "Activate account",
                description = "Validates an activation token and unlocks the user account.")
-    @APIResponses({
-            @APIResponse(responseCode = "200", description = "Account activated successfully",
-                        content = @Content(schema = @Schema(implementation = ActivationResponseDTO.class))),
-            @APIResponse(responseCode = "400", description = "Invalid or missing activation token")
-    })
+    @APIResponse(
+            responseCode = "200",
+            description = "Account activated successfully",
+            content = @Content(schema = @Schema(implementation = ActivationResponseDTO.class))
+    )
+    @APIResponse(
+            responseCode = "400",
+            description = "Invalid or missing activation token"
+    )
     public Response activate(@QueryParam("token")
                             @Parameter(description = "Activation token from email", required = true)
                             String token) {

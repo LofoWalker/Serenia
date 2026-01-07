@@ -90,6 +90,11 @@ export class SubscriptionService {
     return s.messagesRemainingToday <= 2 || s.tokensRemainingThisMonth < 500;
   });
 
+  // Discount computed signals
+  readonly hasActiveDiscount = computed(() => this.statusSignal()?.hasActiveDiscount ?? false);
+  readonly discountDescription = computed(() => this.statusSignal()?.discountDescription ?? '');
+  readonly discountEndDate = computed(() => this.statusSignal()?.discountEndDate ?? null);
+
   /**
    * Retrieves the list of available plans.
    */

@@ -2,8 +2,8 @@ package com.lofo.serenia.service.user.activation;
 
 import com.lofo.serenia.persistence.entity.user.User;
 import com.lofo.serenia.persistence.repository.UserRepository;
-import com.lofo.serenia.service.mail.provider.EmailTemplateProvider;
 import com.lofo.serenia.service.mail.MailSender;
+import com.lofo.serenia.service.mail.provider.EmailTemplateProvider;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;

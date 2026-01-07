@@ -1,8 +1,10 @@
 package com.lofo.serenia.persistence.repository;
+
 import com.lofo.serenia.persistence.entity.subscription.Plan;
 import com.lofo.serenia.persistence.entity.subscription.PlanType;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
+
 import java.util.Optional;
 /**
  * Repository pour l'accès aux plans d'abonnement.

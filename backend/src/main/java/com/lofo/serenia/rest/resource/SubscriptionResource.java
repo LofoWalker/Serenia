@@ -19,7 +19,6 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
-import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.util.List;
@@ -54,13 +53,11 @@ public class SubscriptionResource {
             summary = "Get available plans",
             description = "Returns the list of all available subscription plans with their limits."
     )
-    @APIResponses({
-            @APIResponse(
-                    responseCode = "200",
-                    description = "Plans returned successfully",
-                    content = @Content(schema = @Schema(implementation = PlanDTO[].class))
-            )
-    })
+    @APIResponse(
+            responseCode = "200",
+            description = "Plans returned successfully",
+            content = @Content(schema = @Schema(implementation = PlanDTO[].class))
+    )
     public Response getPlans() {
         List<PlanDTO> plans = subscriptionService.getAllPlans();
         return Response.ok(plans).build();
@@ -73,17 +70,15 @@ public class SubscriptionResource {
             description = "Returns the current subscription status including plan details, " +
                     "remaining quotas, and reset dates for the authenticated user."
     )
-    @APIResponses({
-            @APIResponse(
-                    responseCode = "200",
-                    description = "Subscription status returned successfully",
-                    content = @Content(schema = @Schema(implementation = SubscriptionStatusDTO.class))
-            ),
-            @APIResponse(
-                    responseCode = "401",
-                    description = "User not authenticated"
-            )
-    })
+    @APIResponse(
+            responseCode = "200",
+            description = "Subscription status returned successfully",
+            content = @Content(schema = @Schema(implementation = SubscriptionStatusDTO.class))
+    )
+    @APIResponse(
+            responseCode = "401",
+            description = "User not authenticated"
+    )
     public Response getStatus() {
         UUID userId = getAuthenticatedUserId();
         SubscriptionStatusDTO status = subscriptionService.getStatus(userId);
@@ -96,25 +91,23 @@ public class SubscriptionResource {
             summary = "Change subscription plan",
             description = "Changes the subscription plan for the authenticated user."
     )
-    @APIResponses({
-            @APIResponse(
-                    responseCode = "200",
-                    description = "Plan changed successfully",
-                    content = @Content(schema = @Schema(implementation = SubscriptionStatusDTO.class))
-            ),
-            @APIResponse(
-                    responseCode = "400",
-                    description = "Invalid plan type"
-            ),
-            @APIResponse(
-                    responseCode = "401",
-                    description = "User not authenticated"
-            ),
-            @APIResponse(
-                    responseCode = "404",
-                    description = "Plan not found"
-            )
-    })
+    @APIResponse(
+            responseCode = "200",
+            description = "Plan changed successfully",
+            content = @Content(schema = @Schema(implementation = SubscriptionStatusDTO.class))
+    )
+    @APIResponse(
+            responseCode = "400",
+            description = "Invalid plan type"
+    )
+    @APIResponse(
+            responseCode = "401",
+            description = "User not authenticated"
+    )
+    @APIResponse(
+            responseCode = "404",
+            description = "Plan not found"
+    )
     public Response changePlan(@Valid ChangePlanRequestDTO request) {
         UUID userId = getAuthenticatedUserId();
         subscriptionService.changePlan(userId, request.planType());
@@ -129,21 +122,19 @@ public class SubscriptionResource {
             description = "Creates a Stripe Checkout session for subscribing to a paid plan. " +
                     "Returns a URL to redirect the user to Stripe's payment page."
     )
-    @APIResponses({
-            @APIResponse(
-                    responseCode = "200",
-                    description = "Checkout session created successfully",
-                    content = @Content(schema = @Schema(implementation = CheckoutSessionDTO.class))
-            ),
-            @APIResponse(
-                    responseCode = "400",
-                    description = "Invalid plan type (e.g., trying to checkout for FREE plan)"
-            ),
-            @APIResponse(
-                    responseCode = "401",
-                    description = "User not authenticated"
-            )
-    })
+    @APIResponse(
+            responseCode = "200",
+            description = "Checkout session created successfully",
+            content = @Content(schema = @Schema(implementation = CheckoutSessionDTO.class))
+    )
+    @APIResponse(
+            responseCode = "400",
+            description = "Invalid plan type (e.g., trying to checkout for FREE plan)"
+    )
+    @APIResponse(
+            responseCode = "401",
+            description = "User not authenticated"
+    )
     public Response createCheckoutSession(@Valid CheckoutRequestDTO request) {
         UUID userId = getAuthenticatedUserId();
         CheckoutSessionDTO session = stripeService.createCheckoutSession(userId, request.planType());
@@ -157,21 +148,19 @@ public class SubscriptionResource {
             description = "Creates a Stripe Customer Portal session for managing subscription. " +
                     "Returns a URL to redirect the user to Stripe's customer portal."
     )
-    @APIResponses({
-            @APIResponse(
-                    responseCode = "200",
-                    description = "Portal session created successfully",
-                    content = @Content(schema = @Schema(implementation = PortalSessionDTO.class))
-            ),
-            @APIResponse(
-                    responseCode = "400",
-                    description = "User has no Stripe customer (never subscribed)"
-            ),
-            @APIResponse(
-                    responseCode = "401",
-                    description = "User not authenticated"
-            )
-    })
+    @APIResponse(
+            responseCode = "200",
+            description = "Portal session created successfully",
+            content = @Content(schema = @Schema(implementation = PortalSessionDTO.class))
+    )
+    @APIResponse(
+            responseCode = "400",
+            description = "User has no Stripe customer (never subscribed)"
+    )
+    @APIResponse(
+            responseCode = "401",
+            description = "User not authenticated"
+    )
     public Response createPortalSession() {
         UUID userId = getAuthenticatedUserId();
         PortalSessionDTO session = stripeService.createPortalSession(userId);
@@ -183,3 +172,4 @@ public class SubscriptionResource {
         return UUID.fromString(subject);
     }
 }
+

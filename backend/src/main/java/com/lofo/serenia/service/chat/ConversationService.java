@@ -1,8 +1,8 @@
 package com.lofo.serenia.service.chat;
 
+import com.lofo.serenia.exception.exceptions.ForbiddenAccessException;
 import com.lofo.serenia.persistence.entity.conversation.ChatMessage;
 import com.lofo.serenia.persistence.entity.conversation.Conversation;
-import com.lofo.serenia.exception.exceptions.ForbiddenAccessException;
 import com.lofo.serenia.persistence.repository.ConversationRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;

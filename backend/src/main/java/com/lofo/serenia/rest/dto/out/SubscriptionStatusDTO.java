@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 /**
  * DTO representing a user's subscription status.
+ * Discount information is NOT tracked - it is fully auditable in Stripe.
  */
 public record SubscriptionStatusDTO(
         String planName,
@@ -22,5 +23,4 @@ public record SubscriptionStatusDTO(
         Integer priceCents,
         String currency,
         boolean hasStripeSubscription
-) {
-}
+) {}

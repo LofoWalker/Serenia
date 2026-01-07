@@ -1,11 +1,7 @@
 package com.lofo.serenia.exception;
 
-import com.lofo.serenia.exception.exceptions.ForbiddenAccessException;
-import com.lofo.serenia.exception.exceptions.InvalidTokenException;
-import com.lofo.serenia.exception.exceptions.SereniaException;
+import com.lofo.serenia.exception.exceptions.*;
 import com.lofo.serenia.rest.dto.out.ApiMessageResponse;
-import com.lofo.serenia.exception.exceptions.AuthenticationFailedException;
-import com.lofo.serenia.exception.exceptions.UnactivatedAccountException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;

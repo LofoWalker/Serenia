@@ -20,7 +20,6 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
-import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.util.List;
@@ -39,7 +38,7 @@ public class ConversationResource {
     private final JsonWebToken jwt;
 
     public ConversationResource(ConversationService conversationService, ChatOrchestrator chatOrchestrator,
-            SecurityIdentity securityIdentity, JsonWebToken jwt) {
+                                SecurityIdentity securityIdentity, JsonWebToken jwt) {
         this.conversationService = conversationService;
         this.chatOrchestrator = chatOrchestrator;
         this.securityIdentity = securityIdentity;
@@ -55,11 +54,9 @@ public class ConversationResource {
     @Path("/add-message")
     @Operation(summary = "Send a user message", description = "Appends a user message to the active conversation and returns the assistant reply with conversation ID.")
     @RequestBody(content = @Content(schema = @Schema(implementation = MessageRequestDTO.class)))
-    @APIResponses({
-            @APIResponse(responseCode = "200", description = "Assistant reply returned with conversation ID", content = @Content(schema = @Schema(implementation = MessageResponseDTO.class))),
-            @APIResponse(responseCode = "400", description = "Missing or blank content"),
-            @APIResponse(responseCode = "401", description = "User not authenticated")
-    })
+    @APIResponse(responseCode = "200", description = "Assistant reply returned with conversation ID", content = @Content(schema = @Schema(implementation = MessageResponseDTO.class)))
+    @APIResponse(responseCode = "400", description = "Missing or blank content")
+    @APIResponse(responseCode = "401", description = "User not authenticated")
     public Response addMessage(MessageRequestDTO request) {
         UUID userId = getAuthenticatedUserId();
         if (request.content() == null || request.content().isBlank()) {
@@ -78,11 +75,9 @@ public class ConversationResource {
     @GET
     @Path("/{conversationId}/messages")
     @Operation(summary = "List conversation messages", description = "Returns decrypted messages for the requested conversation after enforcing ownership.")
-    @APIResponses({
-            @APIResponse(responseCode = "200", description = "Messages returned", content = @Content(schema = @Schema(implementation = ChatMessage.class))),
-            @APIResponse(responseCode = "401", description = "User not authenticated"),
-            @APIResponse(responseCode = "403", description = "Conversation does not belong to the user")
-    })
+    @APIResponse(responseCode = "200", description = "Messages returned", content = @Content(schema = @Schema(implementation = ChatMessage.class)))
+    @APIResponse(responseCode = "401", description = "User not authenticated")
+    @APIResponse(responseCode = "403", description = "Conversation does not belong to the user")
     public Response getConversationMessages(
             @PathParam("conversationId") @Parameter(description = "Conversation identifier", required = true) UUID conversationId) {
         UUID userId = getAuthenticatedUserId();
@@ -93,11 +88,9 @@ public class ConversationResource {
     @GET
     @Path("/my-messages")
     @Operation(summary = "Get current user messages", description = "Returns the conversation ID and decrypted messages for the authenticated user's active conversation.")
-    @APIResponses({
-            @APIResponse(responseCode = "200", description = "Conversation with messages returned", content = @Content(schema = @Schema(implementation = ConversationMessagesResponseDTO.class))),
-            @APIResponse(responseCode = "204", description = "No active conversation found for the user"),
-            @APIResponse(responseCode = "401", description = "User not authenticated")
-    })
+    @APIResponse(responseCode = "200", description = "Conversation with messages returned", content = @Content(schema = @Schema(implementation = ConversationMessagesResponseDTO.class)))
+    @APIResponse(responseCode = "204", description = "No active conversation found for the user")
+    @APIResponse(responseCode = "401", description = "User not authenticated")
     public Response getUserMessages() {
         UUID userId = getAuthenticatedUserId();
         Conversation conversation = conversationService.getActiveConversationByUserId(userId);
@@ -114,10 +107,14 @@ public class ConversationResource {
     @DELETE
     @Path("/my-conversations")
     @Operation(summary = "Delete user conversations", description = "Deletes all conversations belonging to the authenticated user.")
-    @APIResponses({
-            @APIResponse(responseCode = "204", description = "Conversations successfully deleted"),
-            @APIResponse(responseCode = "401", description = "User not authenticated")
-    })
+    @APIResponse(
+            responseCode = "204",
+            description = "Conversations successfully deleted"
+    )
+    @APIResponse(
+            responseCode = "401",
+            description = "User not authenticated"
+    )
     public Response deleteUserConversations() {
         UUID userId = getAuthenticatedUserId();
         conversationService.deleteUserConversations(userId);
@@ -133,3 +130,4 @@ public class ConversationResource {
         return UUID.fromString(principalName);
     }
 }
+
