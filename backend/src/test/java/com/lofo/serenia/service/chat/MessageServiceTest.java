@@ -99,7 +99,7 @@ class MessageServiceTest {
         Message message = new Message();
         message.setRole(MessageRole.ASSISTANT);
         message.setEncryptedContent("[encrypted]Answer".getBytes());
-        when(messageRepository.findByConversation(FIXED_CONV_ID)).thenReturn(List.of(message));
+        when(messageRepository.findLatest(FIXED_CONV_ID)).thenReturn(List.of(message));
         when(encryptionService.decryptForUser(FIXED_USER_ID, message.getEncryptedContent()))
                 .thenReturn("Answer");
         when(messageMapper.toChatMessage(message, "Answer"))

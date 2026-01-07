@@ -10,8 +10,10 @@ import java.util.UUID;
 @ApplicationScoped
 public class MessageRepository implements PanacheRepository<Message> {
 
-    public List<Message> findByConversation(UUID conversationId) {
-        return list("conversationId = ?1 ORDER BY timestamp ASC", conversationId);
+    public List<Message> findLatest(UUID conversationId) {
+        return find("conversationId = ?1 ORDER BY timestamp DESC", conversationId)
+                .page(0, 16)
+                .list();
     }
 
     public void deleteByUserId(UUID userId) {
