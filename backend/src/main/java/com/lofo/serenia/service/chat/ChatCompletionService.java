@@ -53,7 +53,7 @@ public class ChatCompletionService {
 
         ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
                 .model(this.config.model())
-                .reasoningEffort(ReasoningEffort.LOW)
+                .reasoningEffort(ReasoningEffort.MEDIUM)
                 .messages(messages)
                 .build();
 
