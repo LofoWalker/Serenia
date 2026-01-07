@@ -33,16 +33,16 @@ public class ChatOrchestrator {
         messageService.persistUserMessage(userId, conv.getId(), content);
 
         List<ChatMessage> history = messageService.decryptConversationMessages(userId, conv.getId());
-        String assistantReply = chatCompletionService.generateReply(
+        ChatCompletionService.ChatCompletionResult completionResult = chatCompletionService.generateReply(
                 sereniaConfig.systemPrompt(),
                 history
         );
 
-        Message assistantMsg = messageService.persistAssistantMessage(userId, conv.getId(), assistantReply);
+        Message assistantMsg = messageService.persistAssistantMessage(userId, conv.getId(), completionResult.content());
 
-        quotaService.recordUsage(userId, content, assistantReply);
+        quotaService.recordUsage(userId, completionResult.totalTokensUsed());
 
-        ChatMessage chatMessage = new ChatMessage(assistantMsg.getRole(), assistantReply);
+        ChatMessage chatMessage = new ChatMessage(assistantMsg.getRole(), completionResult.content());
 
         return new ProcessedMessageResult(conv.getId(), chatMessage);
     }

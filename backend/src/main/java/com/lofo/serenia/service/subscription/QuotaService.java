@@ -12,8 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.UUID;
 
 /**
- * Service de gestion des quotas d'utilisation.
- * Gère la vérification et l'enregistrement de la consommation des utilisateurs.
+ * Service for managing usage quotas.
+ * Handles verification and recording of user consumption.
+ * Tokens are now recorded directly from the OpenAI API, without approximation.
  */
 @Slf4j
 @ApplicationScoped
@@ -21,14 +22,13 @@ import java.util.UUID;
 public class QuotaService {
 
     private final SubscriptionRepository subscriptionRepository;
-    private final TokenCountingService tokenCountingService;
 
     /**
-     * Vérifie que l'utilisateur dispose encore de quota avant un appel.
-     * Réinitialise les périodes expirées si nécessaire.
+     * Checks that the user still has available quota before a call.
+     * Resets expired periods if necessary.
      *
-     * @param userId l'identifiant de l'utilisateur
-     * @throws QuotaExceededException si une limite est atteinte
+     * @param userId the user identifier
+     * @throws QuotaExceededException if a limit is reached
      */
     @Transactional
     public void checkQuotaBeforeCall(UUID userId) {
@@ -42,32 +42,30 @@ public class QuotaService {
     }
 
     /**
-     * Enregistre l'utilisation d'un échange (message utilisateur + réponse).
+     * Records the actual token usage returned by the OpenAI API.
      *
-     * @param userId l'identifiant de l'utilisateur
-     * @param userMessage le message de l'utilisateur
-     * @param assistantResponse la réponse de l'assistant
+     * @param userId the user identifier
+     * @param actualTokensUsed the actual tokens consumed (from ChatCompletion.usage().totalTokens())
      */
     @Transactional
-    public void recordUsage(UUID userId, String userMessage, String assistantResponse) {
+    public void recordUsage(UUID userId, int actualTokensUsed) {
         Subscription subscription = getSubscriptionForUpdate(userId);
 
-        int tokensUsed = tokenCountingService.countExchangeTokens(userMessage, assistantResponse);
-        updateUsageCounters(subscription, tokensUsed);
+        updateUsageCounters(subscription, actualTokensUsed);
 
         subscriptionRepository.persist(subscription);
 
         log.debug("Recorded usage for user {}: {} tokens (total: {}), {} messages today",
-                userId, tokensUsed, subscription.getTokensUsedThisMonth(),
+                userId, actualTokensUsed, subscription.getTokensUsedThisMonth(),
                 subscription.getMessagesSentToday());
     }
 
     /**
-     * Vérifie si l'utilisateur peut envoyer un message.
-     * Méthode non-bloquante qui ne lève pas d'exception.
+     * Checks if the user can send a message.
+     * Non-blocking method that does not throw exceptions.
      *
-     * @param userId l'identifiant de l'utilisateur
-     * @return true si l'utilisateur peut envoyer un message
+     * @param userId the user identifier
+     * @return true if the user can send a message
      */
     public boolean canSendMessage(UUID userId) {
         try {
@@ -80,7 +78,7 @@ public class QuotaService {
         }
     }
 
-    // ========== Méthodes privées ==========
+    // ========== Private methods ==========
 
     private Subscription getSubscriptionForUpdate(UUID userId) {
         return subscriptionRepository.findByUserIdForUpdate(userId)

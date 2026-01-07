@@ -27,8 +27,6 @@ class QuotaServiceTest {
     @Mock
     private SubscriptionRepository subscriptionRepository;
 
-    @Mock
-    private TokenCountingService tokenCountingService;
 
     private QuotaService quotaService;
     private static final UUID USER_ID = UUID.randomUUID();
@@ -37,7 +35,7 @@ class QuotaServiceTest {
 
     @BeforeEach
     void setUp() {
-        quotaService = new QuotaService(subscriptionRepository, tokenCountingService);
+        quotaService = new QuotaService(subscriptionRepository);
         Plan freePlan = Plan.builder()
                 .id(UUID.randomUUID())
                 .name(PlanType.FREE)
@@ -128,6 +126,15 @@ class QuotaServiceTest {
             assertDoesNotThrow(() -> quotaService.checkQuotaBeforeCall(USER_ID));
             assertEquals(0, subscription.getTokensUsedThisMonth());
         }
+
+        @Test
+        @DisplayName("should allow when only 1 token remaining")
+        void should_allow_when_only_one_token_remaining() {
+            subscription.setTokensUsedThisMonth(9999);
+            when(subscriptionRepository.findByUserIdForUpdate(USER_ID))
+                    .thenReturn(Optional.of(subscription));
+            assertDoesNotThrow(() -> quotaService.checkQuotaBeforeCall(USER_ID));
+        }
     }
 
     @Nested
@@ -135,16 +142,13 @@ class QuotaServiceTest {
     class RecordUsage {
 
         @Test
-        @DisplayName("should increment counters with strlen")
-        void should_increment_counters_with_strlen() {
-            String userMessage = "Hello";
-            String assistantResponse = "Hi there!";
+        @DisplayName("should increment counters with actual tokens")
+        void should_increment_counters_with_actual_tokens() {
+            int actualTokensUsed = 432;
             when(subscriptionRepository.findByUserIdForUpdate(USER_ID))
                     .thenReturn(Optional.of(subscription));
-            when(tokenCountingService.countExchangeTokens(userMessage, assistantResponse))
-                    .thenReturn(14);
-            quotaService.recordUsage(USER_ID, userMessage, assistantResponse);
-            assertEquals(14, subscription.getTokensUsedThisMonth());
+            quotaService.recordUsage(USER_ID, actualTokensUsed);
+            assertEquals(actualTokensUsed, subscription.getTokensUsedThisMonth());
             assertEquals(1, subscription.getMessagesSentToday());
             verify(subscriptionRepository).persist(subscription);
         }
@@ -155,7 +159,23 @@ class QuotaServiceTest {
             when(subscriptionRepository.findByUserIdForUpdate(USER_ID))
                     .thenReturn(Optional.empty());
             assertThrows(IllegalStateException.class,
-                    () -> quotaService.recordUsage(USER_ID, "Hello", "Hi"));
+                    () -> quotaService.recordUsage(USER_ID, 100));
+        }
+
+        @Test
+        @DisplayName("should accumulate tokens on multiple calls")
+        void should_accumulate_tokens_on_multiple_calls() {
+            when(subscriptionRepository.findByUserIdForUpdate(USER_ID))
+                    .thenReturn(Optional.of(subscription));
+
+            quotaService.recordUsage(USER_ID, 100);
+            assertEquals(100, subscription.getTokensUsedThisMonth());
+            assertEquals(1, subscription.getMessagesSentToday());
+
+            quotaService.recordUsage(USER_ID, 200);
+            assertEquals(300, subscription.getTokensUsedThisMonth());
+            assertEquals(2, subscription.getMessagesSentToday());
+            verify(subscriptionRepository, times(2)).persist(subscription);
         }
     }
 
