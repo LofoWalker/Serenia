@@ -11,7 +11,6 @@ public record PlanDTO(
         String name,
         Integer monthlyTokenLimit,
         Integer dailyMessageLimit,
-        Integer perMessageTokenLimit,
         Integer priceCents,
         String currency
 ) {
@@ -21,7 +20,6 @@ public record PlanDTO(
                 getDisplayName(plan.getName()),
                 plan.getMonthlyTokenLimit(),
                 plan.getDailyMessageLimit(),
-                plan.getPerMessageTokenLimit(),
                 plan.getPriceCents(),
                 plan.getCurrency()
         );

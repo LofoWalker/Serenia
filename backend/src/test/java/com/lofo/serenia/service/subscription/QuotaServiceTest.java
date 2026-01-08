@@ -39,7 +39,6 @@ class QuotaServiceTest {
         Plan freePlan = Plan.builder()
                 .id(UUID.randomUUID())
                 .name(PlanType.FREE)
-                .perMessageTokenLimit(1000)
                 .monthlyTokenLimit(10000)
                 .dailyMessageLimit(10)
                 .build();

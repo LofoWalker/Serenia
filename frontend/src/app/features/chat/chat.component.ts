@@ -153,8 +153,6 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         return `Limite quotidienne atteinte (${error.current}/${error.limit} messages). Réessayez demain ou passez à un plan supérieur.`;
       case 'MONTHLY_TOKEN_LIMIT':
         return `Limite mensuelle de tokens atteinte. Passez à un plan supérieur pour continuer.`;
-      case 'MESSAGE_TOKEN_LIMIT':
-        return `Votre message est trop long. Limite : ${error.limit} tokens.`;
       default:
         return error.message || 'Quota dépassé.';
     }

@@ -31,8 +31,6 @@ public class Plan {
     @Column(name = "name", nullable = false, unique = true, length = 32)
     private PlanType name;
 
-    @Column(name = "per_message_token_limit", nullable = false)
-    private Integer perMessageTokenLimit;
 
     @Column(name = "monthly_token_limit", nullable = false)
     private Integer monthlyTokenLimit;

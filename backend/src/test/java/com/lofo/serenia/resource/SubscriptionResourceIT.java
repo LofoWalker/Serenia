@@ -118,7 +118,6 @@ class SubscriptionResourceIT {
                 .body("messagesSentToday", equalTo(messagesSent))
                 .body("tokensRemainingThisMonth", equalTo(expectedTokensRemaining))
                 .body("messagesRemainingToday", equalTo(expectedMessagesRemaining))
-                .body("perMessageTokenLimit", equalTo(freePlan.getPerMessageTokenLimit()))
                 .body("monthlyTokenLimit", equalTo(freePlan.getMonthlyTokenLimit()))
                 .body("dailyMessageLimit", equalTo(freePlan.getDailyMessageLimit()))
                 .body("monthlyResetDate", notNullValue())
@@ -246,7 +245,6 @@ class SubscriptionResourceIT {
                 .body("planName", equalTo("PLUS"))
                 .body("monthlyTokenLimit", equalTo(plusPlan.getMonthlyTokenLimit()))
                 .body("dailyMessageLimit", equalTo(plusPlan.getDailyMessageLimit()))
-                .body("perMessageTokenLimit", equalTo(plusPlan.getPerMessageTokenLimit()))
                 .body("tokensUsedThisMonth", equalTo(tokensUsed))
                 .body("messagesSentToday", equalTo(messagesSent));
     }
