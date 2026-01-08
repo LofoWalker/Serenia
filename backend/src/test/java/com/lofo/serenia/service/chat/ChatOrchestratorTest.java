@@ -61,7 +61,7 @@ class ChatOrchestratorTest {
         conv.setId(FIXED_CONV_ID);
 
         ChatCompletionService.ChatCompletionResult completionResult =
-                new ChatCompletionService.ChatCompletionResult("Assistant reply", 432);
+                new ChatCompletionService.ChatCompletionResult("Assistant reply", 500, 100, 50);
 
         when(conversationService.getOrCreateActiveConversation(FIXED_USER_ID)).thenReturn(conv);
         when(sereniaConfig.systemPrompt()).thenReturn("System prompt");
@@ -83,7 +83,7 @@ class ChatOrchestratorTest {
         verify(messageService).persistUserMessage(FIXED_USER_ID, FIXED_CONV_ID, "Hello world");
         verify(messageService).persistAssistantMessage(FIXED_USER_ID, FIXED_CONV_ID, "Assistant reply");
         verify(chatCompletionService).generateReply(eq("System prompt"), anyList());
-        verify(quotaService).recordUsage(FIXED_USER_ID, 432);
+        verify(quotaService).recordUsage(FIXED_USER_ID, 500, 100, 50);
     }
 
     private Message messageWithRole(MessageRole role) {

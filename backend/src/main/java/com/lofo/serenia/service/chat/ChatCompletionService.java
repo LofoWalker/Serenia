@@ -5,7 +5,6 @@ import com.lofo.serenia.mapper.ChatMessageMapper;
 import com.lofo.serenia.persistence.entity.conversation.ChatMessage;
 import com.openai.client.OpenAIClient;
 import com.openai.client.okhttp.OpenAIOkHttpClient;
-import com.openai.models.ReasoningEffort;
 import com.openai.models.chat.completions.ChatCompletion;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.openai.models.chat.completions.ChatCompletionMessageParam;
@@ -30,7 +29,7 @@ public class ChatCompletionService {
     private final OpenAIConfig config;
     private final ChatMessageMapper chatMessageMapper;
 
-    public record ChatCompletionResult(String content, int totalTokensUsed) {}
+    public record ChatCompletionResult(String content, int promptTokens, int cachedTokens, int completionTokens) {}
 
     @Inject
     public ChatCompletionService(OpenAIConfig config, ChatMessageMapper chatMessageMapper) {
@@ -59,26 +58,36 @@ public class ChatCompletionService {
 
         ChatCompletion completion = sendRequestAndGetCompletion(params);
 
-        log.info(completion.usage().get().toString());
+        log.debug("OpenAI Usage: {}", completion.usage().orElse(null));
         return parseCompletionAndReturnResult(completion);
     }
 
     private static @NotNull ChatCompletionResult parseCompletionAndReturnResult(ChatCompletion completion) {
         String content = "";
-        int totalTokensUsed = 0;
+        int promptTokens = 0;
+        int cachedTokens = 0;
+        int completionTokens = 0;
 
         if (!completion.choices().isEmpty()) {
             content = completion.choices().getFirst().message().content().orElse("");
         }
 
         if (completion.usage().isPresent()) {
-            totalTokensUsed = Math.toIntExact(completion.usage().get().totalTokens());
-            log.debug("{} tokens used by OpenAI API", totalTokensUsed);
+            CompletionUsage usage = completion.usage().get();
+            promptTokens = Math.toIntExact(usage.promptTokens());
+            completionTokens = Math.toIntExact(usage.completionTokens());
+
+            if (usage.promptTokensDetails().isPresent()) {
+                cachedTokens = Math.toIntExact(usage.promptTokensDetails().get().cachedTokens().orElse(0L));
+            }
+
+            log.debug("Tokens - Prompt: {}, Cached: {}, Completion: {}",
+                      promptTokens, cachedTokens, completionTokens);
         } else {
             log.warn("OpenAI API did not return usage information");
         }
 
-        return new ChatCompletionResult(content, totalTokensUsed);
+        return new ChatCompletionResult(content, promptTokens, cachedTokens, completionTokens);
     }
 
     private @NotNull ChatCompletion sendRequestAndGetCompletion(ChatCompletionCreateParams params) {

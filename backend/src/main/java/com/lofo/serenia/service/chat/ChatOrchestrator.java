@@ -40,7 +40,10 @@ public class ChatOrchestrator {
 
         Message assistantMsg = messageService.persistAssistantMessage(userId, conv.getId(), completionResult.content());
 
-        quotaService.recordUsage(userId, completionResult.totalTokensUsed());
+        quotaService.recordUsage(userId,
+            completionResult.promptTokens(),
+            completionResult.cachedTokens(),
+            completionResult.completionTokens());
 
         ChatMessage chatMessage = new ChatMessage(assistantMsg.getRole(), completionResult.content());
 

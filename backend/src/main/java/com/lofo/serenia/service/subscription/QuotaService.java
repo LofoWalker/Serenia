@@ -42,22 +42,27 @@ public class QuotaService {
     }
 
     /**
-     * Records the actual token usage returned by the OpenAI API.
+     * Records the token usage with cost normalization.
+     * Raw tokens are logged for monitoring, normalized tokens are stored for billing.
      *
      * @param userId the user identifier
-     * @param actualTokensUsed the actual tokens consumed (from ChatCompletion.usage().totalTokens())
+     * @param promptTokens total input tokens (from usage.promptTokens())
+     * @param cachedTokens cached input tokens (from usage.promptTokensDetails().cachedTokens())
+     * @param completionTokens output tokens (from usage.completionTokens())
      */
     @Transactional
-    public void recordUsage(UUID userId, int actualTokensUsed) {
+    public void recordUsage(UUID userId, int promptTokens, int cachedTokens, int completionTokens) {
         Subscription subscription = getSubscriptionForUpdate(userId);
 
-        updateUsageCounters(subscription, actualTokensUsed);
+        int normalizedTokens = normalizeTokens(promptTokens, cachedTokens, completionTokens);
+
+        updateUsageCounters(subscription, normalizedTokens);
 
         subscriptionRepository.persist(subscription);
 
-        log.debug("Recorded usage for user {}: {} tokens (total: {}), {} messages today",
-                userId, actualTokensUsed, subscription.getTokensUsedThisMonth(),
-                subscription.getMessagesSentToday());
+        log.info("Token usage for user {} - Raw [prompt: {}, cached: {}, completion: {}] | Normalized: {} | Monthly total: {}",
+                userId, promptTokens, cachedTokens, completionTokens,
+                normalizedTokens, subscription.getTokensUsedThisMonth());
     }
 
     /**
@@ -86,6 +91,20 @@ public class QuotaService {
                     log.error("Subscription not found for user {} - this should never happen", userId);
                     return new IllegalStateException("Subscription not found for user: " + userId);
                 });
+    }
+
+    /**
+     * Normalise les tokens consommés en équivalent "input tokens" pour uniformiser le coût.
+     * Basé sur la tarification GPT-4o-mini :
+     * - Input : 0.15$ / 1M → facteur 1
+     * - Cached : 0.075$ / 1M → facteur 0.5 (2 cached = 1 input)
+     * - Output : 0.60$ / 1M → facteur 4 (1 output = 4 input)
+     */
+    private int normalizeTokens(int promptTokens, int cachedTokens, int completionTokens) {
+        int nonCachedInput = promptTokens - cachedTokens;
+        int cachedNormalized = cachedTokens / 2;
+        int outputNormalized = completionTokens * 4;
+        return nonCachedInput + cachedNormalized + outputNormalized;
     }
 
     private void validateMonthlyTokenLimit(UUID userId, Subscription subscription) {
