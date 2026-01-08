@@ -10,7 +10,7 @@ import java.util.UUID;
 @ApplicationScoped
 public class MessageRepository implements PanacheRepository<Message> {
 
-    public List<Message> findLatest(UUID conversationId) {
+    public List<Message> findLatestInChronologicalOrder(UUID conversationId) {
         return find("conversationId = ?1 ORDER BY timestamp DESC", conversationId)
                 .page(0, 16)
                 .list()

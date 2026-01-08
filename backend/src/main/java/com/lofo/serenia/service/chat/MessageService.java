@@ -34,7 +34,7 @@ public class MessageService {
     }
 
     public List<ChatMessage> decryptConversationMessages(UUID userId, UUID conversationId) {
-        List<Message> messages = messageRepository.findLatest(conversationId);
+        List<Message> messages = messageRepository.findLatestInChronologicalOrder(conversationId);
         return messages.stream()
                 .map(message -> messageMapper.toChatMessage(message,
                         encryptionService.decryptForUser(userId, message.getEncryptedContent())))

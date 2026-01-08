@@ -50,7 +50,8 @@ public class ChatCompletionService {
         addSystemInstructionsToRequest(systemPrompt, messages);
         addMessagesToRequest(conversationMessages, messages);
 
-        log.info("Sending request to OpenAI API with : {}", messages);
+        log.debug("Sending request to OpenAI API with : {}", messages);
+
         ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
                 .model(this.config.model())
                 .messages(messages)

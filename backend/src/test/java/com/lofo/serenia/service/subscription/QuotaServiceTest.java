@@ -228,6 +228,59 @@ class QuotaServiceTest {
 
             assertEquals(400, subscription.getTokensUsedThisMonth());
         }
+
+        @Test
+        @DisplayName("should throw when promptTokens is negative")
+        void should_throw_when_prompt_tokens_negative() {
+            when(subscriptionRepository.findByUserIdForUpdate(USER_ID))
+                    .thenReturn(Optional.of(subscription));
+
+            IllegalArgumentException exception = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> quotaService.recordUsage(USER_ID, -100, 0, 50)
+            );
+            assertTrue(exception.getMessage().contains("promptTokens cannot be negative"));
+        }
+
+        @Test
+        @DisplayName("should throw when cachedTokens is negative")
+        void should_throw_when_cached_tokens_negative() {
+            when(subscriptionRepository.findByUserIdForUpdate(USER_ID))
+                    .thenReturn(Optional.of(subscription));
+
+            IllegalArgumentException exception = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> quotaService.recordUsage(USER_ID, 100, -50, 50)
+            );
+            assertTrue(exception.getMessage().contains("cachedTokens cannot be negative"));
+        }
+
+        @Test
+        @DisplayName("should throw when completionTokens is negative")
+        void should_throw_when_completion_tokens_negative() {
+            when(subscriptionRepository.findByUserIdForUpdate(USER_ID))
+                    .thenReturn(Optional.of(subscription));
+
+            IllegalArgumentException exception = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> quotaService.recordUsage(USER_ID, 100, 0, -50)
+            );
+            assertTrue(exception.getMessage().contains("completionTokens cannot be negative"));
+        }
+
+        @Test
+        @DisplayName("should throw when cachedTokens exceeds promptTokens")
+        void should_throw_when_cached_exceeds_prompt() {
+            when(subscriptionRepository.findByUserIdForUpdate(USER_ID))
+                    .thenReturn(Optional.of(subscription));
+
+            IllegalArgumentException exception = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> quotaService.recordUsage(USER_ID, 100, 200, 50)
+            );
+            assertTrue(exception.getMessage().contains("cachedTokens"));
+            assertTrue(exception.getMessage().contains("cannot exceed promptTokens"));
+        }
     }
 
     @Nested
