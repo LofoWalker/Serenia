@@ -24,19 +24,13 @@ public class QuotaExceededException extends SereniaException {
     }
     private static String buildMessage(QuotaType type, int limit, int current, int requested) {
         return switch (type) {
-            case MESSAGE_TOKEN_LIMIT -> 
-                String.format("Message too long: %d tokens requested, limit is %d tokens per message", 
-                        requested, limit);
-            case MONTHLY_TOKEN_LIMIT -> 
+            case MONTHLY_TOKEN_LIMIT ->
                 String.format("Monthly token limit exceeded: %d/%d tokens used, %d requested", 
                         current, limit, requested);
             case DAILY_MESSAGE_LIMIT -> 
                 String.format("Daily message limit reached: %d/%d messages sent today", 
                         current, limit);
         };
-    }
-    public static QuotaExceededException messageTokenLimit(int limit, int requested) {
-        return new QuotaExceededException(QuotaType.MESSAGE_TOKEN_LIMIT, limit, 0, requested);
     }
     public static QuotaExceededException monthlyTokenLimit(int limit, int current, int requested) {
         return new QuotaExceededException(QuotaType.MONTHLY_TOKEN_LIMIT, limit, current, requested);

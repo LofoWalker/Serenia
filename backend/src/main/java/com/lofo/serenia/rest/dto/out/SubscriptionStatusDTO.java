@@ -10,7 +10,6 @@ public record SubscriptionStatusDTO(
         String planName,
         int tokensRemainingThisMonth,
         int messagesRemainingToday,
-        int perMessageTokenLimit,
         int monthlyTokenLimit,
         int dailyMessageLimit,
         int tokensUsedThisMonth,

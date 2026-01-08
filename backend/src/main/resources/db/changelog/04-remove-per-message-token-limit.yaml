@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 04-remove-per-message-token-limit
+      author: serenia
+      comment: "Remove per_message_token_limit column from plans - this limit is unnecessary as monthly token limit handles cost control"
+      changes:
+        - dropColumn:
+            tableName: plans
+            columnName: per_message_token_limit
+

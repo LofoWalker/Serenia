@@ -6,7 +6,7 @@
 export type PlanType = 'FREE' | 'PLUS' | 'MAX';
 
 // Types de quota pour les erreurs
-export type QuotaType = 'DAILY_MESSAGE_LIMIT' | 'MONTHLY_TOKEN_LIMIT' | 'MESSAGE_TOKEN_LIMIT';
+export type QuotaType = 'DAILY_MESSAGE_LIMIT' | 'MONTHLY_TOKEN_LIMIT';
 
 // Statuts d'abonnement Stripe
 export type SubscriptionStatusType = 'ACTIVE' | 'CANCELED' | 'PAST_DUE' | 'INCOMPLETE' | 'UNPAID';
@@ -18,7 +18,6 @@ export interface SubscriptionStatusDTO {
   planName: PlanType;
   tokensRemainingThisMonth: number;
   messagesRemainingToday: number;
-  perMessageTokenLimit: number;
   monthlyTokenLimit: number;
   dailyMessageLimit: number;
   tokensUsedThisMonth: number;
@@ -86,7 +85,6 @@ export interface PlanDTO {
   name: string;
   monthlyTokenLimit: number;
   dailyMessageLimit: number;
-  perMessageTokenLimit: number;
   priceCents: number;
   currency: string;
 }

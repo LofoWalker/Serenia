@@ -167,7 +167,6 @@ public class SubscriptionService {
                 plan.getName().name(),
                 tokensRemaining,
                 messagesRemaining,
-                plan.getPerMessageTokenLimit(),
                 plan.getMonthlyTokenLimit(),
                 plan.getDailyMessageLimit(),
                 subscription.getTokensUsedThisMonth(),
