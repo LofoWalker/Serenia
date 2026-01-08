@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -99,7 +100,7 @@ class MessageServiceTest {
         Message message = new Message();
         message.setRole(MessageRole.ASSISTANT);
         message.setEncryptedContent("[encrypted]Answer".getBytes());
-        when(messageRepository.findLatest(FIXED_CONV_ID)).thenReturn(List.of(message));
+        when(messageRepository.findLatestInChronologicalOrder(FIXED_CONV_ID)).thenReturn(List.of(message));
         when(encryptionService.decryptForUser(FIXED_USER_ID, message.getEncryptedContent()))
                 .thenReturn("Answer");
         when(messageMapper.toChatMessage(message, "Answer"))

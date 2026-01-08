@@ -17,7 +17,6 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
-import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
@@ -69,21 +68,6 @@ public class ConversationResource {
         return Response.ok(response).build();
     }
 
-    /**
-     * Optional: fetch all decrypted messages for the conversation
-     */
-    @GET
-    @Path("/{conversationId}/messages")
-    @Operation(summary = "List conversation messages", description = "Returns decrypted messages for the requested conversation after enforcing ownership.")
-    @APIResponse(responseCode = "200", description = "Messages returned", content = @Content(schema = @Schema(implementation = ChatMessage.class)))
-    @APIResponse(responseCode = "401", description = "User not authenticated")
-    @APIResponse(responseCode = "403", description = "Conversation does not belong to the user")
-    public Response getConversationMessages(
-            @PathParam("conversationId") @Parameter(description = "Conversation identifier", required = true) UUID conversationId) {
-        UUID userId = getAuthenticatedUserId();
-        List<ChatMessage> messages = conversationService.getConversationMessages(conversationId, userId);
-        return Response.ok(messages).build();
-    }
 
     @GET
     @Path("/my-messages")

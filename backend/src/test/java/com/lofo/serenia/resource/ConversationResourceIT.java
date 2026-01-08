@@ -99,17 +99,6 @@ class ConversationResourceIT {
                 .statusCode(401);
     }
 
-    @Test
-    @DisplayName("should_return_401_when_getting_conversation_messages_without_auth")
-    void should_return_401_when_getting_conversation_messages_without_auth() {
-        UUID conversationId = UUID.randomUUID();
-        given()
-                .contentType(ContentType.JSON)
-                .when()
-                .get(GET_CONVERSATION_MESSAGES_PATH, conversationId)
-                .then()
-                .statusCode(401);
-    }
 
     @Test
     @DisplayName("should_return_401_with_invalid_jwt_token_when_adding_message")
@@ -245,43 +234,6 @@ class ConversationResourceIT {
                 .statusCode(204);
     }
 
-    // ============== ACCESS CONTROL TESTS ==============
-
-    @Test
-    @DisplayName("should_return_403_when_accessing_conversation_of_another_user")
-    void should_return_403_when_accessing_conversation_of_another_user() {
-        User user1 = createAndPersistUser(TEST_EMAIL);
-        User user2 = createAndPersistUser("other@example.com");
-        String user2Token = JwtTestTokenGenerator.generateToken("other@example.com", user2.getId(), "USER");
-
-        Conversation conversation = createConversation(user1.getId());
-
-        given()
-                .contentType(ContentType.JSON)
-                .header("Authorization", "Bearer " + user2Token)
-                .when()
-                .get(GET_CONVERSATION_MESSAGES_PATH, conversation.getId())
-                .then()
-                .statusCode(403);
-    }
-
-    @Test
-    @DisplayName("should_return_200_when_accessing_own_conversation_messages")
-    void should_return_200_when_accessing_own_conversation_messages() {
-        User user = createAndPersistUser(TEST_EMAIL);
-        String token = JwtTestTokenGenerator.generateToken(TEST_EMAIL, user.getId(), "USER");
-
-        Conversation conversation = createConversation(user.getId());
-
-        given()
-                .contentType(ContentType.JSON)
-                .header("Authorization", "Bearer " + token)
-                .when()
-                .get(GET_CONVERSATION_MESSAGES_PATH, conversation.getId())
-                .then()
-                .statusCode(200)
-                .body("", notNullValue());
-    }
 
     // ============== HELPER METHODS ==============
 

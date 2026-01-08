@@ -142,13 +142,14 @@ class QuotaServiceTest {
     class RecordUsage {
 
         @Test
-        @DisplayName("should increment counters with actual tokens")
-        void should_increment_counters_with_actual_tokens() {
-            int actualTokensUsed = 432;
+        @DisplayName("should increment counters with normalized tokens")
+        void should_increment_counters_with_normalized_tokens() {
             when(subscriptionRepository.findByUserIdForUpdate(USER_ID))
                     .thenReturn(Optional.of(subscription));
-            quotaService.recordUsage(USER_ID, actualTokensUsed);
-            assertEquals(actualTokensUsed, subscription.getTokensUsedThisMonth());
+
+            quotaService.recordUsage(USER_ID, 500, 0, 100);
+
+            assertEquals(900, subscription.getTokensUsedThisMonth());
             assertEquals(1, subscription.getMessagesSentToday());
             verify(subscriptionRepository).persist(subscription);
         }
@@ -159,23 +160,126 @@ class QuotaServiceTest {
             when(subscriptionRepository.findByUserIdForUpdate(USER_ID))
                     .thenReturn(Optional.empty());
             assertThrows(IllegalStateException.class,
-                    () -> quotaService.recordUsage(USER_ID, 100));
+                    () -> quotaService.recordUsage(USER_ID, 100, 0, 50));
         }
 
         @Test
-        @DisplayName("should accumulate tokens on multiple calls")
+        @DisplayName("should accumulate normalized tokens on multiple calls")
         void should_accumulate_tokens_on_multiple_calls() {
             when(subscriptionRepository.findByUserIdForUpdate(USER_ID))
                     .thenReturn(Optional.of(subscription));
 
-            quotaService.recordUsage(USER_ID, 100);
-            assertEquals(100, subscription.getTokensUsedThisMonth());
+            quotaService.recordUsage(USER_ID, 200, 0, 25);
+            assertEquals(300, subscription.getTokensUsedThisMonth());
             assertEquals(1, subscription.getMessagesSentToday());
 
-            quotaService.recordUsage(USER_ID, 200);
-            assertEquals(300, subscription.getTokensUsedThisMonth());
+            quotaService.recordUsage(USER_ID, 300, 200, 50);
+            assertEquals(700, subscription.getTokensUsedThisMonth());
             assertEquals(2, subscription.getMessagesSentToday());
+
             verify(subscriptionRepository, times(2)).persist(subscription);
+        }
+    }
+
+    @Nested
+    @DisplayName("Token Normalization")
+    class TokenNormalization {
+
+        @Test
+        @DisplayName("should normalize tokens without cache")
+        void should_normalize_tokens_without_cache() {
+            when(subscriptionRepository.findByUserIdForUpdate(USER_ID))
+                    .thenReturn(Optional.of(subscription));
+
+            quotaService.recordUsage(USER_ID, 1000, 0, 100);
+
+            assertEquals(1400, subscription.getTokensUsedThisMonth());
+        }
+
+        @Test
+        @DisplayName("should normalize tokens with partial cache")
+        void should_normalize_tokens_with_partial_cache() {
+            when(subscriptionRepository.findByUserIdForUpdate(USER_ID))
+                    .thenReturn(Optional.of(subscription));
+
+            quotaService.recordUsage(USER_ID, 1000, 800, 100);
+
+            assertEquals(1000, subscription.getTokensUsedThisMonth());
+        }
+
+        @Test
+        @DisplayName("should normalize tokens with full cache")
+        void should_normalize_tokens_with_full_cache() {
+            when(subscriptionRepository.findByUserIdForUpdate(USER_ID))
+                    .thenReturn(Optional.of(subscription));
+
+            quotaService.recordUsage(USER_ID, 500, 500, 50);
+
+            assertEquals(450, subscription.getTokensUsedThisMonth());
+        }
+
+        @Test
+        @DisplayName("should handle output only")
+        void should_handle_output_only() {
+            when(subscriptionRepository.findByUserIdForUpdate(USER_ID))
+                    .thenReturn(Optional.of(subscription));
+
+            quotaService.recordUsage(USER_ID, 0, 0, 100);
+
+            assertEquals(400, subscription.getTokensUsedThisMonth());
+        }
+
+        @Test
+        @DisplayName("should throw when promptTokens is negative")
+        void should_throw_when_prompt_tokens_negative() {
+            when(subscriptionRepository.findByUserIdForUpdate(USER_ID))
+                    .thenReturn(Optional.of(subscription));
+
+            IllegalArgumentException exception = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> quotaService.recordUsage(USER_ID, -100, 0, 50)
+            );
+            assertTrue(exception.getMessage().contains("promptTokens cannot be negative"));
+        }
+
+        @Test
+        @DisplayName("should throw when cachedTokens is negative")
+        void should_throw_when_cached_tokens_negative() {
+            when(subscriptionRepository.findByUserIdForUpdate(USER_ID))
+                    .thenReturn(Optional.of(subscription));
+
+            IllegalArgumentException exception = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> quotaService.recordUsage(USER_ID, 100, -50, 50)
+            );
+            assertTrue(exception.getMessage().contains("cachedTokens cannot be negative"));
+        }
+
+        @Test
+        @DisplayName("should throw when completionTokens is negative")
+        void should_throw_when_completion_tokens_negative() {
+            when(subscriptionRepository.findByUserIdForUpdate(USER_ID))
+                    .thenReturn(Optional.of(subscription));
+
+            IllegalArgumentException exception = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> quotaService.recordUsage(USER_ID, 100, 0, -50)
+            );
+            assertTrue(exception.getMessage().contains("completionTokens cannot be negative"));
+        }
+
+        @Test
+        @DisplayName("should throw when cachedTokens exceeds promptTokens")
+        void should_throw_when_cached_exceeds_prompt() {
+            when(subscriptionRepository.findByUserIdForUpdate(USER_ID))
+                    .thenReturn(Optional.of(subscription));
+
+            IllegalArgumentException exception = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> quotaService.recordUsage(USER_ID, 100, 200, 50)
+            );
+            assertTrue(exception.getMessage().contains("cachedTokens"));
+            assertTrue(exception.getMessage().contains("cannot exceed promptTokens"));
         }
     }
 
