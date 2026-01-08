@@ -51,14 +51,15 @@ public class ChatCompletionService {
         addSystemInstructionsToRequest(systemPrompt, messages);
         addMessagesToRequest(conversationMessages, messages);
 
+        log.info("Sending request to OpenAI API with : {}", messages);
         ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
                 .model(this.config.model())
-                .reasoningEffort(ReasoningEffort.MEDIUM)
                 .messages(messages)
                 .build();
 
         ChatCompletion completion = sendRequestAndGetCompletion(params);
 
+        log.info(completion.usage().get().toString());
         return parseCompletionAndReturnResult(completion);
     }
 

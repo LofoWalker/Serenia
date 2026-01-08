@@ -17,6 +17,6 @@ public interface OpenAIConfig {
      * Default model identifier leveraged for chat completions.
      */
     @WithName("model")
-    @WithDefault("gpt-5-nano")
+    @WithDefault("gpt-4o-mini")
     String model();
 }

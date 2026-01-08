@@ -118,17 +118,6 @@ export class ChatService {
     );
   }
 
-  loadHistory(conversationId: string): Observable<ChatMessage[]> {
-    this.loadingSignal.set(true);
-    return this.http.get<ChatMessage[]>(`${this.apiUrl}/${conversationId}/messages`).pipe(
-      tap(messages => {
-        this.allMessagesSignal.set(messages);
-        this.visibleCountSignal.set(MESSAGES_PER_PAGE);
-        this.conversationIdSignal.set(conversationId);
-        this.loadingSignal.set(false);
-      })
-    );
-  }
 
   clearConversation(): void {
     this.allMessagesSignal.set([]);
