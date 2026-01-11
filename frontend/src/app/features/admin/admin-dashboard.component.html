@@ -1,0 +1,238 @@
+<div class="min-h-screen bg-gradient-to-b from-primary-950 to-primary-900 p-6">
+  <div class="max-w-7xl mx-auto">
+    <h1 class="text-3xl font-bold text-white mb-8">Dashboard Admin</h1>
+
+    @if (loading()) {
+      <div class="flex justify-center items-center h-64">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-400"></div>
+      </div>
+    } @else if (dashboard(); as data) {
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Users Card -->
+        <div class="bg-primary-800/50 rounded-xl p-6 border border-primary-700">
+          <h3 class="text-primary-300 text-sm font-medium mb-2">Utilisateurs</h3>
+          <p class="text-3xl font-bold text-white">{{ data.users.totalUsers }}</p>
+          <div class="mt-4 space-y-1 text-sm">
+            <p class="text-primary-400">Activés: <span class="text-white">{{ data.users.activatedUsers }}</span></p>
+            <div class="flex gap-3 text-primary-400">
+              <span>FREE: <span class="text-green-400">{{ data.users.freeUsers }}</span></span>
+              <span>PLUS: <span class="text-blue-400">{{ data.users.plusUsers }}</span></span>
+              <span>MAX: <span class="text-purple-400">{{ data.users.maxUsers }}</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Messages Card -->
+        <div class="bg-primary-800/50 rounded-xl p-6 border border-primary-700">
+          <h3 class="text-primary-300 text-sm font-medium mb-2">Messages (USER)</h3>
+          <p class="text-3xl font-bold text-white">{{ data.messages.totalUserMessages }}</p>
+          <div class="mt-4 space-y-1 text-sm text-primary-400">
+            <p>Aujourd'hui: <span class="text-white">{{ data.messages.messagesToday }}</span></p>
+            <p>7 derniers jours: <span class="text-white">{{ data.messages.messagesLast7Days }}</span></p>
+          </div>
+        </div>
+
+        <!-- Engagement Card -->
+        <div class="bg-primary-800/50 rounded-xl p-6 border border-primary-700">
+          <h3 class="text-primary-300 text-sm font-medium mb-2">Engagement</h3>
+          <p class="text-3xl font-bold text-white">{{ data.engagement.activeUsers }}</p>
+          <p class="text-primary-400 text-xs">utilisateurs actifs</p>
+          <div class="mt-4 space-y-1 text-sm text-primary-400">
+            <p>Taux d'activation: <span class="text-white">{{ data.engagement.activationRate }}%</span></p>
+            <p>Msg/utilisateur: <span class="text-white">{{ data.engagement.avgMessagesPerUser }}</span></p>
+          </div>
+        </div>
+
+        <!-- Revenue Card -->
+        <div class="bg-primary-800/50 rounded-xl p-6 border border-primary-700">
+          <h3 class="text-primary-300 text-sm font-medium mb-2">Abonnements</h3>
+          <p class="text-3xl font-bold text-white">{{ formatCurrency(data.subscriptions.estimatedRevenueCents) }}</p>
+          <p class="text-primary-400 text-xs">revenu mensuel estimé</p>
+          <div class="mt-4 text-sm text-primary-400">
+            <p>Tokens consommés: <span class="text-white">{{ data.subscriptions.totalTokensConsumed | number }}</span></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- New Users Summary -->
+      <div class="bg-primary-800/50 rounded-xl p-6 border border-primary-700 mb-8">
+        <h3 class="text-white font-semibold mb-4">Nouveaux utilisateurs</h3>
+        <div class="flex gap-8">
+          <div>
+            <p class="text-4xl font-bold text-green-400">+{{ data.users.newUsersLast7Days }}</p>
+            <p class="text-primary-400 text-sm">7 derniers jours</p>
+          </div>
+          <div>
+            <p class="text-4xl font-bold text-blue-400">+{{ data.users.newUsersLast30Days }}</p>
+            <p class="text-primary-400 text-sm">30 derniers jours</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart Section -->
+      <div class="bg-primary-800/50 rounded-xl p-6 border border-primary-700">
+        <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
+          <h3 class="text-white font-semibold">Évolution</h3>
+
+          <div class="flex gap-4">
+            <!-- Metric Selector -->
+            <div class="flex bg-primary-900 rounded-lg p-1">
+              <button
+                (click)="selectMetric('messages')"
+                [class]="selectedMetric() === 'messages'
+                  ? 'px-3 py-1 rounded-md text-sm bg-primary-700 text-white'
+                  : 'px-3 py-1 rounded-md text-sm text-primary-400 hover:text-white'"
+              >
+                Messages
+              </button>
+              <button
+                (click)="selectMetric('users')"
+                [class]="selectedMetric() === 'users'
+                  ? 'px-3 py-1 rounded-md text-sm bg-primary-700 text-white'
+                  : 'px-3 py-1 rounded-md text-sm text-primary-400 hover:text-white'"
+              >
+                Utilisateurs
+              </button>
+            </div>
+
+            <!-- Days Selector -->
+            <div class="flex bg-primary-900 rounded-lg p-1">
+              <button
+                (click)="selectDays(7)"
+                [class]="selectedDays() === 7
+                  ? 'px-3 py-1 rounded-md text-sm bg-primary-700 text-white'
+                  : 'px-3 py-1 rounded-md text-sm text-primary-400 hover:text-white'"
+              >
+                7 jours
+              </button>
+              <button
+                (click)="selectDays(30)"
+                [class]="selectedDays() === 30
+                  ? 'px-3 py-1 rounded-md text-sm bg-primary-700 text-white'
+                  : 'px-3 py-1 rounded-md text-sm text-primary-400 hover:text-white'"
+              >
+                30 jours
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="h-64">
+          <canvas #chartCanvas></canvas>
+        </div>
+      </div>
+
+      <!-- User Search & List Section -->
+      <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- User Search -->
+        <div class="bg-primary-800/50 rounded-xl p-6 border border-primary-700">
+          <h3 class="text-white font-semibold mb-4">Rechercher un utilisateur</h3>
+          <div class="flex gap-2">
+            <input
+              type="email"
+              [(ngModel)]="searchEmail"
+              (keyup.enter)="searchUser()"
+              placeholder="email@exemple.com"
+              class="flex-1 bg-primary-900 border border-primary-700 rounded-lg px-4 py-2 text-white placeholder-primary-500 focus:outline-none focus:border-primary-500"
+            />
+            <button
+              (click)="searchUser()"
+              class="px-4 py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-lg transition-colors"
+            >
+              Rechercher
+            </button>
+          </div>
+          @if (searchError()) {
+            <p class="mt-2 text-red-400 text-sm">{{ searchError() }}</p>
+          }
+
+          <!-- User Detail -->
+          @if (selectedUser(); as user) {
+            <div class="mt-4 p-4 bg-primary-900 rounded-lg border border-primary-600">
+              <div class="flex justify-between items-start mb-3">
+                <h4 class="text-white font-medium">{{ user.firstName }} {{ user.lastName }}</h4>
+                <button (click)="closeUserDetail()" class="text-primary-400 hover:text-white">✕</button>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-sm">
+                <p class="text-primary-400">Email:</p>
+                <p class="text-white">{{ user.email }}</p>
+                <p class="text-primary-400">Rôle:</p>
+                <p class="text-white">{{ user.role }}</p>
+                <p class="text-primary-400">Plan:</p>
+                <p [class]="user.planType === 'FREE' ? 'text-green-400' : user.planType === 'PLUS' ? 'text-blue-400' : 'text-purple-400'">
+                  {{ user.planType }}
+                </p>
+                <p class="text-primary-400">Activé:</p>
+                <p [class]="user.activated ? 'text-green-400' : 'text-red-400'">{{ user.activated ? 'Oui' : 'Non' }}</p>
+                <p class="text-primary-400">Inscrit le:</p>
+                <p class="text-white">{{ user.createdAt | date:'dd/MM/yyyy' }}</p>
+                <p class="text-primary-400">Messages envoyés:</p>
+                <p class="text-white">{{ user.messageCount }}</p>
+                <p class="text-primary-400">Tokens ce mois:</p>
+                <p class="text-white">{{ user.tokensUsedThisMonth | number }}</p>
+                <p class="text-primary-400">Messages aujourd'hui:</p>
+                <p class="text-white">{{ user.messagesSentToday }}</p>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- User List -->
+        <div class="bg-primary-800/50 rounded-xl p-6 border border-primary-700">
+          <h3 class="text-white font-semibold mb-4">Liste des utilisateurs</h3>
+          @if (userList(); as list) {
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="text-primary-400 border-b border-primary-700">
+                    <th class="text-left py-2">Email</th>
+                    <th class="text-left py-2">Plan</th>
+                    <th class="text-right py-2">Msg</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (user of list.users; track user.id) {
+                    <tr
+                      (click)="selectUserFromList(user)"
+                      class="border-b border-primary-800 hover:bg-primary-700/30 cursor-pointer transition-colors"
+                    >
+                      <td class="py-2 text-white truncate max-w-[200px]">{{ user.email }}</td>
+                      <td class="py-2" [class]="user.planType === 'FREE' ? 'text-green-400' : user.planType === 'PLUS' ? 'text-blue-400' : 'text-purple-400'">
+                        {{ user.planType }}
+                      </td>
+                      <td class="py-2 text-right text-white">{{ user.messageCount }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            <!-- Pagination -->
+            <div class="flex justify-between items-center mt-4">
+              <p class="text-primary-400 text-sm">
+                {{ currentPage() * pageSize + 1 }}-{{ Math.min((currentPage() + 1) * pageSize, list.totalCount) }} sur {{ list.totalCount }}
+              </p>
+              <div class="flex gap-2">
+                <button
+                  (click)="prevPage()"
+                  [disabled]="currentPage() === 0"
+                  class="px-3 py-1 bg-primary-700 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  ←
+                </button>
+                <button
+                  (click)="nextPage()"
+                  [disabled]="(currentPage() + 1) * pageSize >= list.totalCount"
+                  class="px-3 py-1 bg-primary-700 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  →
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
