@@ -122,7 +122,11 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
 
   private loadTimeline(metric: string, days: number): void {
     this.adminService.getTimeline(metric, days).subscribe({
-      next: timeline => this.renderChart(timeline)
+      next: timeline => this.renderChart(timeline),
+      error: (err) => {
+        console.error('Failed to load timeline data', err);
+        alert('Impossible de charger les statistiques. Veuillez réessayer plus tard.');
+      }
     });
   }
 
