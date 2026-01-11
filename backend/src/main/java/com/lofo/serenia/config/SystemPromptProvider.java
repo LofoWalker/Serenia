@@ -24,11 +24,15 @@ public class SystemPromptProvider {
 
     private static final String CLASSPATH_PREFIX = "classpath:";
 
-    @Inject
-    SereniaConfig sereniaConfig;
+    private final SereniaConfig sereniaConfig;
 
     @Getter
     private String systemPrompt;
+
+    @Inject
+    public SystemPromptProvider(SereniaConfig sereniaConfig) {
+        this.sereniaConfig = sereniaConfig;
+    }
 
     void onStart(@Observes StartupEvent ev) {
         String promptPath = sereniaConfig.systemPromptPath();
