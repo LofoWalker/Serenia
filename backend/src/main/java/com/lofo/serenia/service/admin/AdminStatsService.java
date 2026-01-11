@@ -88,9 +88,9 @@ public class AdminStatsService {
     }
 
     public EngagementStatsDTO getEngagementStats() {
-        long totalUsers = userRepository.count();
+        long activatedUsers = userRepository.count("accountActivated", true);
         long activeUsers = countActiveUsers();
-        double activationRate = totalUsers > 0 ? (double) activeUsers / totalUsers * 100 : 0;
+        double activationRate = activatedUsers > 0 ? (double) activeUsers / activatedUsers * 100 : 0;
 
         long totalUserMessages = messageRepository.count("role", MessageRole.USER);
         double avgMessagesPerUser = activeUsers > 0 ? (double) totalUserMessages / activeUsers : 0;
