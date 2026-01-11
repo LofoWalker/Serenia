@@ -15,7 +15,11 @@ import java.nio.file.Path;
 
 /**
  * Loads the system prompt from a configurable location at application startup.
+<<<<<<< Updated upstream
  * Supports both classpath (classpath:prompt.md) and filesystem (/opt/serenia/prompt.md) paths.
+=======
+ * Supports both classpath (classpath: prompt.md) and filesystem (/opt/serenia/prompt.md) paths.
+>>>>>>> Stashed changes
  * Fails fast if the file is missing or unreadable.
  */
 @Slf4j
