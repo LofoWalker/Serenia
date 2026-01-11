@@ -101,7 +101,10 @@ services:
       QUARKUS_MAILER_START_TLS: ${QUARKUS_MAILER_START_TLS}
 
       SERENIA_ROOT_PATH: ${SERENIA_ROOT_PATH}
+      SERENIA_SYSTEM_PROMPT_PATH: /opt/serenia/prompt.md
 
+    volumes:
+      - ${SERENIA_SYSTEM_PROMPT_PATH:-./prompt.md}:/opt/serenia/prompt.md:ro
     secrets:
       - db_password
       - jwt_private_key
