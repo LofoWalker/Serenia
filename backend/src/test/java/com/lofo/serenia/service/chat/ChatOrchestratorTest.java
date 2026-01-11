@@ -1,6 +1,6 @@
 package com.lofo.serenia.service.chat;
 
-import com.lofo.serenia.config.SereniaConfig;
+import com.lofo.serenia.config.SystemPromptProvider;
 import com.lofo.serenia.persistence.entity.conversation.Conversation;
 import com.lofo.serenia.persistence.entity.conversation.Message;
 import com.lofo.serenia.persistence.entity.conversation.MessageRole;
@@ -41,7 +41,7 @@ class ChatOrchestratorTest {
     private ChatCompletionService chatCompletionService;
 
     @Mock
-    private SereniaConfig sereniaConfig;
+    private SystemPromptProvider systemPromptProvider;
 
     @Mock
     private QuotaService quotaService;
@@ -51,7 +51,7 @@ class ChatOrchestratorTest {
     @BeforeEach
     void setup() {
         chatOrchestrator = new ChatOrchestrator(conversationService, messageService, chatCompletionService,
-                sereniaConfig, quotaService);
+                systemPromptProvider, quotaService);
     }
 
     @Test
@@ -64,7 +64,7 @@ class ChatOrchestratorTest {
                 new ChatCompletionService.ChatCompletionResult("Assistant reply", 500, 100, 50);
 
         when(conversationService.getOrCreateActiveConversation(FIXED_USER_ID)).thenReturn(conv);
-        when(sereniaConfig.systemPrompt()).thenReturn("System prompt");
+        when(systemPromptProvider.getSystemPrompt()).thenReturn("System prompt");
         when(messageService.decryptConversationMessages(FIXED_USER_ID, FIXED_CONV_ID))
                 .thenReturn(Collections.emptyList());
         when(messageService.persistAssistantMessage(eq(FIXED_USER_ID), eq(FIXED_CONV_ID), nullable(String.class)))

@@ -22,6 +22,9 @@
 
 keys/
 
+# System prompt
+src/main/resources/prompt.md
+
 # OS noise
 .DS_Store
 Thumbs.db

@@ -1,6 +1,6 @@
 package com.lofo.serenia.service.chat;
 
-import com.lofo.serenia.config.SereniaConfig;
+import com.lofo.serenia.config.SystemPromptProvider;
 import com.lofo.serenia.persistence.entity.conversation.ChatMessage;
 import com.lofo.serenia.persistence.entity.conversation.Conversation;
 import com.lofo.serenia.persistence.entity.conversation.Message;
@@ -21,7 +21,7 @@ public class ChatOrchestrator {
     private final ConversationService conversationService;
     private final MessageService messageService;
     private final ChatCompletionService chatCompletionService;
-    private final SereniaConfig sereniaConfig;
+    private final SystemPromptProvider systemPromptProvider;
     private final QuotaService quotaService;
 
     @Transactional
@@ -34,7 +34,7 @@ public class ChatOrchestrator {
 
         List<ChatMessage> history = messageService.decryptConversationMessages(userId, conv.getId());
         ChatCompletionService.ChatCompletionResult completionResult = chatCompletionService.generateReply(
-                sereniaConfig.systemPrompt(),
+                systemPromptProvider.getSystemPrompt(),
                 history
         );
 
