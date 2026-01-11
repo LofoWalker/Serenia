@@ -15,11 +15,7 @@ import java.nio.file.Path;
 
 /**
  * Loads the system prompt from a configurable location at application startup.
-<<<<<<< Updated upstream
- * Supports both classpath (classpath:prompt.md) and filesystem (/opt/serenia/prompt.md) paths.
-=======
  * Supports both classpath (classpath: prompt.md) and filesystem (/opt/serenia/prompt.md) paths.
->>>>>>> Stashed changes
  * Fails fast if the file is missing or unreadable.
  */
 @Slf4j
@@ -28,11 +24,15 @@ public class SystemPromptProvider {
 
     private static final String CLASSPATH_PREFIX = "classpath:";
 
-    @Inject
-    SereniaConfig sereniaConfig;
+    private final SereniaConfig sereniaConfig;
 
     @Getter
     private String systemPrompt;
+
+    @Inject
+    public SystemPromptProvider(SereniaConfig sereniaConfig) {
+        this.sereniaConfig = sereniaConfig;
+    }
 
     void onStart(@Observes StartupEvent ev) {
         String promptPath = sereniaConfig.systemPromptPath();
