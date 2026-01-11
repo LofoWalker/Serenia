@@ -1,7 +1,13 @@
 import {Routes} from '@angular/router';
 import {authGuard, guestGuard} from './core/guards/auth.guard';
+import {adminGuard} from './core/guards/admin.guard';
 
 export const routes: Routes = [
+  {
+    path: 'admin',
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () => import('./features/admin/admin-dashboard.component').then(m => m.AdminDashboardComponent)
+  },
   {
     path: '',
     loadComponent: () => import('./shared/layout/main-layout/main-layout.component').then(m => m.MainLayoutComponent),
