@@ -51,11 +51,6 @@ public interface SereniaConfig {
     @WithDefault("1440")
     long emailVerificationTokenExpirationMinutes();
 
-    /**
-     * System prompt injected into the LLM interactions.
-     */
-    @WithName("system-prompt")
-    String systemPrompt();
 
     /**
      * URL of the server
@@ -81,4 +76,11 @@ public interface SereniaConfig {
     @WithName("auth.expiration-time")
     @WithDefault("3600")
     Long tokenExpirationTime();
+
+    /**
+     * Path to the system prompt file. Supports classpath (classpath:prompt.md) or filesystem paths.
+     */
+    @WithName("system-prompt-path")
+    @WithDefault("classpath:prompt.md")
+    String systemPromptPath();
 }
