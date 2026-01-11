@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, output, signal} from '@angular/core';
+import {AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, output, signal, ViewChild} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 
 @Component({
@@ -8,7 +8,7 @@ import {FormsModule} from '@angular/forms';
   templateUrl: './chat-input.component.html',
   styleUrl: './chat-input.component.css'
 })
-export class ChatInputComponent {
+export class ChatInputComponent implements AfterViewInit {
   readonly disabled = signal(false);
   readonly messageSent = output<string>();
   protected messageText = '';
@@ -16,8 +16,21 @@ export class ChatInputComponent {
   protected readonly glowState = signal<'active' | 'fading' | 'none'>('none');
   private typingTimeout: ReturnType<typeof setTimeout> | null = null;
 
+  @ViewChild('inputTextarea') private inputTextarea!: ElementRef<HTMLTextAreaElement>;
+
+  ngAfterViewInit(): void {
+    this.focus();
+  }
+
+  focus(): void {
+    setTimeout(() => this.inputTextarea?.nativeElement?.focus(), 0);
+  }
+
   setDisabled(value: boolean): void {
     this.disabled.set(value);
+    if (!value) {
+      this.focus();
+    }
   }
 
   protected onInput(): void {

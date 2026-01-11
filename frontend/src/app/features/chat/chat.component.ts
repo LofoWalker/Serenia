@@ -42,6 +42,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef<HTMLDivElement>;
   @ViewChild('chatInput') private chatInput!: ChatInputComponent;
   private resizeObserver: ResizeObserver | null = null;
+  private mutationObserver: MutationObserver | null = null;
   private isUserScrolling = false;
   private scrollTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -71,9 +72,11 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     this.scrollToBottom();
     this.setupResizeObserver();
+    this.setupMutationObserver();
   }
   ngOnDestroy(): void {
     this.resizeObserver?.disconnect();
+    this.mutationObserver?.disconnect();
     if (this.scrollTimeout) {
       clearTimeout(this.scrollTimeout);
     }
@@ -88,6 +91,22 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     });
     this.resizeObserver.observe(this.messagesContainer.nativeElement);
+  }
+
+  private setupMutationObserver(): void {
+    if (!this.messagesContainer?.nativeElement) return;
+    this.mutationObserver = new MutationObserver(() => {
+      this.ngZone.run(() => {
+        if (!this.isUserScrolling) {
+          this.scrollToBottom();
+        }
+      });
+    });
+    this.mutationObserver.observe(this.messagesContainer.nativeElement, {
+      childList: true,
+      subtree: true,
+      characterData: true
+    });
   }
   protected onScroll(): void {
     const element = this.messagesContainer?.nativeElement;
