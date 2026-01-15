@@ -36,6 +36,8 @@ class AdminResourceIT {
     @Transactional
     void setup() {
         userRepository.deleteAll();
+        RestAssured.baseURI = "http://localhost:8081";
+        RestAssured.basePath = "";
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
 
         User admin = User.builder()

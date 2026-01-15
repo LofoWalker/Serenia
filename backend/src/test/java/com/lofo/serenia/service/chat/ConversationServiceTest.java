@@ -4,7 +4,9 @@ import com.lofo.serenia.exception.exceptions.ForbiddenAccessException;
 import com.lofo.serenia.persistence.entity.conversation.ChatMessage;
 import com.lofo.serenia.persistence.entity.conversation.Conversation;
 import com.lofo.serenia.persistence.entity.conversation.MessageRole;
+import com.lofo.serenia.persistence.entity.user.User;
 import com.lofo.serenia.persistence.repository.ConversationRepository;
+import com.lofo.serenia.service.user.shared.UserFinder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,6 +35,7 @@ class ConversationServiceTest {
 
     private static final UUID FIXED_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
     private static final UUID FIXED_CONV_ID = UUID.fromString("00000000-0000-0000-0000-000000000002");
+    private static final String TEST_FIRST_NAME = "Tom";
 
     @Mock
     private ConversationRepository conversationRepository;
@@ -40,13 +43,18 @@ class ConversationServiceTest {
     @Mock
     private MessageService messageService;
 
+    @Mock
+    private UserFinder userFinder;
+
     private ConversationService conversationService;
 
     @BeforeEach
     void setup() {
-        conversationService = new ConversationService(conversationRepository, messageService);
+        conversationService = new ConversationService(conversationRepository, messageService, userFinder);
         lenient().when(conversationRepository.findByIdAndUser(any(UUID.class), eq(FIXED_USER_ID)))
                 .thenAnswer(invocation -> Optional.of(conversationWithId(invocation.getArgument(0), FIXED_USER_ID)));
+        lenient().when(userFinder.findByIdOrThrow(FIXED_USER_ID))
+                .thenReturn(User.builder().id(FIXED_USER_ID).firstName(TEST_FIRST_NAME).build());
     }
 
     @Test
@@ -76,13 +84,14 @@ class ConversationServiceTest {
     }
 
     @Test
-    @DisplayName("Should create new conversation if none active")
+    @DisplayName("Should create new conversation with welcome message if none active")
     void should_create_new_conversation_if_none_active() {
         when(conversationRepository.findActiveByUser(FIXED_USER_ID)).thenReturn(Optional.empty());
 
-        Conversation conv = conversationService.getOrCreateActiveConversation(FIXED_USER_ID);
+        conversationService.getOrCreateActiveConversation(FIXED_USER_ID);
 
         verify(conversationRepository).persist(any(Conversation.class));
+        verify(messageService).persistAssistantMessage(eq(FIXED_USER_ID), isNull(), contains(TEST_FIRST_NAME));
     }
 
     @Test

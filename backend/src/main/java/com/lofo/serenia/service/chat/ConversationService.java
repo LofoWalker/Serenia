@@ -4,6 +4,7 @@ import com.lofo.serenia.exception.exceptions.ForbiddenAccessException;
 import com.lofo.serenia.persistence.entity.conversation.ChatMessage;
 import com.lofo.serenia.persistence.entity.conversation.Conversation;
 import com.lofo.serenia.persistence.repository.ConversationRepository;
+import com.lofo.serenia.service.user.shared.UserFinder;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -17,8 +18,11 @@ import java.util.UUID;
 @Transactional
 public class ConversationService {
 
+    private static final String WELCOME_MESSAGE_TEMPLATE = "Coucou %s ! C'est Serenia ✨ Il paraît qu'on va bien s'entendre... T'as passé une bonne journée ?";
+
     private final ConversationRepository conversationRepository;
     private final MessageService messageService;
+    private final UserFinder userFinder;
 
     public Conversation getOrCreateActiveConversation(UUID userId) {
         return conversationRepository.findActiveByUser(userId)
@@ -44,6 +48,11 @@ public class ConversationService {
         conversation.setLastActivityAt(Instant.now());
 
         conversationRepository.persist(conversation);
+
+        String firstName = userFinder.findByIdOrThrow(userId).getFirstName();
+        String welcomeMessage = String.format(WELCOME_MESSAGE_TEMPLATE, firstName);
+        messageService.persistAssistantMessage(userId, conversation.getId(), welcomeMessage);
+
         return conversation;
     }
 

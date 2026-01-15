@@ -139,9 +139,9 @@ public class AdminStatsService {
     @SuppressWarnings("unchecked")
     private List<TimelineDataPointDTO> getUserTimeline(LocalDate startDate, LocalDate endDate) {
         List<Object[]> results = entityManager.createNativeQuery(
-                        "SELECT DATE(created_at) as date, COUNT(*) as cnt " +
+                        "SELECT CAST(created_at AS DATE) as date, COUNT(*) as cnt " +
                                 "FROM users WHERE created_at >= ?1 AND created_at < ?2 " +
-                                "GROUP BY DATE(created_at) ORDER BY date")
+                                "GROUP BY CAST(created_at AS DATE) ORDER BY date")
                 .setParameter(1, startDate.atStartOfDay(ZoneOffset.UTC).toInstant())
                 .setParameter(2, endDate.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant())
                 .getResultList();
@@ -152,9 +152,9 @@ public class AdminStatsService {
     @SuppressWarnings("unchecked")
     private List<TimelineDataPointDTO> getMessageTimeline(LocalDate startDate, LocalDate endDate) {
         List<Object[]> results = entityManager.createNativeQuery(
-                        "SELECT DATE(timestamp) as date, COUNT(*) as cnt " +
+                        "SELECT CAST(timestamp AS DATE) as date, COUNT(*) as cnt " +
                                 "FROM messages WHERE role = ?1 AND timestamp >= ?2 AND timestamp < ?3 " +
-                                "GROUP BY DATE(timestamp) ORDER BY date")
+                                "GROUP BY CAST(timestamp AS DATE) ORDER BY date")
                 .setParameter(1, MessageRole.USER.name())
                 .setParameter(2, startDate.atStartOfDay(ZoneOffset.UTC).toInstant())
                 .setParameter(3, endDate.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant())
