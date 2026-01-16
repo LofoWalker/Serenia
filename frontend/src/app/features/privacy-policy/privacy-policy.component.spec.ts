@@ -41,7 +41,7 @@ describe('PrivacyPolicyComponent', () => {
 
   it('devrait avoir des mesures de sécurité définies', () => {
     expect(component.securityMeasures.length).toBeGreaterThan(0);
-    expect(component.securityMeasures).toContain('Chiffrement AES-256-GCM des conversations');
+    expect(component.securityMeasures).toContain('Chiffrement AES-256-GCM avec clé unique par utilisateur (HKDF)');
   });
 
   it('devrait avoir des droits GDPR définis', () => {
