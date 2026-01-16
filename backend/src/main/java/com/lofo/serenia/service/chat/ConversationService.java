@@ -18,7 +18,7 @@ import java.util.UUID;
 @Transactional
 public class ConversationService {
 
-    private static final String WELCOME_MESSAGE_TEMPLATE = "Coucou %s ! C'est Serenia ✨ Il paraît qu'on va bien s'entendre... T'as passé une bonne journée ?";
+    private static final String WELCOME_MESSAGE_TEMPLATE = "Coucou %s ! C'est Serenia ✨ Ravi de te rencontrer. T'as passé une bonne journée ?";
 
     private final ConversationRepository conversationRepository;
     private final MessageService messageService;

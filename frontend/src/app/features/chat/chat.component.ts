@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  computed,
   ElementRef,
   inject,
   NgZone,
@@ -14,6 +15,7 @@ import {Router, RouterLink} from '@angular/router';
 import {HttpErrorResponse} from '@angular/common/http';
 import {catchError, EMPTY, take, tap} from 'rxjs';
 import {ChatService} from '../../core/services/chat.service';
+import {ChatMessage} from '../../core/models/chat.model';
 import {AuthStateService} from '../../core/services/auth-state.service';
 import {SubscriptionService} from '../../core/services/subscription.service';
 import {QuotaErrorDTO} from '../../core/models/subscription.model';
@@ -38,6 +40,14 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
   protected readonly errorMessage = signal('');
   protected readonly quotaError = signal<QuotaErrorDTO | null>(null);
+
+  protected readonly welcomeMessage = computed<ChatMessage>(() => {
+    const firstName = this.authState.user()?.firstName ?? '';
+    return {
+      role: 'assistant',
+      content: `Coucou ${firstName} ! C'est Serenia ✨ Ravi de te rencontrer. T'as passé une bonne journée ?`
+    };
+  });
 
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef<HTMLDivElement>;
   @ViewChild('chatInput') private chatInput!: ChatInputComponent;
