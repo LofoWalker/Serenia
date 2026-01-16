@@ -1,0 +1,196 @@
+<div class="privacy-policy-container">
+  <header class="policy-header">
+    <h1>Politique de Confidentialité</h1>
+    <p class="subtitle">Protection de vos données personnelles</p>
+    <p class="last-updated">Dernière mise à jour : {{ lastUpdated }}</p>
+  </header>
+
+  <main class="policy-content">
+    <!-- Section 1: Responsable du traitement -->
+    <section class="policy-section">
+      <h2>1. Responsable du traitement</h2>
+      <div class="policy-info">
+        <p>
+          Le responsable du traitement des données personnelles est :
+        </p>
+        <p><strong>{{ dataController.name }}</strong></p>
+        <p>
+          <strong>Contact :</strong>
+          <a href="mailto:{{ dataController.email }}">{{ dataController.email }}</a>
+        </p>
+      </div>
+    </section>
+
+    <!-- Section 2: Données collectées -->
+    <section class="policy-section">
+      <h2>2. Données collectées</h2>
+      <p>
+        Dans le cadre de l'utilisation de Serenia, les données suivantes peuvent être collectées :
+      </p>
+      <ul class="policy-list">
+        <li>Contenu des conversations échangées avec l'IA</li>
+        <li>Données techniques minimales nécessaires au fonctionnement du service (ex : adresse IP tronquée, logs techniques)</li>
+        <li>Adresse email et profil utilisateur</li>
+        <li>Données de souscription et d'utilisation du service</li>
+      </ul>
+      <p class="policy-highlight">
+        <strong>Important :</strong> Aucune donnée n'est collectée à des fins publicitaires.
+      </p>
+    </section>
+
+    <!-- Section 3: Finalité du traitement -->
+    <section class="policy-section">
+      <h2>3. Finalité du traitement</h2>
+      <p>
+        Les données sont collectées et traitées uniquement pour les finalités suivantes :
+      </p>
+      <ul class="policy-list">
+        <li>Permettre le fonctionnement du service de discussion avec l'IA</li>
+        <li>Améliorer la qualité, la performance et la sécurité du service</li>
+        <li>Prévenir les abus et comportements malveillants</li>
+        <li>Respecter les obligations légales</li>
+        <li>Gérer votre abonnement et vos paiements</li>
+      </ul>
+    </section>
+
+    <!-- Section 4: Données sensibles -->
+    <section class="policy-section">
+      <h2>4. Données sensibles</h2>
+      <p>
+        Les conversations peuvent contenir des informations personnelles ou émotionnelles sensibles.
+        Nous reconnaissons l'importance critique de la protection de ces données.
+      </p>
+      <div class="policy-info">
+        <p>Ces données :</p>
+        <ul class="policy-list">
+          <li>Ne sont pas utilisées à des fins commerciales</li>
+          <li>Ne sont pas revendues à des tiers</li>
+          <li>Ne sont pas exploitées pour entraîner d'autres modèles IA sans votre consentement explicite</li>
+          <li>Sont protégées par des mesures de sécurité renforcées, incluant le chiffrement des données</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Section 5: Sécurité des données -->
+    <section class="policy-section">
+      <h2>5. Mesures de sécurité</h2>
+      <p>
+        Des mesures techniques et organisationnelles sont mises en place pour protéger vos données personnelles :
+      </p>
+      <ul class="policy-list">
+        @for (measure of securityMeasures; track $index) {
+          <li>{{ measure }}</li>
+        }
+      </ul>
+      <p class="policy-note">
+        Malgré ces mesures, aucune transmission de données sur internet n'est 100% sécurisée.
+        Nous nous efforçons de maintenir les plus hauts standards de sécurité.
+      </p>
+    </section>
+
+    <!-- Section 6: Durée de conservation -->
+    <section class="policy-section">
+      <h2>6. Durée de conservation des données</h2>
+      <p>
+        Les données personnelles sont conservées selon les modalités suivantes :
+      </p>
+      <ul class="policy-list">
+        <li>Conversations : conservées pendant la durée de votre abonnement actif</li>
+        <li>Compte utilisateur : conservé tant que votre compte est actif</li>
+        <li>Données techniques : conservées pour des besoins de sécurité pendant 90 jours maximum</li>
+        <li>Toutes les données peuvent être supprimées sur demande de votre part</li>
+      </ul>
+    </section>
+
+    <!-- Section 7: Partage des données -->
+    <section class="policy-section">
+      <h2>7. Partage des données avec des tiers</h2>
+      <p>
+        Vos données sont partagées uniquement avec les prestataires nécessaires au fonctionnement du service :
+      </p>
+      <ul class="policy-list">
+        <li><strong>OpenAI :</strong> pour le traitement des conversations IA (conformément à leur politique de confidentialité)</li>
+        <li><strong>Stripe :</strong> pour la gestion des paiements et abonnements</li>
+        <li><strong>OVH :</strong> pour l'hébergement de l'infrastructure</li>
+      </ul>
+      <p>
+        Aucun partage avec des fins commerciales n'est effectué. Le transfert de données vers des tiers n'intervient que sur la base de contrats de traitement de données.
+      </p>
+    </section>
+
+    <!-- Section 8: Droits des utilisateurs (RGPD) -->
+    <section class="policy-section">
+      <h2>8. Vos droits (RGPD)</h2>
+      <p>
+        Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez des droits suivants :
+      </p>
+      <ul class="policy-list">
+        @for (right of gdprRights; track $index) {
+          <li>{{ right }}</li>
+        }
+      </ul>
+      <p>
+        Pour exercer vos droits, veuillez envoyer une demande écrite à :
+        <strong><a href="mailto:{{ rgpdContact }}">{{ rgpdContact }}</a></strong>
+      </p>
+      <p class="policy-note">
+        Les demandes seront traitées dans un délai de 30 jours conformément aux dispositions légales.
+      </p>
+    </section>
+
+    <!-- Section 9: Cookies et technologies de suivi -->
+    <section class="policy-section">
+      <h2>9. Cookies et technologies de suivi</h2>
+      <p>
+        Serenia adopte une politique de confidentialité stricte concernant les cookies :
+      </p>
+      <ul class="policy-list">
+        <li>Aucun cookie de suivi ou publicitaire n'est utilisé</li>
+        <li>Seuls des cookies strictement nécessaires au fonctionnement du site sont utilisés</li>
+        <li>Ces cookies permettent une expérience utilisateur optimale sans compromettre votre vie privée</li>
+        <li>Aucune donnée de navigation n'est vendue à des tiers</li>
+      </ul>
+    </section>
+
+    <!-- Section 10: Modifications de la politique -->
+    <section class="policy-section">
+      <h2>10. Modifications de cette politique</h2>
+      <p>
+        Nous nous réservons le droit de modifier cette politique de confidentialité à tout moment.
+        Les modifications seront affichées sur cette page avec une date de mise à jour.
+        Nous vous recommandons de consulter régulièrement cette politique.
+      </p>
+    </section>
+
+    <!-- Section 11: Contact -->
+    <section class="policy-section">
+      <h2>11. Contact</h2>
+      <p>
+        Si vous avez des questions concernant cette politique de confidentialité ou la protection de vos données,
+        veuillez nous contacter :
+      </p>
+      <div class="policy-info">
+        <p><strong>Email :</strong> <a href="mailto:{{ dataController.email }}">{{ dataController.email }}</a></p>
+        <p><strong>Responsable :</strong> {{ dataController.name }}</p>
+      </div>
+    </section>
+
+    <!-- Section 12: CNIL -->
+    <section class="policy-section">
+      <h2>12. Plainte auprès de l'autorité de contrôle</h2>
+      <p>
+        Si vous estimez que Serenia ne respecte pas vos droits en matière de protection des données,
+        vous pouvez introduire une plainte auprès de la Commission Nationale de l'Informatique et des Libertés (CNIL) :
+      </p>
+      <div class="policy-info">
+        <p>
+          <strong>CNIL - Commission Nationale de l'Informatique et des Libertés</strong><br>
+          3 Place de Fontenoy, 75007 Paris, France<br>
+          Tél : 01 53 73 22 22<br>
+          Site web : <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer">www.cnil.fr</a>
+        </p>
+      </div>
+    </section>
+  </main>
+</div>
+

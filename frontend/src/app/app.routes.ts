@@ -29,6 +29,10 @@ export const routes: Routes = [
       {
         path: 'legal-notices',
         loadComponent: () => import('./features/legal-notices/legal-notices.component').then(m => m.LegalNoticesComponent)
+      },
+      {
+        path: 'privacy-policy',
+        loadComponent: () => import('./features/privacy-policy/privacy-policy.component').then(m => m.PrivacyPolicyComponent)
       }
     ]
   },
