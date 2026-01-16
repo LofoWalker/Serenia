@@ -33,6 +33,10 @@ export const routes: Routes = [
       {
         path: 'privacy-policy',
         loadComponent: () => import('./features/privacy-policy/privacy-policy.component').then(m => m.PrivacyPolicyComponent)
+      },
+      {
+        path: 'terms-of-service',
+        loadComponent: () => import('./features/terms-of-service/terms-of-service.component').then(m => m.TermsOfServiceComponent)
       }
     ]
   },

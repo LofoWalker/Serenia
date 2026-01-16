@@ -1,0 +1,215 @@
+<div class="terms-container">
+  <header class="terms-header">
+    <h1>Conditions Générales d'Utilisation</h1>
+    <p class="subtitle">{{ serviceInfo.name }} — Conditions d'utilisation du service</p>
+    <p class="last-updated">Dernière mise à jour : {{ lastUpdated }}</p>
+  </header>
+
+  <main class="terms-content">
+    <!-- Section 1: Objet du service -->
+    <section class="terms-section">
+      <h2>1. Objet du service</h2>
+      <p>
+        {{ serviceInfo.name }} est {{ serviceInfo.purpose }}.
+      </p>
+      <div class="terms-warning">
+        <p class="warning-title">⚠️ Important</p>
+        <p>
+          {{ serviceInfo.name }} <strong>n'est pas</strong> un service médical, psychologique ou thérapeutique.
+        </p>
+        <ul class="terms-list">
+          <li>{{ serviceInfo.name }} ne remplace jamais une consultation professionnelle</li>
+          <li>Les réponses fournies ne constituent pas un diagnostic ou un avis médical</li>
+          <li>Le service est conçu à titre informatif et de bien-être personnel</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Section 2: Limites du service -->
+    <section class="terms-section">
+      <h2>2. Limites du service</h2>
+      <p>
+        Vous reconnaissez et acceptez les limites suivantes du service :
+      </p>
+      <ul class="terms-list">
+        @for (limitation of serviceLimitations; track $index) {
+          <li>{{ limitation }}</li>
+        }
+      </ul>
+      <div class="terms-highlight">
+        <p>
+          <strong>Responsabilité des utilisateurs :</strong> Vous êtes seul responsable de l'interprétation
+          et de l'usage des réponses fournies par {{ serviceInfo.name }}.
+        </p>
+      </div>
+    </section>
+
+    <!-- Section 3: Situations de crise -->
+    <section class="terms-section">
+      <h2>3. Situations de crise</h2>
+      <p>
+        En cas de détresse grave, de pensées suicidaires, ou de tout problème de santé mentale urgent,
+        {{ serviceInfo.name }} vous invite <strong>vivement</strong> à contacter des services spécialisés.
+      </p>
+      <div class="terms-crisis">
+        <p class="crisis-title">🆘 Ressources d'urgence en France</p>
+        <div class="crisis-info">
+          <p><strong>Numéro de crise :</strong> <span class="crisis-number">{{ crisisHotline }}</span></p>
+          <p><strong>Disponibilité :</strong> {{ crisisInfo.available }}</p>
+          <p><strong>Accès :</strong> Gratuit, accessible 24h/24</p>
+          <p>
+            Le numéro {{ crisisHotline }} est spécialisé dans la prévention du suicide et l'aide
+            en situation de crise. Les appelants sont écoutés par des professionnels formés.
+          </p>
+        </div>
+      </div>
+      <p>
+        <strong>À l'étranger :</strong> Contactez les services d'urgence locaux ou une ligne d'aide
+        spécialisée dans votre pays.
+      </p>
+    </section>
+
+    <!-- Section 4: Responsabilité de l'éditeur -->
+    <section class="terms-section">
+      <h2>4. Responsabilité</h2>
+      <p>
+        L'éditeur du service ne saurait être tenu responsable :
+      </p>
+      <ul class="terms-list">
+        <li>Des conséquences liées à l'utilisation du service</li>
+        <li>De l'interprétation ou de l'usage inapproprié des réponses générées</li>
+        <li>Des dommages directs ou indirects résultant de l'utilisation du service</li>
+        <li>Des erreurs, omissions ou imprécisions dans les réponses fournies</li>
+        <li>Des interruptions ou indisponibilités du service</li>
+      </ul>
+      <div class="terms-highlight">
+        <p>
+          <strong>Limitation de responsabilité :</strong> En aucun cas la responsabilité de l'éditeur
+          ne pourra être engagée pour des dommages indirects, perte de profits, ou perte de données.
+        </p>
+      </div>
+    </section>
+
+    <!-- Section 5: Accès au service -->
+    <section class="terms-section">
+      <h2>5. Accès au service</h2>
+      <p>
+        L'accès au service est fourni « en l'état » sans garantie de disponibilité continue.
+      </p>
+      <p>
+        L'éditeur se réserve le droit de :
+      </p>
+      <ul class="terms-list">
+        <li>Modifier, améliorer ou supprimer des fonctionnalités du service</li>
+        <li>Suspendre ou interrompre le service à tout moment, avec ou sans préavis</li>
+        <li>Refuser l'accès à un utilisateur en cas de violation des présentes conditions</li>
+        <li>Effectuer des maintenances techniques entraînant des interruptions</li>
+      </ul>
+      <p>
+        L'éditeur ne pourra être tenu responsable des indisponibilités du service, quelles qu'en soient
+        les causes (maintenance, incident technique, attaque informatique, etc.).
+      </p>
+    </section>
+
+    <!-- Section 6: Comportement utilisateur -->
+    <section class="terms-section">
+      <h2>6. Comportement de l'utilisateur</h2>
+      <p>
+        En utilisant {{ serviceInfo.name }}, vous acceptez de ne pas :
+      </p>
+      <ul class="terms-list">
+        <li>Partager des données personnelles d'autres personnes sans consentement</li>
+        <li>Utiliser le service à des fins illégales ou contraires à la loi</li>
+        <li>Harceler, menacer ou insulter (même verbalement)</li>
+        <li>Tenter de contourner les mécanismes de sécurité</li>
+        <li>Utiliser le service de manière abusive ou excessive</li>
+      </ul>
+    </section>
+
+    <!-- Section 7: Modération et contenu -->
+    <section class="terms-section">
+      <h2>7. Modération et contenu</h2>
+      <p>
+        L'éditeur se réserve le droit de modérer, filtrer ou refuser certains contenus :
+      </p>
+      <ul class="terms-list">
+        <li>Contenu violent, haineux ou discriminatoire</li>
+        <li>Contenu sexuel explicite ou grooming</li>
+        <li>Tentatives de contournement des filtres de sécurité</li>
+        <li>Spam ou contenu automatisé</li>
+      </ul>
+      <p>
+        Les utilisateurs responsables de violations graves peuvent voir leur compte suspendu ou supprimé.
+      </p>
+    </section>
+
+    <!-- Section 8: Propriété intellectuelle -->
+    <section class="terms-section">
+      <h2>8. Propriété intellectuelle</h2>
+      <p>
+        Tous les éléments du service (code, design, textes, etc.) sont la propriété exclusive de l'éditeur
+        et protégés par les lois de propriété intellectuelle.
+      </p>
+      <p>
+        Les réponses générées par l'IA sont produites à titre informatif. Vous pouvez les utiliser
+        à titre personnel, mais sans droit de reproduction ou de revente.
+      </p>
+    </section>
+
+    <!-- Section 9: Droit applicable -->
+    <section class="terms-section">
+      <h2>9. Droit applicable</h2>
+      <p>
+        Les présentes conditions générales d'utilisation sont soumises au <strong>droit français</strong>.
+      </p>
+      <p>
+        Tout litige sera soumis à la compétence des tribunaux français, conformément à la juridiction
+        du siège social de l'éditeur.
+      </p>
+    </section>
+
+    <!-- Section 10: Modifications des conditions -->
+    <section class="terms-section">
+      <h2>10. Modifications des conditions</h2>
+      <p>
+        L'éditeur se réserve le droit de modifier ces conditions à tout moment.
+        Les modifications entreront en vigueur dès leur publication sur le site.
+      </p>
+      <p>
+        L'utilisation continue du service après modification des conditions implique votre acceptation
+        des nouvelles conditions.
+      </p>
+    </section>
+
+    <!-- Section 11: Contact -->
+    <section class="terms-section">
+      <h2>11. Contact</h2>
+      <p>
+        Pour toute question concernant ces conditions générales d'utilisation, veuillez nous contacter à :
+      </p>
+      <div class="terms-info">
+        <p>
+          <strong>Email :</strong> <a href="mailto:tom1997walker@gmail.com">tom1997walker@gmail.com</a>
+        </p>
+        <p>
+          <strong>Responsable :</strong> Tom Walker
+        </p>
+      </div>
+    </section>
+
+    <!-- Acceptation finale -->
+    <section class="terms-section final-section">
+      <h2>Acceptation</h2>
+      <div class="terms-acceptance">
+        <p>
+          En accédant et en utilisant {{ serviceInfo.name }}, vous acceptez intégralement et sans réserve
+          les présentes conditions générales d'utilisation.
+        </p>
+        <p>
+          Si vous n'acceptez pas ces conditions, veuillez cesser immédiatement l'utilisation du service.
+        </p>
+      </div>
+    </section>
+  </main>
+</div>
+
