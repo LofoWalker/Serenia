@@ -1,4 +1,4 @@
-import {AbstractControl, ValidationErrors, ValidatorFn} from '@angular/forms';
+import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
 /**
  * Résultat de la validation du mot de passe avec les critères détaillés
@@ -29,7 +29,7 @@ export function checkPasswordCriteria(password: string): PasswordValidationResul
       hasLowercase: false,
       hasDigit: false,
       hasSymbol: false,
-      criteriaCount: 0
+      criteriaCount: 0,
     };
   }
 
@@ -37,7 +37,7 @@ export function checkPasswordCriteria(password: string): PasswordValidationResul
   const hasUppercase = /[A-Z]/.test(password);
   const hasLowercase = /[a-z]/.test(password);
   const hasDigit = /[0-9]/.test(password);
-  const hasSymbol = [...password].some(c => SYMBOLS.includes(c));
+  const hasSymbol = [...password].some((c) => SYMBOLS.includes(c));
 
   const criteriaCount = [hasUppercase, hasLowercase, hasDigit, hasSymbol].filter(Boolean).length;
   const isValid = hasMinLength && criteriaCount >= MIN_CRITERIA;
@@ -49,7 +49,7 @@ export function checkPasswordCriteria(password: string): PasswordValidationResul
     hasLowercase,
     hasDigit,
     hasSymbol,
-    criteriaCount
+    criteriaCount,
   };
 }
 
@@ -72,9 +72,8 @@ export function passwordValidator(): ValidatorFn {
     return {
       passwordPolicy: {
         message: 'Le mot de passe ne respecte pas la politique de sécurité',
-        ...result
-      }
+        ...result,
+      },
     };
   };
 }
-

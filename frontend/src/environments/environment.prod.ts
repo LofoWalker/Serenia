@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.serenia.studio'
+  apiUrl: 'https://api.serenia.studio',
 };

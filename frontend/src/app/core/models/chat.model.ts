@@ -18,4 +18,3 @@ export interface ConversationMessagesResponse {
   conversationId: string;
   messages: ChatMessage[];
 }
-

@@ -1,17 +1,17 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
-import {ActivatedRoute, RouterLink} from '@angular/router';
-import {catchError, EMPTY, take, tap} from 'rxjs';
-import {AuthService} from '../../../core/services/auth.service';
-import {AuthStateService} from '../../../core/services/auth-state.service';
-import {ButtonComponent} from '../../../shared/ui/button/button.component';
-import {AlertComponent} from '../../../shared/ui/alert/alert.component';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { catchError, EMPTY, take, tap } from 'rxjs';
+import { AuthService } from '../../../core/services/auth.service';
+import { AuthStateService } from '../../../core/services/auth-state.service';
+import { ButtonComponent } from '../../../shared/ui/button/button.component';
+import { AlertComponent } from '../../../shared/ui/alert/alert.component';
 
 @Component({
   selector: 'app-activate',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, ButtonComponent, AlertComponent],
   templateUrl: './activate.component.html',
-  styleUrl: './activate.component.css'
+  styleUrl: './activate.component.css',
 })
 export class ActivateComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
@@ -25,15 +25,20 @@ export class ActivateComponent implements OnInit {
       this.errorMessage.set("Token d'activation manquant ou invalide.");
       return;
     }
-    this.authService.activate(token).pipe(
-      take(1),
-      tap(response => {
-        this.successMessage.set(response.message || 'Votre compte a été activé avec succès !');
-      }),
-      catchError(() => {
-        this.errorMessage.set("Le lien d'activation est invalide ou a expiré. Veuillez vous réinscrire.");
-        return EMPTY;
-      })
-    ).subscribe();
+    this.authService
+      .activate(token)
+      .pipe(
+        take(1),
+        tap((response) => {
+          this.successMessage.set(response.message || 'Votre compte a été activé avec succès !');
+        }),
+        catchError(() => {
+          this.errorMessage.set(
+            "Le lien d'activation est invalide ou a expiré. Veuillez vous réinscrire.",
+          );
+          return EMPTY;
+        }),
+      )
+      .subscribe();
   }
 }

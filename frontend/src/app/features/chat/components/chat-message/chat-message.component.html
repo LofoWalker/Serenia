@@ -1,11 +1,8 @@
-<div
-  [class]="containerClasses()"
-  [attr.aria-label]="ariaLabel()"
->
+<div [class]="containerClasses()" [attr.aria-label]="ariaLabel()">
   <div class="flex flex-col" [class.items-end]="isUser()" [class.items-start]="!isUser()">
     @if (message().timestamp) {
       <p class="text-xs mb-1 text-primary-300">
-        {{ message().timestamp | date:'dd/MM/yyyy HH:mm' }}
+        {{ message().timestamp | date: 'dd/MM/yyyy HH:mm' }}
       </p>
     }
     <div [class]="bubbleClasses()">
@@ -13,4 +10,3 @@
     </div>
   </div>
 </div>
-

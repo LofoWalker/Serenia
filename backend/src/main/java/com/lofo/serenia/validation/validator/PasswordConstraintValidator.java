@@ -5,11 +5,11 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 /**
- * Validateur pour la politique de mot de passe.
+ * Validator for password policy.
  *
- * Règles :
- * - Minimum 8 caractères
- * - Au moins 3 critères parmi 4 : majuscule, minuscule, chiffre, symbole
+ * Rules:
+ * - Minimum 8 characters
+ * - At least 3 criteria among 4: uppercase, lowercase, digit, symbol
  */
 public class PasswordConstraintValidator implements ConstraintValidator<ValidPassword, String> {
 
@@ -23,13 +23,13 @@ public class PasswordConstraintValidator implements ConstraintValidator<ValidPas
             return false;
         }
 
-        // Vérifier la longueur minimale
+        // Check minimum length
         if (password.length() < MIN_LENGTH) {
-            setCustomMessage(context, "Le mot de passe doit contenir au moins " + MIN_LENGTH + " caractères");
+            setCustomMessage(context, "Password must contain at least " + MIN_LENGTH + " characters");
             return false;
         }
 
-        // Compter les critères respectés
+        // Count met criteria
         int criteriaCount = 0;
 
         if (hasUppercase(password)) criteriaCount++;
@@ -39,8 +39,8 @@ public class PasswordConstraintValidator implements ConstraintValidator<ValidPas
 
         if (criteriaCount < MIN_CRITERIA) {
             setCustomMessage(context,
-                "Le mot de passe doit respecter au moins " + MIN_CRITERIA +
-                " critères parmi : majuscule, minuscule, chiffre, symbole");
+                "Password must meet at least " + MIN_CRITERIA +
+                " criteria among: uppercase, lowercase, digit, symbol");
             return false;
         }
 

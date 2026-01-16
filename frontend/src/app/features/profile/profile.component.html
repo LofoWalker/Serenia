@@ -10,10 +10,29 @@
   }
 
   @if (awaitingPaymentConfirmation()) {
-    <div class="mb-6 p-4 bg-primary-800 border border-primary-700 rounded-lg flex items-center gap-3">
-      <svg class="animate-spin h-5 w-5 text-accent-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    <div
+      class="mb-6 p-4 bg-primary-800 border border-primary-700 rounded-lg flex items-center gap-3"
+    >
+      <svg
+        class="animate-spin h-5 w-5 text-accent-400"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <circle
+          class="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          stroke-width="4"
+        ></circle>
+        <path
+          class="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+        ></path>
       </svg>
       <span class="text-primary-200">Confirmation du paiement en cours...</span>
     </div>
@@ -23,7 +42,9 @@
     <div class="bg-primary-900 border border-primary-800 rounded-xl overflow-hidden">
       <div class="p-6">
         <div class="flex items-center gap-4">
-          <div class="w-16 h-16 rounded-full bg-primary-700 flex items-center justify-center text-2xl font-bold text-primary-200">
+          <div
+            class="w-16 h-16 rounded-full bg-primary-700 flex items-center justify-center text-2xl font-bold text-primary-200"
+          >
             {{ getInitials(user.firstName, user.lastName) }}
           </div>
           <div>
@@ -42,9 +63,26 @@
 
       @if (subscriptionService.loading()) {
         <div class="flex items-center justify-center py-6">
-          <svg class="animate-spin h-6 w-6 text-primary-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          <svg
+            class="animate-spin h-6 w-6 text-primary-400"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
           </svg>
         </div>
       } @else if (subscriptionService.status(); as status) {
@@ -55,14 +93,21 @@
               {{ getPlanDisplayName(status.planName) }}
             </span>
             @if (subscriptionService.isPaidPlan()) {
-              <span class="px-2 py-0.5 text-xs rounded-full text-white" [ngClass]="subscriptionStatusClass()">
+              <span
+                class="px-2 py-0.5 text-xs rounded-full text-white"
+                [ngClass]="subscriptionStatusClass()"
+              >
                 {{ subscriptionStatusLabel() }}
               </span>
             }
             @if (subscriptionService.hasActiveDiscount()) {
-              <span class="px-2 py-0.5 text-xs rounded-full bg-purple-600 text-white font-medium flex items-center gap-1">
+              <span
+                class="px-2 py-0.5 text-xs rounded-full bg-purple-600 text-white font-medium flex items-center gap-1"
+              >
                 <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"/>
+                  <path
+                    d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"
+                  />
                 </svg>
                 {{ subscriptionService.discountDescription() }}
               </span>
@@ -103,8 +148,10 @@
         @if (subscriptionService.hasActiveDiscount() && subscriptionService.discountEndDate()) {
           <div class="mb-4 p-3 bg-purple-900/30 border border-purple-700 rounded-lg">
             <p class="text-purple-300 text-sm">
-              <strong>Promotion active:</strong> {{ subscriptionService.discountDescription() }}
-              jusqu'au <strong>{{ subscriptionService.discountEndDate() | date:'dd/MM/yyyy' }}</strong>.
+              <strong>Promotion active:</strong>
+              {{ subscriptionService.discountDescription() }} jusqu'au
+              <strong>{{ subscriptionService.discountEndDate() | date: 'dd/MM/yyyy' }}</strong
+              >.
             </p>
           </div>
         }
@@ -113,7 +160,8 @@
         @if (subscriptionService.isPaymentFailed()) {
           <div class="mb-4 p-3 bg-red-900/30 border border-red-700 rounded-lg">
             <p class="text-red-300 text-sm">
-              <strong>Paiement en échec.</strong> Veuillez mettre à jour votre moyen de paiement pour continuer à bénéficier de votre abonnement.
+              <strong>Paiement en échec.</strong> Veuillez mettre à jour votre moyen de paiement
+              pour continuer à bénéficier de votre abonnement.
             </p>
             <app-button
               variant="danger"
@@ -132,8 +180,8 @@
           <div class="mb-4 p-3 bg-yellow-900/30 border border-yellow-700 rounded-lg">
             <p class="text-yellow-300 text-sm">
               Votre abonnement est annulé et prendra fin le
-              <strong>{{ subscriptionService.currentPeriodEnd() | date:'dd/MM/yyyy' }}</strong>.
-              Vous conservez l'accès jusqu'à cette date.
+              <strong>{{ subscriptionService.currentPeriodEnd() | date: 'dd/MM/yyyy' }}</strong
+              >. Vous conservez l'accès jusqu'à cette date.
             </p>
           </div>
         }
@@ -144,9 +192,25 @@
             <h4 class="text-primary-200 font-medium mb-4">Choisir un plan</h4>
             @if (subscriptionService.loadingPlans()) {
               <div class="flex items-center justify-center py-4">
-                <svg class="animate-spin h-6 w-6 text-primary-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <svg
+                  class="animate-spin h-6 w-6 text-primary-400"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  ></circle>
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
                 </svg>
               </div>
             } @else {
@@ -156,37 +220,59 @@
                     class="p-4 rounded-lg border-2 transition-all"
                     [ngClass]="{
                       'border-accent-500 bg-accent-900/20': selectedPlan() === plan.type,
-                      'border-primary-600 hover:border-primary-500 cursor-pointer': plan.type !== status.planName && selectedPlan() !== plan.type,
-                      'border-primary-700 opacity-50 cursor-not-allowed': plan.type === status.planName
+                      'border-primary-600 hover:border-primary-500 cursor-pointer':
+                        plan.type !== status.planName && selectedPlan() !== plan.type,
+                      'border-primary-700 opacity-50 cursor-not-allowed':
+                        plan.type === status.planName,
                     }"
                     (click)="selectPlan(plan.type)"
                   >
                     <div class="flex items-center justify-between mb-2">
                       <span class="font-semibold text-primary-100">{{ plan.name }}</span>
                       @if (plan.type === status.planName) {
-                        <span class="text-xs bg-primary-600 text-primary-300 px-2 py-0.5 rounded">Actuel</span>
+                        <span class="text-xs bg-primary-600 text-primary-300 px-2 py-0.5 rounded"
+                          >Actuel</span
+                        >
                       }
                       @if (selectedPlan() === plan.type) {
-                        <span class="text-xs bg-accent-600 text-white px-2 py-0.5 rounded">Sélectionné</span>
+                        <span class="text-xs bg-accent-600 text-white px-2 py-0.5 rounded"
+                          >Sélectionné</span
+                        >
                       }
-                      @if (plan.type === 'PLUS' && plan.type !== status.planName && selectedPlan() !== plan.type) {
-                        <span class="text-xs bg-green-600 text-white px-2 py-0.5 rounded">Recommandé</span>
+                      @if (
+                        plan.type === 'PLUS' &&
+                        plan.type !== status.planName &&
+                        selectedPlan() !== plan.type
+                      ) {
+                        <span class="text-xs bg-green-600 text-white px-2 py-0.5 rounded"
+                          >Recommandé</span
+                        >
                       }
                     </div>
                     <!-- Prix du plan -->
                     <div class="mb-3">
-                      <span class="text-2xl font-bold text-primary-100">{{ getPlanPrice(plan.type) }}</span>
+                      <span class="text-2xl font-bold text-primary-100">{{
+                        getPlanPrice(plan.type)
+                      }}</span>
                     </div>
                     <ul class="text-xs text-primary-400 space-y-1">
                       <li class="flex items-center gap-1">
                         <svg class="w-3 h-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                          <path
+                            fill-rule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clip-rule="evenodd"
+                          />
                         </svg>
                         {{ plan.dailyMessageLimit }} messages/jour
                       </li>
                       <li class="flex items-center gap-1">
                         <svg class="w-3 h-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                          <path
+                            fill-rule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clip-rule="evenodd"
+                          />
                         </svg>
                         {{ plan.monthlyTokenLimit | number }} tokens/mois
                       </li>
@@ -196,7 +282,9 @@
               </div>
 
               <!-- Boutons de confirmation -->
-              <div class="mt-4 flex flex-col-reverse sm:flex-row items-stretch sm:items-center sm:justify-end gap-3">
+              <div
+                class="mt-4 flex flex-col-reverse sm:flex-row items-stretch sm:items-center sm:justify-end gap-3"
+              >
                 <app-button
                   variant="secondary"
                   size="sm"
@@ -209,7 +297,9 @@
                 <app-button
                   variant="primary"
                   size="sm"
-                  [disabled]="!canConfirmChange() || changingPlan() || subscriptionService.loadingCheckout()"
+                  [disabled]="
+                    !canConfirmChange() || changingPlan() || subscriptionService.loadingCheckout()
+                  "
                   [loading]="changingPlan() || subscriptionService.loadingCheckout()"
                   (clicked)="confirmChangePlan()"
                   class="w-full sm:w-auto"
@@ -230,18 +320,30 @@
           <div class="flex justify-between text-sm mb-1">
             <span class="text-primary-400">Tokens ce mois</span>
             <span class="text-primary-300">
-              {{ subscriptionService.tokensUsed() | number }} / {{ subscriptionService.monthlyTokenLimit() | number }}
+              {{ subscriptionService.tokensUsed() | number }} /
+              {{ subscriptionService.monthlyTokenLimit() | number }}
             </span>
           </div>
-          <div class="w-full bg-primary-700 rounded-full h-2 overflow-hidden" role="progressbar"
-               [attr.aria-valuenow]="subscriptionService.tokensUsed()"
-               [attr.aria-valuemax]="subscriptionService.monthlyTokenLimit()"
-               aria-label="Utilisation des tokens mensuels">
-            <div class="h-2 rounded-full transition-all duration-300 bg-emerald-500"
-              [class.bg-yellow-500]="subscriptionService.tokensUsagePercent() >= 80 && subscriptionService.tokensUsagePercent() < 95"
+          <div
+            class="w-full bg-primary-700 rounded-full h-2 overflow-hidden"
+            role="progressbar"
+            [attr.aria-valuenow]="subscriptionService.tokensUsed()"
+            [attr.aria-valuemax]="subscriptionService.monthlyTokenLimit()"
+            aria-label="Utilisation des tokens mensuels"
+          >
+            <div
+              class="h-2 rounded-full transition-all duration-300 bg-emerald-500"
+              [class.bg-yellow-500]="
+                subscriptionService.tokensUsagePercent() >= 80 &&
+                subscriptionService.tokensUsagePercent() < 95
+              "
               [class.bg-red-500]="subscriptionService.tokensUsagePercent() >= 95"
-              [style.width]="(subscriptionService.tokensUsagePercent() > 0 ? subscriptionService.tokensUsagePercent() : 1) + '%'">
-            </div>
+              [style.width]="
+                (subscriptionService.tokensUsagePercent() > 0
+                  ? subscriptionService.tokensUsagePercent()
+                  : 1) + '%'
+              "
+            ></div>
           </div>
         </div>
 
@@ -250,19 +352,30 @@
           <div class="flex justify-between text-sm mb-1">
             <span class="text-primary-400">Messages aujourd'hui</span>
             <span class="text-primary-300">
-              {{ subscriptionService.messagesSent() }} / {{ subscriptionService.dailyMessageLimit() }}
+              {{ subscriptionService.messagesSent() }} /
+              {{ subscriptionService.dailyMessageLimit() }}
             </span>
           </div>
-          <div class="w-full bg-primary-700 rounded-full h-2 overflow-hidden" role="progressbar"
-               [attr.aria-valuenow]="subscriptionService.messagesSent()"
-               [attr.aria-valuemax]="subscriptionService.dailyMessageLimit()"
-               aria-label="Utilisation des messages quotidiens">
+          <div
+            class="w-full bg-primary-700 rounded-full h-2 overflow-hidden"
+            role="progressbar"
+            [attr.aria-valuenow]="subscriptionService.messagesSent()"
+            [attr.aria-valuemax]="subscriptionService.dailyMessageLimit()"
+            aria-label="Utilisation des messages quotidiens"
+          >
             <div
               class="h-2 rounded-full transition-all duration-300 bg-emerald-500"
-              [class.bg-yellow-500]="subscriptionService.messagesUsagePercent() >= 80 && subscriptionService.messagesUsagePercent() < 95"
+              [class.bg-yellow-500]="
+                subscriptionService.messagesUsagePercent() >= 80 &&
+                subscriptionService.messagesUsagePercent() < 95
+              "
               [class.bg-red-500]="subscriptionService.messagesUsagePercent() >= 95"
-              [style.width]="(subscriptionService.messagesUsagePercent() > 0 ? subscriptionService.messagesUsagePercent() : 1) + '%'">
-            </div>
+              [style.width]="
+                (subscriptionService.messagesUsagePercent() > 0
+                  ? subscriptionService.messagesUsagePercent()
+                  : 1) + '%'
+              "
+            ></div>
           </div>
         </div>
 
@@ -270,11 +383,11 @@
         <div class="text-xs text-primary-500 mt-4 space-y-1">
           <p>
             <span class="text-primary-400">Remise à zéro du compteur quotidien :</span>
-            {{ subscriptionService.dailyResetDate() | date:'dd/MM/yyyy HH:mm' }}
+            {{ subscriptionService.dailyResetDate() | date: 'dd/MM/yyyy HH:mm' }}
           </p>
           <p>
             <span class="text-primary-400">Remise à zéro du compteur mensuel :</span>
-            {{ subscriptionService.monthlyResetDate() | date:'dd/MM/yyyy HH:mm' }}
+            {{ subscriptionService.monthlyResetDate() | date: 'dd/MM/yyyy HH:mm' }}
           </p>
         </div>
       } @else {
@@ -296,10 +409,7 @@
           </p>
 
           @if (!showDeleteConversationsConfirm()) {
-            <app-button
-              variant="secondary"
-              (clicked)="showDeleteConversationsConfirm.set(true)"
-            >
+            <app-button variant="secondary" (clicked)="showDeleteConversationsConfirm.set(true)">
               Supprimer les conversations
             </app-button>
           } @else {
@@ -330,14 +440,12 @@
         <div class="p-4 bg-red-900/20 border border-red-800 rounded-lg">
           <h4 class="text-red-400 font-medium mb-2">Supprimer mon compte</h4>
           <p class="text-primary-400 text-sm mb-4">
-            La suppression de votre compte est irréversible. Toutes vos données, y compris vos conversations, seront définitivement effacées.
+            La suppression de votre compte est irréversible. Toutes vos données, y compris vos
+            conversations, seront définitivement effacées.
           </p>
 
           @if (!showDeleteConfirm()) {
-            <app-button
-              variant="danger"
-              (clicked)="showDeleteConfirm.set(true)"
-            >
+            <app-button variant="danger" (clicked)="showDeleteConfirm.set(true)">
               Supprimer mon compte
             </app-button>
           } @else {
@@ -346,11 +454,7 @@
                 Êtes-vous sûr de vouloir supprimer votre compte ?
               </p>
               <div class="flex gap-3">
-                <app-button
-                  variant="danger"
-                  [loading]="deleting()"
-                  (clicked)="deleteAccount()"
-                >
+                <app-button variant="danger" [loading]="deleting()" (clicked)="deleteAccount()">
                   Oui, supprimer
                 </app-button>
                 <app-button
@@ -368,12 +472,28 @@
     </div>
   } @else {
     <div class="flex items-center justify-center py-12">
-      <svg class="animate-spin h-8 w-8 text-primary-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      <svg
+        class="animate-spin h-8 w-8 text-primary-400"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <circle
+          class="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          stroke-width="4"
+        ></circle>
+        <path
+          class="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+        ></path>
       </svg>
       <span class="sr-only">Chargement du profil...</span>
     </div>
   }
 </div>
-

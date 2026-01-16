@@ -13,7 +13,7 @@ describe('PrivacyPolicyComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PrivacyPolicyComponent]
+      imports: [PrivacyPolicyComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PrivacyPolicyComponent);
@@ -26,8 +26,8 @@ describe('PrivacyPolicyComponent', () => {
   });
 
   it('devrait afficher les informations du responsable de traitement correctement', () => {
-    expect(component.dataController.name).toBe('Tom Walker');
-    expect(component.dataController.email).toBe('tom1997walker@gmail.com');
+    expect(component.dataController.name).toBe('Serenia');
+    expect(component.dataController.email).toBe('contact@serenia.studio');
   });
 
   it('devrait afficher une date de dernière mise à jour valide', () => {
@@ -36,12 +36,12 @@ describe('PrivacyPolicyComponent', () => {
   });
 
   it('devrait avoir un contact RGPD valide', () => {
-    expect(component.rgpdContact).toBe('tom1997walker@gmail.com');
+    expect(component.rgpdContact).toBe('contact@serenia.studio');
   });
 
   it('devrait avoir des mesures de sécurité définies', () => {
     expect(component.securityMeasures.length).toBeGreaterThan(0);
-    expect(component.securityMeasures).toContain('Chiffrement AES-256-GCM des conversations');
+    expect(component.securityMeasures).toContain('Chiffrement AES-256-GCM avec clé unique par utilisateur (HKDF)');
   });
 
   it('devrait avoir des droits GDPR définis', () => {
@@ -81,4 +81,3 @@ describe('PrivacyPolicyComponent', () => {
     });
   });
 });
-

@@ -1,19 +1,19 @@
-import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
-import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {RouterLink} from '@angular/router';
-import {catchError, EMPTY, take, tap} from 'rxjs';
-import {AuthService} from '../../../core/services/auth.service';
-import {AuthStateService} from '../../../core/services/auth-state.service';
-import {ButtonComponent} from '../../../shared/ui/button/button.component';
-import {InputComponent} from '../../../shared/ui/input/input.component';
-import {AlertComponent} from '../../../shared/ui/alert/alert.component';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { catchError, EMPTY, take, tap } from 'rxjs';
+import { AuthService } from '../../../core/services/auth.service';
+import { AuthStateService } from '../../../core/services/auth-state.service';
+import { ButtonComponent } from '../../../shared/ui/button/button.component';
+import { InputComponent } from '../../../shared/ui/input/input.component';
+import { AlertComponent } from '../../../shared/ui/alert/alert.component';
 
 @Component({
   selector: 'app-forgot-password',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ReactiveFormsModule, RouterLink, ButtonComponent, InputComponent, AlertComponent],
   templateUrl: './forgot-password.component.html',
-  styleUrl: './forgot-password.component.css'
+  styleUrl: './forgot-password.component.css',
 })
 export class ForgotPasswordComponent {
   private readonly fb = inject(FormBuilder);
@@ -24,7 +24,7 @@ export class ForgotPasswordComponent {
   protected readonly submitted = signal(false);
 
   protected readonly form = this.fb.nonNullable.group({
-    email: ['', [Validators.required, Validators.email]]
+    email: ['', [Validators.required, Validators.email]],
   });
 
   protected getFieldError(field: 'email'): string {
@@ -41,17 +41,19 @@ export class ForgotPasswordComponent {
       return;
     }
     this.errorMessage.set('');
-    this.authService.forgotPassword(this.form.getRawValue()).pipe(
-      take(1),
-      tap(response => {
-        this.successMessage.set(response.message);
-        this.submitted.set(true);
-      }),
-      catchError(() => {
-        this.errorMessage.set('Une erreur est survenue. Veuillez réessayer.');
-        return EMPTY;
-      })
-    ).subscribe();
+    this.authService
+      .forgotPassword(this.form.getRawValue())
+      .pipe(
+        take(1),
+        tap((response) => {
+          this.successMessage.set(response.message);
+          this.submitted.set(true);
+        }),
+        catchError(() => {
+          this.errorMessage.set('Une erreur est survenue. Veuillez réessayer.');
+          return EMPTY;
+        }),
+      )
+      .subscribe();
   }
 }
-

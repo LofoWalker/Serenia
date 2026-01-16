@@ -32,3 +32,9 @@ traefik/acme.json
 .github/agents
 
 .env
+
+# Cryptographic keys - NEVER commit
+backend/keys/*.pem
+backend/keys/*.key
+backend/keys/*.p12
+backend/keys/*.jks

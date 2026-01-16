@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 /**
- * Repository pour l'accès aux subscriptions utilisateurs.
+ * Repository for user subscription access.
  */
 @ApplicationScoped
 public class SubscriptionRepository implements PanacheRepository<Subscription> {

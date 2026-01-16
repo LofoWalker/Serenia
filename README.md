@@ -2,29 +2,53 @@
   <img src="frontend/public/web-app-manifest-512x512.png" alt="Serenia Logo" width="120" height="120">
 </p>
 
-<h1 align="center">Serenia</h1>
+<h1 align="center">Serenia 🧠</h1>
 
 <p align="center">
   <strong>Un lieu sûr pour te confier, discuter, et respirer.</strong>
 </p>
 
 <p align="center">
-  <a href="#fonctionnalités">Fonctionnalités</a> •
-  <a href="#démarrage-rapide">Démarrage</a> •
-  <a href="#architecture">Architecture</a> •
-  <a href="#déploiement">Déploiement</a> •
-  <a href="#documentation">Documentation</a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+  <img src="https://img.shields.io/badge/Java-21-blue.svg" alt="Java 21">
+  <img src="https://img.shields.io/badge/Angular-21-red.svg" alt="Angular 21">
+  <img src="https://img.shields.io/badge/Quarkus-3.29-blue.svg" alt="Quarkus 3.29">
+</p>
+
+<p align="center">
+  <a href="#-fonctionnalités">Fonctionnalités</a> •
+  <a href="#-démarrage-rapide">Démarrage</a> •
+  <a href="#-architecture">Architecture</a> •
+  <a href="#-déploiement">Déploiement</a> •
+  <a href="#-documentation">Documentation</a> •
+  <a href="#-contribuer">Contribuer</a>
 </p>
 
 ---
 
-## À Propos
+## 📸 Aperçu
+
+<p align="center">
+  <em>Interface de chat avec l'IA Serenia</em>
+</p>
+
+<!-- 
+Pour ajouter une capture d'écran :
+1. Créer le dossier docs/images/ si nécessaire
+2. Ajouter votre capture d'écran (screenshot.png)
+3. Décommenter la ligne ci-dessous :
+-->
+<!-- <p align="center"><img src="docs/images/screenshot.png" alt="Serenia Screenshot" width="800"></p> -->
+
+---
+
+## 📖 À Propos
 
 **Serenia** est une application de chat conversationnel basée sur l'IA, offrant une expérience unique d'échange avec une intelligence artificielle au caractère authentique et décontracté.
 
 Contrairement aux assistants IA traditionnels, Serenia adopte la personnalité d'un ami proche : naturel, parfois sarcastique, jamais professionnel. L'IA répond comme par SMS, en messages courts (max 180 caractères), avec un ton détendu.
 
-## Fonctionnalités
+## ✨ Fonctionnalités
 
 ### 💬 Chat Intelligent
 - Conversations naturelles avec une IA au caractère unique
@@ -46,7 +70,7 @@ Contrairement aux assistants IA traditionnels, Serenia adopte la personnalité d
 - Réinitialisation de mot de passe
 - Profil utilisateur personnalisable
 
-## Stack Technologique
+## 🛠 Stack Technologique
 
 | Composant | Technologies |
 |-----------|--------------|
@@ -56,14 +80,14 @@ Contrairement aux assistants IA traditionnels, Serenia adopte la personnalité d
 | **Infrastructure** | Docker, Traefik, Nginx |
 | **Services** | OpenAI API, Stripe |
 
-## Prérequis
+## 📋 Prérequis
 
 - **Docker** & **Docker Compose** (production)
 - **Java 21** (développement backend)
 - **Node.js 20+** (développement frontend)
 - **PostgreSQL 16** (développement local)
 
-## Démarrage Rapide
+## 🚀 Démarrage Rapide
 
 ### Développement Local
 
@@ -112,7 +136,7 @@ cp .env.example .env
 docker compose up -d
 ```
 
-## Architecture
+## 🏗 Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -134,7 +158,7 @@ docker compose up -d
      └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
-## Structure du Projet
+## 📁 Structure du Projet
 
 ```
 Serenia/
@@ -156,7 +180,7 @@ Serenia/
 └── traefik/             # Configuration reverse proxy
 ```
 
-## Configuration
+## ⚙️ Configuration
 
 ### Variables d'Environnement Principales
 
@@ -170,7 +194,7 @@ Serenia/
 
 Voir [docs/global-info.md](docs/global-info.md) pour la liste complète.
 
-## API
+## 📡 API
 
 L'API REST est documentée via OpenAPI. En mode développement, accédez à :
 
@@ -187,7 +211,7 @@ L'API REST est documentée via OpenAPI. En mode développement, accédez à :
 | `POST` | `/conversation/message` | Envoyer un message |
 | `GET` | `/subscription/status` | Statut abonnement |
 
-## Tests
+## 🧪 Tests
 
 ### Backend
 
@@ -210,7 +234,7 @@ cd frontend
 npm test
 ```
 
-## Déploiement
+## 🚢 Déploiement
 
 ### Production avec Docker Compose
 
@@ -231,13 +255,19 @@ docker compose up -d
 | Frontend | 80 | Application web |
 | PostgreSQL | 5432 | Base de données |
 
-## Documentation
+## 📚 Documentation
 
 - [📋 PRD (Product Requirements)](docs/prd.md)
 - [🏗️ Architecture Technique](docs/architecture.md)
 - [📚 Informations Globales](docs/global-info.md)
 
-## Sécurité
+## 🤝 Contribuer
+
+Les contributions sont les bienvenues ! Consultez [CONTRIBUTING.md](CONTRIBUTING.md) pour savoir comment participer.
+
+Avant de contribuer, veuillez lire notre [Code de Conduite](CODE_OF_CONDUCT.md).
+
+## 🔒 Sécurité
 
 - **Chiffrement des messages** : AES-256-GCM avec dérivation de clé per-user (HKDF-SHA256)
 - **Isolation cryptographique** : Chaque utilisateur possède une clé unique dérivée
@@ -245,11 +275,13 @@ docker compose up -d
 - **Transport** : TLS 1.3 via Traefik
 - **Secrets** : Gestion via Docker Secrets
 
-En cas de détresse mentale, Serenia redirige automatiquement vers le **3114** (numéro national de prévention du suicide).
+Pour signaler une vulnérabilité de sécurité, consultez [SECURITY.md](SECURITY.md).
 
-## Licence
+> **Note :** En cas de détresse mentale, Serenia redirige automatiquement vers le **3114** (numéro national de prévention du suicide).
 
-Ce projet est propriétaire. Tous droits réservés.
+## 📄 Licence
+
+Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
 
 ---
 

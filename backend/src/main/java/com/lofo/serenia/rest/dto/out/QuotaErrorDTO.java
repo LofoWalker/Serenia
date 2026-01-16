@@ -1,7 +1,7 @@
 package com.lofo.serenia.rest.dto.out;
 /**
- * DTO pour les erreurs de quota dépassé.
- * Retourné avec un status HTTP 429.
+ * DTO for quota exceeded errors.
+ * Returned with HTTP 429 status.
  */
 public record QuotaErrorDTO(
         String quotaType,

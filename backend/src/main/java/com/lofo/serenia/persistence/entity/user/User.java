@@ -8,8 +8,8 @@ import java.time.Instant;
 import java.util.UUID;
 
 /**
- * Entité représentant un utilisateur de l'application.
- * Stocke les informations de profil de base et l'état d'activation du compte.
+ * Entity representing an application user.
+ * Stores basic profile information and account activation status.
  */
 @Entity
 @Table(name = "users")

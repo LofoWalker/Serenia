@@ -1,8 +1,13 @@
-import {computed, inject, Injectable, signal} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {map, Observable, tap} from 'rxjs';
-import {ChatMessage, ConversationMessagesResponse, MessageRequest, MessageResponse} from '../models/chat.model';
-import {environment} from '../../../environments/environment';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { map, Observable, tap } from 'rxjs';
+import {
+  ChatMessage,
+  ConversationMessagesResponse,
+  MessageRequest,
+  MessageResponse,
+} from '../models/chat.model';
+import { environment } from '../../../environments/environment';
 
 interface BackendChatMessage {
   role: string;
@@ -18,7 +23,7 @@ interface BackendConversationResponse {
 const MESSAGES_PER_PAGE = 20;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ChatService {
   private readonly http = inject(HttpClient);
@@ -36,7 +41,9 @@ export class ChatService {
 
   readonly totalMessages = computed(() => this.allMessagesSignal().length);
   readonly hasMessages = computed(() => this.allMessagesSignal().length > 0);
-  readonly hasMoreMessages = computed(() => this.visibleCountSignal() < this.allMessagesSignal().length);
+  readonly hasMoreMessages = computed(
+    () => this.visibleCountSignal() < this.allMessagesSignal().length,
+  );
 
   readonly messages = computed(() => {
     const all = this.allMessagesSignal();
@@ -51,10 +58,10 @@ export class ChatService {
   }
 
   private mapMessages(messages: BackendChatMessage[]): ChatMessage[] {
-    return messages.map(msg => ({
+    return messages.map((msg) => ({
       role: this.mapRole(msg.role),
       content: msg.content,
-      timestamp: msg.timestamp
+      timestamp: msg.timestamp,
     }));
   }
 
@@ -64,7 +71,7 @@ export class ChatService {
     this.loadingMoreSignal.set(true);
     const newCount = Math.min(
       this.visibleCountSignal() + MESSAGES_PER_PAGE,
-      this.allMessagesSignal().length
+      this.allMessagesSignal().length,
     );
     this.visibleCountSignal.set(newCount);
     this.loadingMoreSignal.set(false);
@@ -73,21 +80,21 @@ export class ChatService {
   loadMyMessages(): Observable<ConversationMessagesResponse | null> {
     this.loadingSignal.set(true);
     return this.http.get<BackendConversationResponse | null>(`${this.apiUrl}/my-messages`).pipe(
-      map(response => {
+      map((response) => {
         if (!response) return null;
         return {
           conversationId: response.conversationId,
-          messages: this.mapMessages(response.messages)
+          messages: this.mapMessages(response.messages),
         };
       }),
-      tap(response => {
+      tap((response) => {
         if (response) {
           this.conversationIdSignal.set(response.conversationId);
           this.allMessagesSignal.set(response.messages);
           this.visibleCountSignal.set(MESSAGES_PER_PAGE);
         }
         this.loadingSignal.set(false);
-      })
+      }),
     );
   }
 
@@ -97,27 +104,26 @@ export class ChatService {
     const userMessage: ChatMessage = {
       role: 'user',
       content,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
-    this.allMessagesSignal.update(messages => [...messages, userMessage]);
-    this.visibleCountSignal.update(count => count + 1);
+    this.allMessagesSignal.update((messages) => [...messages, userMessage]);
+    this.visibleCountSignal.update((count) => count + 1);
 
     const request: MessageRequest = { content };
     return this.http.post<MessageResponse>(`${this.apiUrl}/add-message`, request).pipe(
-      tap(response => {
+      tap((response) => {
         this.conversationIdSignal.set(response.conversationId);
         const assistantMessage: ChatMessage = {
           role: 'assistant',
           content: response.content,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         };
-        this.allMessagesSignal.update(messages => [...messages, assistantMessage]);
-        this.visibleCountSignal.update(count => count + 1);
+        this.allMessagesSignal.update((messages) => [...messages, assistantMessage]);
+        this.visibleCountSignal.update((count) => count + 1);
         this.loadingSignal.set(false);
-      })
+      }),
     );
   }
-
 
   clearConversation(): void {
     this.allMessagesSignal.set([]);
@@ -129,8 +135,7 @@ export class ChatService {
     return this.http.delete<void>(`${this.apiUrl}/my-conversations`).pipe(
       tap(() => {
         this.clearConversation();
-      })
+      }),
     );
   }
 }
-

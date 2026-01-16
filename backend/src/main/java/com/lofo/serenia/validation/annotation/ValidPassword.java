@@ -7,11 +7,11 @@ import jakarta.validation.Payload;
 import java.lang.annotation.*;
 
 /**
- * Annotation de validation pour les mots de passe.
+ * Validation annotation for passwords.
  *
- * Règles :
- * - Minimum 8 caractères
- * - Au moins 3 critères parmi 4 : majuscule, minuscule, chiffre, symbole
+ * Rules:
+ * - Minimum 8 characters
+ * - At least 3 criteria among 4: uppercase, lowercase, digit, symbol
  */
 @Documented
 @Constraint(validatedBy = PasswordConstraintValidator.class)
@@ -19,7 +19,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidPassword {
 
-    String message() default "Le mot de passe ne respecte pas la politique de sécurité";
+    String message() default "Password does not meet security policy requirements";
 
     Class<?>[] groups() default {};
 
