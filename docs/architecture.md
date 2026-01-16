@@ -172,15 +172,73 @@ backend/src/main/java/com/lofo/serenia/
 
 ### 4.2 Chiffrement des Messages
 
-```java
-// Algorithme: AES-256-GCM
-// IV: 12 bytes (généré aléatoirement)
-// Tag: 128 bits
-// Format stocké: [IV (12 bytes)][Ciphertext][Auth Tag]
+Le chiffrement des messages utilise **AES-256-GCM avec dérivation de clé par utilisateur via HKDF**.
+
+#### Architecture de chiffrement
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                         MASTER KEY                                   │
+│              (SERENIA_SECURITY_KEY - AES-256)                       │
+│              Stockée en secret Docker/env var                        │
+└──────────────────────────────┬──────────────────────────────────────┘
+                               │
+                               ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                      HKDF-SHA256                                     │
+│  ┌─────────────────────────────────────────────────────────────┐    │
+│  │ Input Key Material (IKM) : Master Key (32 bytes)            │    │
+│  │ Salt                     : User ID (UUID as bytes)          │    │
+│  │ Info                     : "serenia-user-encryption-v1"     │    │
+│  │ Output Length            : 32 bytes (AES-256)               │    │
+│  └─────────────────────────────────────────────────────────────┘    │
+└──────────────────────────────┬──────────────────────────────────────┘
+                               │
+           ┌───────────────────┼───────────────────┐
+           ▼                   ▼                   ▼
+┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+│   User Key A    │  │   User Key B    │  │   User Key C    │
+│   (Derived)     │  │   (Derived)     │  │   (Derived)     │
+└────────┬────────┘  └────────┬────────┘  └────────┬────────┘
+         │                    │                    │
+         ▼                    ▼                    ▼
+┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+│   AES-256-GCM   │  │   AES-256-GCM   │  │   AES-256-GCM   │
+│   Encrypt/      │  │   Encrypt/      │  │   Encrypt/      │
+│   Decrypt       │  │   Decrypt       │  │   Decrypt       │
+└─────────────────┘  └─────────────────┘  └─────────────────┘
 ```
 
-- **Master Key** : Dérivée de `SERENIA_SECURITY_KEY`
-- **Scope** : Chiffrement/déchiffrement par utilisateur
+#### Spécifications techniques
+
+| Paramètre | Valeur |
+|-----------|--------|
+| **Algorithme** | AES-256-GCM |
+| **IV** | 12 bytes (généré aléatoirement) |
+| **Tag d'authentification** | 128 bits |
+| **Dérivation de clé** | HKDF-SHA256 (RFC 5869) |
+| **Contexte HKDF** | `serenia-user-encryption-v1` |
+
+#### Format du payload chiffré (v1)
+
+```
+┌───────────────────────────────────────────────────────────────┐
+│ Version (1 byte) │ IV (12 bytes) │ Ciphertext + Auth Tag     │
+└───────────────────────────────────────────────────────────────┘
+
+Version = 0x01 pour le schéma HKDF per-user
+```
+
+#### Rétrocompatibilité
+
+Le système détecte automatiquement les anciens messages (format legacy sans version byte) et les déchiffre avec la clé maître directe. Les nouveaux messages sont toujours chiffrés avec le format v1 (HKDF per-user).
+
+#### Bénéfices
+
+- **Isolation cryptographique** : Chaque utilisateur possède une clé unique
+- **Limitation d'impact** : Compromission d'une clé n'expose qu'un seul utilisateur
+- **Aucune migration** : Clés dérivées déterministiquement, pas de stockage supplémentaire
+- **Performance** : Dérivation HKDF négligeable (~1μs par opération)
 
 ---
 

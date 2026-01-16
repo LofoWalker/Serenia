@@ -188,11 +188,27 @@ Serenia/
 
 ### Chiffrement
 
-| Élément | Algorithme |
-|---------|------------|
-| Messages | AES-256-GCM |
-| JWT | RS256 (RSA 2048) |
-| Transport | TLS 1.3 |
+| Élément | Algorithme | Détails |
+|---------|------------|---------|
+| Messages | AES-256-GCM + HKDF | Clé dérivée par utilisateur via HKDF-SHA256 |
+| JWT | RS256 (RSA 2048) | Signature asymétrique |
+| Transport | TLS 1.3 | Via Traefik |
+
+### Chiffrement per-user HKDF
+
+Chaque utilisateur dispose d'une clé de chiffrement unique, dérivée de manière déterministe :
+
+```
+UserKey = HKDF-SHA256(MasterKey, UserID, "serenia-user-encryption-v1")
+```
+
+**Avantages :**
+- Isolation cryptographique entre utilisateurs
+- Aucun stockage de clé supplémentaire
+- Rétrocompatibilité avec les messages existants
+- Performance optimale (~1μs par dérivation)
+
+**Format payload v1 :** `[Version: 0x01][IV: 12 bytes][Ciphertext + Auth Tag]`
 
 ### Gestion des Secrets (Production)
 
