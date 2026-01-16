@@ -40,7 +40,8 @@ export class PrivacyPolicyComponent {
    * Informations sur les mesures de sécurité techniques.
    */
   securityMeasures = [
-    'Chiffrement AES-256-GCM des conversations',
+    'Chiffrement AES-256-GCM avec clé unique par utilisateur (HKDF)',
+    'Isolation cryptographique : chaque utilisateur dispose de sa propre clé de chiffrement',
     'Clés RSA 2048 bits pour la signature JWT',
     'Transport sécurisé via HTTPS/TLS',
     'Infrastructure PostgreSQL sécurisée',
