@@ -1,8 +1,8 @@
-import {TestBed} from '@angular/core/testing';
-import {HttpTestingController, provideHttpClientTesting} from '@angular/common/http/testing';
-import {provideHttpClient} from '@angular/common/http';
-import {ChatService} from './chat.service';
-import {environment} from '../../../environments/environment';
+import { TestBed } from '@angular/core/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { ChatService } from './chat.service';
+import { environment } from '../../../environments/environment';
 
 describe('ChatService', () => {
   let service: ChatService;
@@ -12,10 +12,7 @@ describe('ChatService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        provideHttpClient(),
-        provideHttpClientTesting()
-      ]
+      providers: [provideHttpClient(), provideHttpClientTesting()],
     });
 
     service = TestBed.inject(ChatService);
@@ -58,11 +55,11 @@ describe('ChatService', () => {
         conversationId: 'conv-123',
         messages: [
           { role: 'USER', content: 'Hello' },
-          { role: 'ASSISTANT', content: 'Hi there!' }
-        ]
+          { role: 'ASSISTANT', content: 'Hi there!' },
+        ],
       };
 
-      service.loadMyMessages().subscribe(result => {
+      service.loadMyMessages().subscribe((result) => {
         expect(result).toBeTruthy();
         expect(result?.conversationId).toBe('conv-123');
         expect(result?.messages.length).toBe(2);
@@ -78,7 +75,7 @@ describe('ChatService', () => {
     });
 
     it('should_handle_null_response', () => {
-      service.loadMyMessages().subscribe(result => {
+      service.loadMyMessages().subscribe((result) => {
         expect(result).toBeNull();
       });
 
@@ -94,11 +91,11 @@ describe('ChatService', () => {
         conversationId: 'conv-123',
         messages: [
           { role: 'user', content: 'Hello' },
-          { role: 'USER', content: 'Hello again' }
-        ]
+          { role: 'USER', content: 'Hello again' },
+        ],
       };
 
-      service.loadMyMessages().subscribe(result => {
+      service.loadMyMessages().subscribe((result) => {
         expect(result?.messages[0].role).toBe('user');
         expect(result?.messages[1].role).toBe('user');
       });
@@ -113,12 +110,12 @@ describe('ChatService', () => {
         messages: [
           { role: 'ASSISTANT', content: 'Hi' },
           { role: 'assistant', content: 'Hello' },
-          { role: 'MODEL', content: 'Hey' }
-        ]
+          { role: 'MODEL', content: 'Hey' },
+        ],
       };
 
-      service.loadMyMessages().subscribe(result => {
-        expect(result?.messages.every(m => m.role === 'assistant')).toBe(true);
+      service.loadMyMessages().subscribe((result) => {
+        expect(result?.messages.every((m) => m.role === 'assistant')).toBe(true);
       });
 
       const req = httpMock.expectOne(`${apiUrl}/my-messages`);
@@ -131,7 +128,7 @@ describe('ChatService', () => {
       const response = {
         conversationId: 'conv-123',
         role: 'assistant' as const,
-        content: 'Response'
+        content: 'Response',
       };
 
       service.sendMessage('Hello').subscribe();
@@ -148,7 +145,7 @@ describe('ChatService', () => {
       const response = {
         conversationId: 'conv-123',
         role: 'assistant' as const,
-        content: 'AI Response'
+        content: 'AI Response',
       };
 
       service.sendMessage('Hello').subscribe();
@@ -165,7 +162,7 @@ describe('ChatService', () => {
       const response = {
         conversationId: 'new-conv-456',
         role: 'assistant' as const,
-        content: 'Response'
+        content: 'Response',
       };
 
       service.sendMessage('Hello').subscribe();
@@ -180,7 +177,7 @@ describe('ChatService', () => {
       const response = {
         conversationId: 'conv-123',
         role: 'assistant' as const,
-        content: 'Response'
+        content: 'Response',
       };
 
       service.sendMessage('Test message').subscribe();
@@ -196,7 +193,7 @@ describe('ChatService', () => {
     it('should_clear_all_messages', () => {
       const backendResponse = {
         conversationId: 'conv-123',
-        messages: [{ role: 'USER', content: 'Hello' }]
+        messages: [{ role: 'USER', content: 'Hello' }],
       };
 
       service.loadMyMessages().subscribe();
@@ -216,7 +213,7 @@ describe('ChatService', () => {
     it('should_send_delete_request_and_clear_conversation', () => {
       const backendResponse = {
         conversationId: 'conv-123',
-        messages: [{ role: 'USER', content: 'Hello' }]
+        messages: [{ role: 'USER', content: 'Hello' }],
       };
 
       service.loadMyMessages().subscribe();
@@ -237,12 +234,12 @@ describe('ChatService', () => {
     it('should_increase_visible_count_when_more_messages_available', () => {
       const manyMessages = Array.from({ length: 30 }, (_, i) => ({
         role: i % 2 === 0 ? 'USER' : 'ASSISTANT',
-        content: `Message ${i}`
+        content: `Message ${i}`,
       }));
 
       const backendResponse = {
         conversationId: 'conv-123',
-        messages: manyMessages
+        messages: manyMessages,
       };
 
       service.loadMyMessages().subscribe();
@@ -260,12 +257,12 @@ describe('ChatService', () => {
     it('should_not_change_when_no_more_messages', () => {
       const fewMessages = Array.from({ length: 5 }, (_, i) => ({
         role: 'USER',
-        content: `Message ${i}`
+        content: `Message ${i}`,
       }));
 
       const backendResponse = {
         conversationId: 'conv-123',
-        messages: fewMessages
+        messages: fewMessages,
       };
 
       service.loadMyMessages().subscribe();
@@ -279,4 +276,3 @@ describe('ChatService', () => {
     });
   });
 });
-

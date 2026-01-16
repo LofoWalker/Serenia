@@ -10,7 +10,7 @@ import { Component } from '@angular/core';
   selector: 'app-terms-of-service',
   templateUrl: './terms-of-service.component.html',
   styleUrls: ['./terms-of-service.component.css'],
-  standalone: true
+  standalone: true,
 })
 export class TermsOfServiceComponent {
   /**
@@ -19,7 +19,7 @@ export class TermsOfServiceComponent {
   lastUpdated = new Date('2026-01-16').toLocaleDateString('fr-FR', {
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
   });
 
   /**
@@ -32,10 +32,11 @@ export class TermsOfServiceComponent {
    */
   serviceInfo = {
     name: 'Serenia',
-    purpose: 'espace de discussion visant à permettre aux utilisateurs d\'exprimer leurs ressentis dans un cadre bienveillant',
+    purpose:
+      "espace de discussion visant à permettre aux utilisateurs d'exprimer leurs ressentis dans un cadre bienveillant",
     notMedical: true,
     notPsychological: true,
-    notTherapeutic: true
+    notTherapeutic: true,
   };
 
   /**
@@ -44,8 +45,8 @@ export class TermsOfServiceComponent {
   serviceLimitations = [
     'Les réponses sont générées automatiquement par une intelligence artificielle',
     'Elles ne constituent en aucun cas un avis médical, psychologique ou professionnel',
-    'Elles ne remplacent pas l\'intervention d\'un professionnel de santé',
-    'Le service est fourni « en l\'état », sans garantie de disponibilité continue'
+    "Elles ne remplacent pas l'intervention d'un professionnel de santé",
+    "Le service est fourni « en l'état », sans garantie de disponibilité continue",
   ];
 
   /**
@@ -55,7 +56,6 @@ export class TermsOfServiceComponent {
     hotline: '3114',
     country: 'France',
     available: '24h/24, 7 jours sur 7',
-    free: true
+    free: true,
   };
 }
-

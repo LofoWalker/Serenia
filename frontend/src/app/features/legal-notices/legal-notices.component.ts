@@ -11,23 +11,23 @@ import { Component } from '@angular/core';
   selector: 'app-legal-notices',
   templateUrl: './legal-notices.component.html',
   styleUrls: ['./legal-notices.component.css'],
-  standalone: true
+  standalone: true,
 })
 export class LegalNoticesComponent {
   /**
    * Informations de l'éditeur du site.
    */
   editor = {
-    name: 'Tom Walker',
-    status: 'Éditeur personne physique',
-    email: 'tom1997walker@gmail.com'
+    name: 'Serenia',
+    status: 'Éditeur personne morale',
+    email: 'contact@serenia.studio',
   };
 
   /**
    * Informations du directeur de la publication.
    */
   publicationDirector = {
-    name: 'Tom Walker'
+    name: 'Serenia',
   };
 
   /**
@@ -35,7 +35,6 @@ export class LegalNoticesComponent {
    */
   hosting = {
     name: 'OVH',
-    website: 'https://www.ovh.com'
+    website: 'https://www.ovh.com',
   };
 }
-

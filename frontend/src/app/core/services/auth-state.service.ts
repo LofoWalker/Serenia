@@ -1,10 +1,10 @@
-import {computed, Injectable, signal} from '@angular/core';
-import {User} from '../models/user.model';
+import { computed, Injectable, signal } from '@angular/core';
+import { User } from '../models/user.model';
 
 const TOKEN_KEY = 'serenia_token';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthStateService {
   private readonly userSignal = signal<User | null>(null);
@@ -49,4 +49,3 @@ export class AuthStateService {
     return sessionStorage.getItem(TOKEN_KEY);
   }
 }
-

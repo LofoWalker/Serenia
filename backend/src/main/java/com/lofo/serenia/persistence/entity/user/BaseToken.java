@@ -7,9 +7,9 @@ import java.time.Instant;
 import java.util.UUID;
 
 /**
- * Token temporaire utilisé pour les opérations sensibles (activation de compte, réinitialisation de mot de passe, etc.).
- * L'endpoint/service détermine l'action à effectuer en fonction du contexte d'utilisation.
- * Chaque token est lié à un utilisateur et possède une date d'expiration.
+ * Temporary token used for sensitive operations (account activation, password reset, etc.).
+ * The endpoint/service determines the action to perform based on the usage context.
+ * Each token is linked to a user and has an expiration date.
  */
 @Entity
 @Table(name = "tokens")
@@ -38,9 +38,9 @@ public class BaseToken {
     private Instant expiryDate;
 
     /**
-     * Vérifie si ce token a expiré.
+     * Checks if this token has expired.
      *
-     * @return true si le token a expiré, false sinon
+     * @return true if the token has expired, false otherwise
      */
     public boolean isExpired() {
         return Instant.now().isAfter(expiryDate);

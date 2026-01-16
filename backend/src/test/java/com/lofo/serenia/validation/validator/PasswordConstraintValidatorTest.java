@@ -68,7 +68,7 @@ class PasswordConstraintValidatorTest {
 
             assertThat(validator.isValid(password, context)).isFalse();
             verify(context).buildConstraintViolationWithTemplate(
-                    "Le mot de passe doit contenir au moins 8 caractères");
+                    "Password must contain at least 8 characters");
         }
 
         @Test
@@ -103,7 +103,7 @@ class PasswordConstraintValidatorTest {
 
             assertThat(validator.isValid(password, context)).isFalse();
             verify(context).buildConstraintViolationWithTemplate(
-                    "Le mot de passe doit respecter au moins 3 critères parmi : majuscule, minuscule, chiffre, symbole");
+                    "Password must meet at least 3 criteria among: uppercase, lowercase, digit, symbol");
         }
 
         @ParameterizedTest

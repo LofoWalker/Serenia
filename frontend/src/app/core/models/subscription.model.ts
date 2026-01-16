@@ -22,19 +22,19 @@ export interface SubscriptionStatusDTO {
   dailyMessageLimit: number;
   tokensUsedThisMonth: number;
   messagesSentToday: number;
-  monthlyResetDate: string;  // ISO 8601
-  dailyResetDate: string;    // ISO 8601
+  monthlyResetDate: string; // ISO 8601
+  dailyResetDate: string; // ISO 8601
   // Champs Stripe
   status: SubscriptionStatusType;
-  currentPeriodEnd: string | null;  // ISO 8601
+  currentPeriodEnd: string | null; // ISO 8601
   cancelAtPeriodEnd: boolean;
   priceCents: number;
   currency: string;
   hasStripeSubscription: boolean;
   // Discount information from promotion codes
   hasActiveDiscount: boolean;
-  discountDescription: string;  // Human-readable: "10% off", "€5 off for 3 months"
-  discountEndDate: string | null;  // ISO 8601, null if permanent
+  discountDescription: string; // Human-readable: "10% off", "€5 off for 3 months"
+  discountEndDate: string | null; // ISO 8601, null if permanent
 }
 
 /**
@@ -93,7 +93,7 @@ export interface PlanDTO {
  * Récupère la configuration d'un plan par son type depuis une liste de plans
  */
 export function getPlanByType(plans: PlanDTO[], planType: PlanType): PlanDTO | undefined {
-  return plans.find(plan => plan.type === planType);
+  return plans.find((plan) => plan.type === planType);
 }
 
 /**
@@ -103,7 +103,6 @@ export function formatPrice(priceCents: number, currency: string = 'EUR'): strin
   const price = priceCents / 100;
   return new Intl.NumberFormat('fr-FR', {
     style: 'currency',
-    currency: currency.toUpperCase()
+    currency: currency.toUpperCase(),
   }).format(price);
 }
-

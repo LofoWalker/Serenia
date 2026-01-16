@@ -1,8 +1,8 @@
 package com.lofo.serenia.exception.exceptions;
 import lombok.Getter;
 /**
- * Exception levée lorsqu'un quota d'utilisation est dépassé.
- * Retourne un status HTTP 429 (Too Many Requests).
+ * Exception thrown when a usage quota is exceeded.
+ * Returns HTTP 429 (Too Many Requests) status.
  */
 @Getter
 public class QuotaExceededException extends SereniaException {

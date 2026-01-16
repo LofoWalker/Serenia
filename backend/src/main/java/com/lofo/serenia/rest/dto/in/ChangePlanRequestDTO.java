@@ -4,7 +4,7 @@ import com.lofo.serenia.persistence.entity.subscription.PlanType;
 import jakarta.validation.constraints.NotNull;
 
 /**
- * DTO pour la demande de changement de plan.
+ * DTO for plan change request.
  */
 public record ChangePlanRequestDTO(
         @NotNull(message = "Plan type is required")

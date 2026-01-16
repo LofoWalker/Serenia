@@ -1,12 +1,20 @@
-import {AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, output, signal, ViewChild} from '@angular/core';
-import {FormsModule} from '@angular/forms';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  output,
+  signal,
+  ViewChild,
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-chat-input',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule],
   templateUrl: './chat-input.component.html',
-  styleUrl: './chat-input.component.css'
+  styleUrl: './chat-input.component.css',
 })
 export class ChatInputComponent implements AfterViewInit {
   readonly disabled = signal(false);

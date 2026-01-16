@@ -10,10 +10,10 @@
     <section class="policy-section">
       <h2>1. Responsable du traitement</h2>
       <div class="policy-info">
+        <p>Le responsable du traitement des données personnelles est :</p>
         <p>
-          Le responsable du traitement des données personnelles est :
+          <strong>{{ dataController.name }}</strong>
         </p>
-        <p><strong>{{ dataController.name }}</strong></p>
         <p>
           <strong>Contact :</strong>
           <a href="mailto:{{ dataController.email }}">{{ dataController.email }}</a>
@@ -29,7 +29,10 @@
       </p>
       <ul class="policy-list">
         <li>Contenu des conversations échangées avec l'IA</li>
-        <li>Données techniques minimales nécessaires au fonctionnement du service (ex : adresse IP tronquée, logs techniques)</li>
+        <li>
+          Données techniques minimales nécessaires au fonctionnement du service (ex : adresse IP
+          tronquée, logs techniques)
+        </li>
         <li>Adresse email et profil utilisateur</li>
         <li>Données de souscription et d'utilisation du service</li>
       </ul>
@@ -41,9 +44,7 @@
     <!-- Section 3: Finalité du traitement -->
     <section class="policy-section">
       <h2>3. Finalité du traitement</h2>
-      <p>
-        Les données sont collectées et traitées uniquement pour les finalités suivantes :
-      </p>
+      <p>Les données sont collectées et traitées uniquement pour les finalités suivantes :</p>
       <ul class="policy-list">
         <li>Permettre le fonctionnement du service de discussion avec l'IA</li>
         <li>Améliorer la qualité, la performance et la sécurité du service</li>
@@ -65,8 +66,14 @@
         <ul class="policy-list">
           <li>Ne sont pas utilisées à des fins commerciales</li>
           <li>Ne sont pas revendues à des tiers</li>
-          <li>Ne sont pas exploitées pour entraîner d'autres modèles IA sans votre consentement explicite</li>
-          <li>Sont protégées par des mesures de sécurité renforcées, incluant le chiffrement des données</li>
+          <li>
+            Ne sont pas exploitées pour entraîner d'autres modèles IA sans votre consentement
+            explicite
+          </li>
+          <li>
+            Sont protégées par des mesures de sécurité renforcées, incluant le chiffrement des
+            données
+          </li>
         </ul>
       </div>
     </section>
@@ -75,7 +82,8 @@
     <section class="policy-section">
       <h2>5. Mesures de sécurité</h2>
       <p>
-        Des mesures techniques et organisationnelles sont mises en place pour protéger vos données personnelles :
+        Des mesures techniques et organisationnelles sont mises en place pour protéger vos données
+        personnelles :
       </p>
       <ul class="policy-list">
         @for (measure of securityMeasures; track $index) {
@@ -90,21 +98,21 @@
         </p>
       </div>
       <p class="policy-note">
-        Malgré ces mesures, aucune transmission de données sur internet n'est 100% sécurisée.
-        Nous nous efforçons de maintenir les plus hauts standards de sécurité.
+        Malgré ces mesures, aucune transmission de données sur internet n'est 100% sécurisée. Nous
+        nous efforçons de maintenir les plus hauts standards de sécurité.
       </p>
     </section>
 
     <!-- Section 6: Durée de conservation -->
     <section class="policy-section">
       <h2>6. Durée de conservation des données</h2>
-      <p>
-        Les données personnelles sont conservées selon les modalités suivantes :
-      </p>
+      <p>Les données personnelles sont conservées selon les modalités suivantes :</p>
       <ul class="policy-list">
         <li>Conversations : conservées pendant la durée de votre abonnement actif</li>
         <li>Compte utilisateur : conservé tant que votre compte est actif</li>
-        <li>Données techniques : conservées pour des besoins de sécurité pendant 90 jours maximum</li>
+        <li>
+          Données techniques : conservées pour des besoins de sécurité pendant 90 jours maximum
+        </li>
         <li>Toutes les données peuvent être supprimées sur demande de votre part</li>
       </ul>
     </section>
@@ -113,15 +121,20 @@
     <section class="policy-section">
       <h2>7. Partage des données avec des tiers</h2>
       <p>
-        Vos données sont partagées uniquement avec les prestataires nécessaires au fonctionnement du service :
+        Vos données sont partagées uniquement avec les prestataires nécessaires au fonctionnement du
+        service :
       </p>
       <ul class="policy-list">
-        <li><strong>OpenAI :</strong> pour le traitement des conversations IA (conformément à leur politique de confidentialité)</li>
+        <li>
+          <strong>OpenAI :</strong> pour le traitement des conversations IA (conformément à leur
+          politique de confidentialité)
+        </li>
         <li><strong>Stripe :</strong> pour la gestion des paiements et abonnements</li>
         <li><strong>OVH :</strong> pour l'hébergement de l'infrastructure</li>
       </ul>
       <p>
-        Aucun partage avec des fins commerciales n'est effectué. Le transfert de données vers des tiers n'intervient que sur la base de contrats de traitement de données.
+        Aucun partage avec des fins commerciales n'est effectué. Le transfert de données vers des
+        tiers n'intervient que sur la base de contrats de traitement de données.
       </p>
     </section>
 
@@ -129,7 +142,8 @@
     <section class="policy-section">
       <h2>8. Vos droits (RGPD)</h2>
       <p>
-        Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez des droits suivants :
+        Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez des
+        droits suivants :
       </p>
       <ul class="policy-list">
         @for (right of gdprRights; track $index) {
@@ -138,23 +152,27 @@
       </ul>
       <p>
         Pour exercer vos droits, veuillez envoyer une demande écrite à :
-        <strong><a href="mailto:{{ rgpdContact }}">{{ rgpdContact }}</a></strong>
+        <strong
+          ><a href="mailto:{{ rgpdContact }}">{{ rgpdContact }}</a></strong
+        >
       </p>
       <p class="policy-note">
-        Les demandes seront traitées dans un délai de 30 jours conformément aux dispositions légales.
+        Les demandes seront traitées dans un délai de 30 jours conformément aux dispositions
+        légales.
       </p>
     </section>
 
     <!-- Section 9: Cookies et technologies de suivi -->
     <section class="policy-section">
       <h2>9. Cookies et technologies de suivi</h2>
-      <p>
-        Serenia adopte une politique de confidentialité stricte concernant les cookies :
-      </p>
+      <p>Serenia adopte une politique de confidentialité stricte concernant les cookies :</p>
       <ul class="policy-list">
         <li>Aucun cookie de suivi ou publicitaire n'est utilisé</li>
         <li>Seuls des cookies strictement nécessaires au fonctionnement du site sont utilisés</li>
-        <li>Ces cookies permettent une expérience utilisateur optimale sans compromettre votre vie privée</li>
+        <li>
+          Ces cookies permettent une expérience utilisateur optimale sans compromettre votre vie
+          privée
+        </li>
         <li>Aucune donnée de navigation n'est vendue à des tiers</li>
       </ul>
     </section>
@@ -164,8 +182,8 @@
       <h2>10. Modifications de cette politique</h2>
       <p>
         Nous nous réservons le droit de modifier cette politique de confidentialité à tout moment.
-        Les modifications seront affichées sur cette page avec une date de mise à jour.
-        Nous vous recommandons de consulter régulièrement cette politique.
+        Les modifications seront affichées sur cette page avec une date de mise à jour. Nous vous
+        recommandons de consulter régulièrement cette politique.
       </p>
     </section>
 
@@ -173,11 +191,14 @@
     <section class="policy-section">
       <h2>11. Contact</h2>
       <p>
-        Si vous avez des questions concernant cette politique de confidentialité ou la protection de vos données,
-        veuillez nous contacter :
+        Si vous avez des questions concernant cette politique de confidentialité ou la protection de
+        vos données, veuillez nous contacter :
       </p>
       <div class="policy-info">
-        <p><strong>Email :</strong> <a href="mailto:{{ dataController.email }}">{{ dataController.email }}</a></p>
+        <p>
+          <strong>Email :</strong>
+          <a href="mailto:{{ dataController.email }}">{{ dataController.email }}</a>
+        </p>
         <p><strong>Responsable :</strong> {{ dataController.name }}</p>
       </div>
     </section>
@@ -187,17 +208,19 @@
       <h2>12. Plainte auprès de l'autorité de contrôle</h2>
       <p>
         Si vous estimez que Serenia ne respecte pas vos droits en matière de protection des données,
-        vous pouvez introduire une plainte auprès de la Commission Nationale de l'Informatique et des Libertés (CNIL) :
+        vous pouvez introduire une plainte auprès de la Commission Nationale de l'Informatique et
+        des Libertés (CNIL) :
       </p>
       <div class="policy-info">
         <p>
-          <strong>CNIL - Commission Nationale de l'Informatique et des Libertés</strong><br>
-          3 Place de Fontenoy, 75007 Paris, France<br>
-          Tél : 01 53 73 22 22<br>
-          Site web : <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer">www.cnil.fr</a> (ouvre dans un nouvel onglet)
+          <strong>CNIL - Commission Nationale de l'Informatique et des Libertés</strong><br />
+          3 Place de Fontenoy, 75007 Paris, France<br />
+          Tél : 01 53 73 22 22<br />
+          Site web :
+          <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer">www.cnil.fr</a>
+          (ouvre dans un nouvel onglet)
         </p>
       </div>
     </section>
   </main>
 </div>
-

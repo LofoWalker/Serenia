@@ -7,24 +7,24 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.Optional;
 /**
- * Repository pour l'accès aux plans d'abonnement.
+ * Repository for subscription plan access.
  */
 @ApplicationScoped
 public class PlanRepository implements PanacheRepository<Plan> {
     /**
-     * Recherche un plan par son type.
+     * Find a plan by its type.
      */
     public Optional<Plan> findByName(PlanType planType) {
         return find("name", planType).firstResultOptional();
     }
     /**
-     * Recherche un plan par son nom (String).
+     * Find a plan by its name (String).
      */
     public Optional<Plan> findByName(String name) {
         return find("name", PlanType.valueOf(name)).firstResultOptional();
     }
     /**
-     * Récupère le plan FREE par défaut.
+     * Get the default FREE plan.
      */
     public Plan getFreePlan() {
         return findByName(PlanType.FREE)

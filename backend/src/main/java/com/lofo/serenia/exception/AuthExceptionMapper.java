@@ -45,7 +45,7 @@ public class AuthExceptionMapper implements ExceptionMapper<RuntimeException> {
 
         LOG.warnf("Unhandled exception: %s - %s", exception.getClass().getName(), exception.getMessage());
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(new ApiMessageResponse("Une erreur interne est survenue"))
+                .entity(new ApiMessageResponse("An internal error occurred"))
                 .build();
     }
 

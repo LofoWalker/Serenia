@@ -1,11 +1,11 @@
-import {TestBed} from '@angular/core/testing';
-import {HttpTestingController, provideHttpClientTesting} from '@angular/common/http/testing';
-import {provideHttpClient} from '@angular/common/http';
-import {AuthService} from './auth.service';
-import {AuthStateService} from './auth-state.service';
-import {SubscriptionService} from './subscription.service';
-import {AuthResponse, LoginRequest, RegistrationRequest, User} from '../models/user.model';
-import {environment} from '../../../environments/environment';
+import { TestBed } from '@angular/core/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { AuthService } from './auth.service';
+import { AuthStateService } from './auth-state.service';
+import { SubscriptionService } from './subscription.service';
+import { AuthResponse, LoginRequest, RegistrationRequest, User } from '../models/user.model';
+import { environment } from '../../../environments/environment';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -26,7 +26,7 @@ describe('AuthService', () => {
     lastName: 'Doe',
     firstName: 'John',
     email: 'john.doe@example.com',
-    role: 'USER'
+    role: 'USER',
   };
 
   const authUrl = `${environment.apiUrl}/auth`;
@@ -39,11 +39,11 @@ describe('AuthService', () => {
       setToken: vi.fn(),
       setUser: vi.fn(),
       clear: vi.fn(),
-      token: vi.fn().mockReturnValue('mock-token')
+      token: vi.fn().mockReturnValue('mock-token'),
     };
 
     subscriptionServiceSpy = {
-      clearStatus: vi.fn()
+      clearStatus: vi.fn(),
     };
 
     TestBed.configureTestingModule({
@@ -51,8 +51,8 @@ describe('AuthService', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: AuthStateService, useValue: authStateSpy },
-        { provide: SubscriptionService, useValue: subscriptionServiceSpy }
-      ]
+        { provide: SubscriptionService, useValue: subscriptionServiceSpy },
+      ],
     });
 
     service = TestBed.inject(AuthService);
@@ -73,11 +73,11 @@ describe('AuthService', () => {
         lastName: 'Doe',
         firstName: 'John',
         email: 'john.doe@example.com',
-        password: 'password123'
+        password: 'password123',
       };
       const response = { message: 'Registration successful' };
 
-      service.register(request).subscribe(result => {
+      service.register(request).subscribe((result) => {
         expect(result).toEqual(response);
       });
 
@@ -97,7 +97,7 @@ describe('AuthService', () => {
       const token = 'activation-token';
       const response = { message: 'Account activated' };
 
-      service.activate(token).subscribe(result => {
+      service.activate(token).subscribe((result) => {
         expect(result).toEqual(response);
       });
 
@@ -115,14 +115,14 @@ describe('AuthService', () => {
     it('should_send_login_request_and_store_auth_data', () => {
       const request: LoginRequest = {
         email: 'john.doe@example.com',
-        password: 'password123'
+        password: 'password123',
       };
       const response: AuthResponse = {
         user: mockUser,
-        token: 'jwt-token'
+        token: 'jwt-token',
       };
 
-      service.login(request).subscribe(result => {
+      service.login(request).subscribe((result) => {
         expect(result).toEqual(response);
       });
 
@@ -141,7 +141,7 @@ describe('AuthService', () => {
 
   describe('getProfile', () => {
     it('should_fetch_user_profile_and_update_state', () => {
-      service.getProfile().subscribe(result => {
+      service.getProfile().subscribe((result) => {
         expect(result).toEqual(mockUser);
       });
 
@@ -182,7 +182,7 @@ describe('AuthService', () => {
     it('should_call_getProfile_when_token_exists', () => {
       authStateSpy.token.mockReturnValue('existing-token');
 
-      service.restoreSession().subscribe(result => {
+      service.restoreSession().subscribe((result) => {
         expect(result).toEqual(mockUser);
       });
 
@@ -196,7 +196,7 @@ describe('AuthService', () => {
     it('should_return_null_when_no_token', () => {
       authStateSpy.token.mockReturnValue(null);
 
-      service.restoreSession().subscribe(result => {
+      service.restoreSession().subscribe((result) => {
         expect(result).toBeNull();
       });
 
@@ -206,7 +206,7 @@ describe('AuthService', () => {
     it('should_clear_state_and_return_null_on_error', () => {
       authStateSpy.token.mockReturnValue('invalid-token');
 
-      service.restoreSession().subscribe(result => {
+      service.restoreSession().subscribe((result) => {
         expect(result).toBeNull();
       });
 
@@ -217,4 +217,3 @@ describe('AuthService', () => {
     });
   });
 });
-

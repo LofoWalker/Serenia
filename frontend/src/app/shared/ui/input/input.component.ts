@@ -1,5 +1,12 @@
-import {ChangeDetectionStrategy, Component, computed, forwardRef, input, signal} from '@angular/core';
-import {ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule} from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  forwardRef,
+  input,
+  signal,
+} from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 
 type InputType = 'text' | 'email' | 'password';
 @Component({
@@ -10,11 +17,11 @@ type InputType = 'text' | 'email' | 'password';
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => InputComponent),
-      multi: true
-    }
+      multi: true,
+    },
   ],
   templateUrl: './input.component.html',
-  styleUrl: './input.component.css'
+  styleUrl: './input.component.css',
 })
 export class InputComponent implements ControlValueAccessor {
   readonly label = input<string>('');
@@ -34,8 +41,11 @@ export class InputComponent implements ControlValueAccessor {
     return this.type();
   });
   protected readonly inputClasses = computed(() => {
-    const base = 'w-full px-4 py-2.5 bg-primary-800 border rounded-lg text-primary-100 placeholder-primary-500 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent';
-    const errorClass = this.error() ? 'border-red-500' : 'border-primary-700 hover:border-primary-600';
+    const base =
+      'w-full px-4 py-2.5 bg-primary-800 border rounded-lg text-primary-100 placeholder-primary-500 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent';
+    const errorClass = this.error()
+      ? 'border-red-500'
+      : 'border-primary-700 hover:border-primary-600';
     const passwordPadding = this.type() === 'password' ? 'pr-12' : '';
     return `${base} ${errorClass} ${passwordPadding}`;
   });
@@ -59,6 +69,6 @@ export class InputComponent implements ControlValueAccessor {
     this.onChange(target.value);
   }
   protected togglePasswordVisibility(): void {
-    this.showPassword.update(show => !show);
+    this.showPassword.update((show) => !show);
   }
 }

@@ -9,27 +9,27 @@ import {
   OnDestroy,
   OnInit,
   signal,
-  ViewChild
+  ViewChild,
 } from '@angular/core';
-import {Router, RouterLink} from '@angular/router';
-import {HttpErrorResponse} from '@angular/common/http';
-import {catchError, EMPTY, take, tap} from 'rxjs';
-import {ChatService} from '../../core/services/chat.service';
-import {ChatMessage} from '../../core/models/chat.model';
-import {AuthStateService} from '../../core/services/auth-state.service';
-import {SubscriptionService} from '../../core/services/subscription.service';
-import {QuotaErrorDTO} from '../../core/models/subscription.model';
-import {ChatMessageComponent} from './components/chat-message/chat-message.component';
-import {ChatInputComponent} from './components/chat-input/chat-input.component';
-import {AlertComponent} from '../../shared/ui/alert/alert.component';
-import {ButtonComponent} from '../../shared/ui/button/button.component';
+import { Router, RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { catchError, EMPTY, take, tap } from 'rxjs';
+import { ChatService } from '../../core/services/chat.service';
+import { ChatMessage } from '../../core/models/chat.model';
+import { AuthStateService } from '../../core/services/auth-state.service';
+import { SubscriptionService } from '../../core/services/subscription.service';
+import { QuotaErrorDTO } from '../../core/models/subscription.model';
+import { ChatMessageComponent } from './components/chat-message/chat-message.component';
+import { ChatInputComponent } from './components/chat-input/chat-input.component';
+import { AlertComponent } from '../../shared/ui/alert/alert.component';
+import { ButtonComponent } from '../../shared/ui/button/button.component';
 
 @Component({
   selector: 'app-chat',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ChatMessageComponent, ChatInputComponent, AlertComponent, ButtonComponent, RouterLink],
   templateUrl: './chat.component.html',
-  styleUrl: './chat.component.css'
+  styleUrl: './chat.component.css',
 })
 export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   protected readonly chatService = inject(ChatService);
@@ -45,7 +45,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     const firstName = this.authState.user()?.firstName ?? '';
     return {
       role: 'assistant',
-      content: `Coucou ${firstName} ! C'est Serenia ✨ Ravi de te rencontrer. T'as passé une bonne journée ?`
+      content: `Coucou ${firstName} ! C'est Serenia ✨ Ravi de te rencontrer. T'as passé une bonne journée ?`,
     };
   });
 
@@ -58,24 +58,30 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     // Charger les messages précédents
-    this.chatService.loadMyMessages().pipe(
-      take(1),
-      tap(() => {
-        // Scroll vers le bas après chargement des messages
-        setTimeout(() => this.scrollToBottom(), 100);
-      }),
-      catchError(() => {
-        this.errorMessage.set('Impossible de charger vos messages.');
-        return EMPTY;
-      })
-    ).subscribe();
+    this.chatService
+      .loadMyMessages()
+      .pipe(
+        take(1),
+        tap(() => {
+          // Scroll vers le bas après chargement des messages
+          setTimeout(() => this.scrollToBottom(), 100);
+        }),
+        catchError(() => {
+          this.errorMessage.set('Impossible de charger vos messages.');
+          return EMPTY;
+        }),
+      )
+      .subscribe();
 
     // Charger le statut d'abonnement si pas déjà chargé
     if (!this.subscriptionService.status()) {
-      this.subscriptionService.getStatus().pipe(
-        take(1),
-        catchError(() => EMPTY)
-      ).subscribe();
+      this.subscriptionService
+        .getStatus()
+        .pipe(
+          take(1),
+          catchError(() => EMPTY),
+        )
+        .subscribe();
     }
   }
 
@@ -115,7 +121,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.mutationObserver.observe(this.messagesContainer.nativeElement, {
       childList: true,
       subtree: true,
-      characterData: true
+      characterData: true,
     });
   }
   protected onScroll(): void {
@@ -131,7 +137,11 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         this.isUserScrolling = false;
       }
     }, 150);
-    if (element.scrollTop < 100 && this.chatService.hasMoreMessages() && !this.chatService.loadingMore()) {
+    if (
+      element.scrollTop < 100 &&
+      this.chatService.hasMoreMessages() &&
+      !this.chatService.loadingMore()
+    ) {
       this.loadMore();
     }
   }
@@ -151,29 +161,32 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.quotaError.set(null);
     this.chatInput.setDisabled(true);
     this.isUserScrolling = false;
-    this.chatService.sendMessage(content).pipe(
-      take(1),
-      tap(() => {
-        this.chatInput.setDisabled(false);
-        this.scrollToBottom();
-        // Rafraîchir les quotas après envoi
-        this.subscriptionService.refreshStatus();
-      }),
-      catchError((error: HttpErrorResponse) => {
-        this.chatInput.setDisabled(false);
-        if (error.status === 401) {
-          this.errorMessage.set('Session expirée. Veuillez vous reconnecter.');
-        } else if (error.status === 429) {
-          // Erreur de quota
-          const quotaErr = error.error as QuotaErrorDTO;
-          this.quotaError.set(quotaErr);
-          this.errorMessage.set(this.getQuotaErrorMessage(quotaErr));
-        } else {
-          this.errorMessage.set("Impossible d'envoyer le message. Veuillez réessayer.");
-        }
-        return EMPTY;
-      })
-    ).subscribe();
+    this.chatService
+      .sendMessage(content)
+      .pipe(
+        take(1),
+        tap(() => {
+          this.chatInput.setDisabled(false);
+          this.scrollToBottom();
+          // Rafraîchir les quotas après envoi
+          this.subscriptionService.refreshStatus();
+        }),
+        catchError((error: HttpErrorResponse) => {
+          this.chatInput.setDisabled(false);
+          if (error.status === 401) {
+            this.errorMessage.set('Session expirée. Veuillez vous reconnecter.');
+          } else if (error.status === 429) {
+            // Erreur de quota
+            const quotaErr = error.error as QuotaErrorDTO;
+            this.quotaError.set(quotaErr);
+            this.errorMessage.set(this.getQuotaErrorMessage(quotaErr));
+          } else {
+            this.errorMessage.set("Impossible d'envoyer le message. Veuillez réessayer.");
+          }
+          return EMPTY;
+        }),
+      )
+      .subscribe();
   }
 
   private getQuotaErrorMessage(error: QuotaErrorDTO): string {

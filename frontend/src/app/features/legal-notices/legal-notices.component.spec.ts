@@ -13,7 +13,7 @@ describe('LegalNoticesComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LegalNoticesComponent]
+      imports: [LegalNoticesComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LegalNoticesComponent);
@@ -25,17 +25,17 @@ describe('LegalNoticesComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('devrait afficher les informations de l\'éditeur correctement', () => {
-    expect(component.editor.name).toBe('Tom Walker');
-    expect(component.editor.status).toBe('Éditeur personne physique');
-    expect(component.editor.email).toBe('tom1997walker@gmail.com');
+  it("devrait afficher les informations de l'éditeur correctement", () => {
+    expect(component.editor.name).toBe('Serenia');
+    expect(component.editor.status).toBe('Éditeur personne morale');
+    expect(component.editor.email).toBe('contact@serenia.studio');
   });
 
   it('devrait afficher les informations du directeur de publication correctement', () => {
-    expect(component.publicationDirector.name).toBe('Tom Walker');
+    expect(component.publicationDirector.name).toBe('Serenia');
   });
 
-  it('devrait afficher les informations de l\'hébergeur correctement', () => {
+  it("devrait afficher les informations de l'hébergeur correctement", () => {
     expect(component.hosting.name).toBe('OVH');
     expect(component.hosting.website).toBe('https://www.ovh.com');
   });
@@ -45,18 +45,18 @@ describe('LegalNoticesComponent', () => {
     expect(titleElement.textContent).toContain('Mentions Légales');
   });
 
-  it('devrait afficher le nom de l\'éditeur dans le template', () => {
+  it("devrait afficher le nom de l'éditeur dans le template", () => {
     const editorNameElement = fixture.nativeElement.querySelector('.legal-info');
-    expect(editorNameElement.textContent).toContain('Tom Walker');
+    expect(editorNameElement.textContent).toContain('Serenia');
   });
 
-  it('devrait afficher un lien mailto pour l\'email de l\'éditeur', () => {
+  it("devrait afficher un lien mailto pour l'email de l'éditeur", () => {
     const emailLink = fixture.nativeElement.querySelector('a[href^="mailto:"]');
     expect(emailLink).toBeTruthy();
-    expect(emailLink.getAttribute('href')).toBe('mailto:tom1997walker@gmail.com');
+    expect(emailLink.getAttribute('href')).toBe('mailto:contact@serenia.studio');
   });
 
-  it('devrait afficher un lien vers le site d\'OVH', () => {
+  it("devrait afficher un lien vers le site d'OVH", () => {
     const ovhLink = fixture.nativeElement.querySelector('a[href="https://www.ovh.com"]');
     expect(ovhLink).toBeTruthy();
   });
@@ -66,4 +66,3 @@ describe('LegalNoticesComponent', () => {
     expect(componentMetadata.standalone).toBe(true);
   });
 });
-

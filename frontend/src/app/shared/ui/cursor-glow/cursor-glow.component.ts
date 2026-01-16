@@ -6,15 +6,15 @@ import {
   OnDestroy,
   OnInit,
   PLATFORM_ID,
-  signal
+  signal,
 } from '@angular/core';
-import {isPlatformBrowser} from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 
 @Component({
   selector: 'app-cursor-glow',
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './cursor-glow.component.html',
-  styleUrl: './cursor-glow.component.css'
+  styleUrl: './cursor-glow.component.css',
 })
 export class CursorGlowComponent implements OnInit, OnDestroy {
   private readonly ngZone = inject(NgZone);
@@ -29,7 +29,7 @@ export class CursorGlowComponent implements OnInit, OnDestroy {
   private targetY = 0;
   private currentX = 0;
   private currentY = 0;
-  private readonly smoothing = 0.10;
+  private readonly smoothing = 0.1;
 
   private boundMouseMove = this.onMouseMove.bind(this);
   private boundMouseLeave = this.onMouseLeave.bind(this);
@@ -85,4 +85,3 @@ export class CursorGlowComponent implements OnInit, OnDestroy {
     this.animationFrameId = requestAnimationFrame(() => this.animate());
   }
 }
-

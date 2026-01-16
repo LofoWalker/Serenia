@@ -6,8 +6,8 @@ import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 import lombok.extern.slf4j.Slf4j;
 /**
- * Handler pour les exceptions de quota dépassé.
- * Retourne un status 429 avec les détails du quota.
+ * Handler for quota exceeded exceptions.
+ * Returns a 429 status with quota details.
  */
 @Slf4j
 @Provider

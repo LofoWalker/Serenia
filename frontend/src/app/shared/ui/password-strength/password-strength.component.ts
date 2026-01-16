@@ -1,10 +1,13 @@
-import {ChangeDetectionStrategy, Component, computed, input} from '@angular/core';
-import {checkPasswordCriteria, PasswordValidationResult} from '../../../core/validators/password.validator';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import {
+  checkPasswordCriteria,
+  PasswordValidationResult,
+} from '../../../core/validators/password.validator';
 
 @Component({
   selector: 'app-password-strength',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './password-strength.component.html'
+  templateUrl: './password-strength.component.html',
 })
 export class PasswordStrengthComponent {
   readonly password = input<string>('');
@@ -40,4 +43,3 @@ export class PasswordStrengthComponent {
     return 'Fort';
   });
 }
-

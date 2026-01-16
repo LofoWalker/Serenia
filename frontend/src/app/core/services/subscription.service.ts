@@ -1,6 +1,6 @@
-import {computed, inject, Injectable, signal} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {catchError, finalize, Observable, tap, throwError} from 'rxjs';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { catchError, finalize, Observable, tap, throwError } from 'rxjs';
 import {
   ChangePlanRequestDTO,
   CheckoutRequestDTO,
@@ -8,12 +8,12 @@ import {
   PlanDTO,
   PlanType,
   PortalSessionDTO,
-  SubscriptionStatusDTO
+  SubscriptionStatusDTO,
 } from '../models/subscription.model';
-import {environment} from '../../../environments/environment';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SubscriptionService {
   private readonly http = inject(HttpClient);
@@ -42,7 +42,7 @@ export class SubscriptionService {
 
   readonly currentPlanConfig = computed(() => {
     const planName = this.planName();
-    return this.plansSignal().find(p => p.type === planName);
+    return this.plansSignal().find((p) => p.type === planName);
   });
 
   readonly tokensUsagePercent = computed(() => {
@@ -68,7 +68,9 @@ export class SubscriptionService {
 
   // Stripe computed signals
   readonly subscriptionStatus = computed(() => this.statusSignal()?.status ?? 'ACTIVE');
-  readonly hasStripeSubscription = computed(() => this.statusSignal()?.hasStripeSubscription ?? false);
+  readonly hasStripeSubscription = computed(
+    () => this.statusSignal()?.hasStripeSubscription ?? false,
+  );
   readonly cancelAtPeriodEnd = computed(() => this.statusSignal()?.cancelAtPeriodEnd ?? false);
   readonly currentPeriodEnd = computed(() => this.statusSignal()?.currentPeriodEnd ?? null);
   readonly priceCents = computed(() => this.statusSignal()?.priceCents ?? 0);
@@ -102,12 +104,12 @@ export class SubscriptionService {
     this.loadingPlansSignal.set(true);
 
     return this.http.get<PlanDTO[]>(`${this.apiUrl}/plans`).pipe(
-      tap(plans => this.plansSignal.set(plans)),
-      catchError(error => {
+      tap((plans) => this.plansSignal.set(plans)),
+      catchError((error) => {
         this.errorSignal.set('Impossible de charger les plans');
         return throwError(() => error);
       }),
-      finalize(() => this.loadingPlansSignal.set(false))
+      finalize(() => this.loadingPlansSignal.set(false)),
     );
   }
 
@@ -119,12 +121,12 @@ export class SubscriptionService {
     this.errorSignal.set(null);
 
     return this.http.get<SubscriptionStatusDTO>(`${this.apiUrl}/status`).pipe(
-      tap(status => this.statusSignal.set(status)),
-      catchError(error => {
-        this.errorSignal.set('Impossible de charger le statut de l\'abonnement');
+      tap((status) => this.statusSignal.set(status)),
+      catchError((error) => {
+        this.errorSignal.set("Impossible de charger le statut de l'abonnement");
         return throwError(() => error);
       }),
-      finalize(() => this.loadingSignal.set(false))
+      finalize(() => this.loadingSignal.set(false)),
     );
   }
 
@@ -138,12 +140,12 @@ export class SubscriptionService {
     const request: ChangePlanRequestDTO = { planType };
 
     return this.http.put<SubscriptionStatusDTO>(`${this.apiUrl}/plan`, request).pipe(
-      tap(status => this.statusSignal.set(status)),
-      catchError(error => {
+      tap((status) => this.statusSignal.set(status)),
+      catchError((error) => {
         this.errorSignal.set('Impossible de changer de plan');
         return throwError(() => error);
       }),
-      finalize(() => this.loadingSignal.set(false))
+      finalize(() => this.loadingSignal.set(false)),
     );
   }
 
@@ -158,19 +160,19 @@ export class SubscriptionService {
     const request: CheckoutRequestDTO = { planType };
 
     return this.http.post<CheckoutSessionDTO>(`${this.apiUrl}/checkout`, request).pipe(
-      tap(session => {
+      tap((session) => {
         setTimeout(() => {
           window.location.href = session.url;
         }, 100);
       }),
-      catchError(error => {
+      catchError((error) => {
         this.errorSignal.set('Impossible de créer la session de paiement');
         this.loadingCheckoutSignal.set(false);
         return throwError(() => error);
       }),
       finalize(() => {
         setTimeout(() => this.loadingCheckoutSignal.set(false), 3000);
-      })
+      }),
     );
   }
 
@@ -183,19 +185,19 @@ export class SubscriptionService {
     this.errorSignal.set(null);
 
     return this.http.post<PortalSessionDTO>(`${this.apiUrl}/portal`, {}).pipe(
-      tap(session => {
+      tap((session) => {
         setTimeout(() => {
           window.location.href = session.url;
         }, 100);
       }),
-      catchError(error => {
-        this.errorSignal.set('Impossible d\'ouvrir le portail de gestion');
+      catchError((error) => {
+        this.errorSignal.set("Impossible d'ouvrir le portail de gestion");
         this.loadingPortalSignal.set(false);
         return throwError(() => error);
       }),
       finalize(() => {
         setTimeout(() => this.loadingPortalSignal.set(false), 3000);
-      })
+      }),
     );
   }
 
@@ -214,4 +216,3 @@ export class SubscriptionService {
     this.errorSignal.set(null);
   }
 }
-

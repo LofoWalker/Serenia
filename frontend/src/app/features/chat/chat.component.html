@@ -1,9 +1,5 @@
 <div class="h-[calc(100vh-4rem)] flex flex-col bg-primary-950">
-  <div
-    #messagesContainer
-    class="flex-1 overflow-y-auto py-6 scrollbar-thin"
-    (scroll)="onScroll()"
-  >
+  <div #messagesContainer class="flex-1 overflow-y-auto py-6 scrollbar-thin" (scroll)="onScroll()">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       @if (!chatService.hasMessages()) {
         <div role="log" aria-live="polite" aria-label="Messages de la conversation">
@@ -21,14 +17,34 @@
               >
                 @if (chatService.loadingMore()) {
                   <span class="flex items-center gap-2">
-                    <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg
+                      class="animate-spin h-4 w-4"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                      ></circle>
+                      <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
                     Chargement...
                   </span>
                 } @else {
-                  Charger les messages précédents ({{ chatService.totalMessages() - chatService.messages().length }} restants)
+                  Charger les messages précédents ({{
+                    chatService.totalMessages() - chatService.messages().length
+                  }}
+                  restants)
                 }
               </button>
             </div>
@@ -40,11 +56,22 @@
 
           @if (chatService.loading()) {
             <div class="flex justify-start mb-4">
-              <div class="bg-primary-800 border border-primary-700 px-4 py-3 rounded-2xl rounded-bl-md">
+              <div
+                class="bg-primary-800 border border-primary-700 px-4 py-3 rounded-2xl rounded-bl-md"
+              >
                 <div class="flex items-center gap-1" aria-label="Serenia est en train de répondre">
-                  <span class="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style="animation-delay: 0ms"></span>
-                  <span class="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style="animation-delay: 150ms"></span>
-                  <span class="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style="animation-delay: 300ms"></span>
+                  <span
+                    class="w-2 h-2 bg-primary-400 rounded-full animate-bounce"
+                    style="animation-delay: 0ms"
+                  ></span>
+                  <span
+                    class="w-2 h-2 bg-primary-400 rounded-full animate-bounce"
+                    style="animation-delay: 150ms"
+                  ></span>
+                  <span
+                    class="w-2 h-2 bg-primary-400 rounded-full animate-bounce"
+                    style="animation-delay: 300ms"
+                  ></span>
                 </div>
               </div>
             </div>
@@ -57,11 +84,7 @@
           <app-alert type="error" [message]="errorMessage()" />
           @if (quotaError()) {
             <div class="mt-3 flex justify-center">
-              <app-button
-                variant="primary"
-                size="sm"
-                (clicked)="goToProfile()"
-              >
+              <app-button variant="primary" size="sm" (clicked)="goToProfile()">
                 Changer de plan
               </app-button>
             </div>
@@ -76,23 +99,33 @@
       <!-- Indicateur de messages restants (seulement si < 20) -->
       @if (subscriptionService.status(); as status) {
         @if (status.messagesRemainingToday < 20) {
-          <div class="text-xs text-center mb-2"
-               [class.text-primary-500]="status.messagesRemainingToday > 2"
-               [class.text-yellow-500]="status.messagesRemainingToday <= 2 && status.messagesRemainingToday > 0"
-               [class.text-red-400]="status.messagesRemainingToday === 0">
+          <div
+            class="text-xs text-center mb-2"
+            [class.text-primary-500]="status.messagesRemainingToday > 2"
+            [class.text-yellow-500]="
+              status.messagesRemainingToday <= 2 && status.messagesRemainingToday > 0
+            "
+            [class.text-red-400]="status.messagesRemainingToday === 0"
+          >
             @if (status.messagesRemainingToday === 0) {
-              <span>Aucun message restant aujourd'hui - <a routerLink="/profile" class="underline hover:text-red-300">Changer de plan</a></span>
+              <span
+                >Aucun message restant aujourd'hui -
+                <a routerLink="/profile" class="underline hover:text-red-300"
+                  >Changer de plan</a
+                ></span
+              >
             } @else {
-              <span>{{ status.messagesRemainingToday }} message{{ status.messagesRemainingToday > 1 ? 's' : '' }} restant{{ status.messagesRemainingToday > 1 ? 's' : '' }} aujourd'hui</span>
+              <span
+                >{{ status.messagesRemainingToday }} message{{
+                  status.messagesRemainingToday > 1 ? 's' : ''
+                }}
+                restant{{ status.messagesRemainingToday > 1 ? 's' : '' }} aujourd'hui</span
+              >
             }
           </div>
         }
       }
-      <app-chat-input
-        #chatInput
-        (messageSent)="onSendMessage($event)"
-      />
+      <app-chat-input #chatInput (messageSent)="onSendMessage($event)" />
     </div>
   </div>
 </div>
-

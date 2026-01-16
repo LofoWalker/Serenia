@@ -4,7 +4,9 @@
 
     @if (loading()) {
       <div class="flex justify-center items-center h-64">
-        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-400"></div>
+        <div
+          class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-400"
+        ></div>
       </div>
     } @else if (dashboard(); as data) {
       <!-- Stats Cards -->
@@ -14,11 +16,19 @@
           <h3 class="text-primary-300 text-sm font-medium mb-2">Utilisateurs</h3>
           <p class="text-3xl font-bold text-white">{{ data.users.totalUsers }}</p>
           <div class="mt-4 space-y-1 text-sm">
-            <p class="text-primary-400">Activés: <span class="text-white">{{ data.users.activatedUsers }}</span></p>
+            <p class="text-primary-400">
+              Activés: <span class="text-white">{{ data.users.activatedUsers }}</span>
+            </p>
             <div class="flex gap-3 text-primary-400">
-              <span>FREE: <span class="text-green-400">{{ data.users.freeUsers }}</span></span>
-              <span>PLUS: <span class="text-blue-400">{{ data.users.plusUsers }}</span></span>
-              <span>MAX: <span class="text-purple-400">{{ data.users.maxUsers }}</span></span>
+              <span
+                >FREE: <span class="text-green-400">{{ data.users.freeUsers }}</span></span
+              >
+              <span
+                >PLUS: <span class="text-blue-400">{{ data.users.plusUsers }}</span></span
+              >
+              <span
+                >MAX: <span class="text-purple-400">{{ data.users.maxUsers }}</span></span
+              >
             </div>
           </div>
         </div>
@@ -28,8 +38,13 @@
           <h3 class="text-primary-300 text-sm font-medium mb-2">Messages (USER)</h3>
           <p class="text-3xl font-bold text-white">{{ data.messages.totalUserMessages }}</p>
           <div class="mt-4 space-y-1 text-sm text-primary-400">
-            <p>Aujourd'hui: <span class="text-white">{{ data.messages.messagesToday }}</span></p>
-            <p>7 derniers jours: <span class="text-white">{{ data.messages.messagesLast7Days }}</span></p>
+            <p>
+              Aujourd'hui: <span class="text-white">{{ data.messages.messagesToday }}</span>
+            </p>
+            <p>
+              7 derniers jours:
+              <span class="text-white">{{ data.messages.messagesLast7Days }}</span>
+            </p>
           </div>
         </div>
 
@@ -39,18 +54,29 @@
           <p class="text-3xl font-bold text-white">{{ data.engagement.activeUsers }}</p>
           <p class="text-primary-400 text-xs">utilisateurs actifs</p>
           <div class="mt-4 space-y-1 text-sm text-primary-400">
-            <p>Taux d'activation: <span class="text-white">{{ data.engagement.activationRate }}%</span></p>
-            <p>Msg/utilisateur: <span class="text-white">{{ data.engagement.avgMessagesPerUser }}</span></p>
+            <p>
+              Taux d'activation:
+              <span class="text-white">{{ data.engagement.activationRate }}%</span>
+            </p>
+            <p>
+              Msg/utilisateur:
+              <span class="text-white">{{ data.engagement.avgMessagesPerUser }}</span>
+            </p>
           </div>
         </div>
 
         <!-- Revenue Card -->
         <div class="bg-primary-800/50 rounded-xl p-6 border border-primary-700">
           <h3 class="text-primary-300 text-sm font-medium mb-2">Abonnements</h3>
-          <p class="text-3xl font-bold text-white">{{ formatCurrency(data.subscriptions.estimatedRevenueCents) }}</p>
+          <p class="text-3xl font-bold text-white">
+            {{ formatCurrency(data.subscriptions.estimatedRevenueCents) }}
+          </p>
           <p class="text-primary-400 text-xs">revenu mensuel estimé</p>
           <div class="mt-4 text-sm text-primary-400">
-            <p>Tokens consommés: <span class="text-white">{{ data.subscriptions.totalTokensConsumed | number }}</span></p>
+            <p>
+              Tokens consommés:
+              <span class="text-white">{{ data.subscriptions.totalTokensConsumed | number }}</span>
+            </p>
           </div>
         </div>
       </div>
@@ -80,17 +106,21 @@
             <div class="flex bg-primary-900 rounded-lg p-1">
               <button
                 (click)="selectMetric('messages')"
-                [class]="selectedMetric() === 'messages'
-                  ? 'px-3 py-1 rounded-md text-sm bg-primary-700 text-white'
-                  : 'px-3 py-1 rounded-md text-sm text-primary-400 hover:text-white'"
+                [class]="
+                  selectedMetric() === 'messages'
+                    ? 'px-3 py-1 rounded-md text-sm bg-primary-700 text-white'
+                    : 'px-3 py-1 rounded-md text-sm text-primary-400 hover:text-white'
+                "
               >
                 Messages
               </button>
               <button
                 (click)="selectMetric('users')"
-                [class]="selectedMetric() === 'users'
-                  ? 'px-3 py-1 rounded-md text-sm bg-primary-700 text-white'
-                  : 'px-3 py-1 rounded-md text-sm text-primary-400 hover:text-white'"
+                [class]="
+                  selectedMetric() === 'users'
+                    ? 'px-3 py-1 rounded-md text-sm bg-primary-700 text-white'
+                    : 'px-3 py-1 rounded-md text-sm text-primary-400 hover:text-white'
+                "
               >
                 Utilisateurs
               </button>
@@ -100,17 +130,21 @@
             <div class="flex bg-primary-900 rounded-lg p-1">
               <button
                 (click)="selectDays(7)"
-                [class]="selectedDays() === 7
-                  ? 'px-3 py-1 rounded-md text-sm bg-primary-700 text-white'
-                  : 'px-3 py-1 rounded-md text-sm text-primary-400 hover:text-white'"
+                [class]="
+                  selectedDays() === 7
+                    ? 'px-3 py-1 rounded-md text-sm bg-primary-700 text-white'
+                    : 'px-3 py-1 rounded-md text-sm text-primary-400 hover:text-white'
+                "
               >
                 7 jours
               </button>
               <button
                 (click)="selectDays(30)"
-                [class]="selectedDays() === 30
-                  ? 'px-3 py-1 rounded-md text-sm bg-primary-700 text-white'
-                  : 'px-3 py-1 rounded-md text-sm text-primary-400 hover:text-white'"
+                [class]="
+                  selectedDays() === 30
+                    ? 'px-3 py-1 rounded-md text-sm bg-primary-700 text-white'
+                    : 'px-3 py-1 rounded-md text-sm text-primary-400 hover:text-white'
+                "
               >
                 30 jours
               </button>
@@ -152,7 +186,9 @@
             <div class="mt-4 p-4 bg-primary-900 rounded-lg border border-primary-600">
               <div class="flex justify-between items-start mb-3">
                 <h4 class="text-white font-medium">{{ user.firstName }} {{ user.lastName }}</h4>
-                <button (click)="closeUserDetail()" class="text-primary-400 hover:text-white">✕</button>
+                <button (click)="closeUserDetail()" class="text-primary-400 hover:text-white">
+                  ✕
+                </button>
               </div>
               <div class="grid grid-cols-2 gap-2 text-sm">
                 <p class="text-primary-400">Email:</p>
@@ -160,13 +196,23 @@
                 <p class="text-primary-400">Rôle:</p>
                 <p class="text-white">{{ user.role }}</p>
                 <p class="text-primary-400">Plan:</p>
-                <p [class]="user.planType === 'FREE' ? 'text-green-400' : user.planType === 'PLUS' ? 'text-blue-400' : 'text-purple-400'">
+                <p
+                  [class]="
+                    user.planType === 'FREE'
+                      ? 'text-green-400'
+                      : user.planType === 'PLUS'
+                        ? 'text-blue-400'
+                        : 'text-purple-400'
+                  "
+                >
                   {{ user.planType }}
                 </p>
                 <p class="text-primary-400">Activé:</p>
-                <p [class]="user.activated ? 'text-green-400' : 'text-red-400'">{{ user.activated ? 'Oui' : 'Non' }}</p>
+                <p [class]="user.activated ? 'text-green-400' : 'text-red-400'">
+                  {{ user.activated ? 'Oui' : 'Non' }}
+                </p>
                 <p class="text-primary-400">Inscrit le:</p>
-                <p class="text-white">{{ user.createdAt | date:'dd/MM/yyyy' }}</p>
+                <p class="text-white">{{ user.createdAt | date: 'dd/MM/yyyy' }}</p>
                 <p class="text-primary-400">Messages envoyés:</p>
                 <p class="text-white">{{ user.messageCount }}</p>
                 <p class="text-primary-400">Tokens ce mois:</p>
@@ -198,7 +244,16 @@
                       class="border-b border-primary-800 hover:bg-primary-700/30 cursor-pointer transition-colors"
                     >
                       <td class="py-2 text-white truncate max-w-[200px]">{{ user.email }}</td>
-                      <td class="py-2" [class]="user.planType === 'FREE' ? 'text-green-400' : user.planType === 'PLUS' ? 'text-blue-400' : 'text-purple-400'">
+                      <td
+                        class="py-2"
+                        [class]="
+                          user.planType === 'FREE'
+                            ? 'text-green-400'
+                            : user.planType === 'PLUS'
+                              ? 'text-blue-400'
+                              : 'text-purple-400'
+                        "
+                      >
                         {{ user.planType }}
                       </td>
                       <td class="py-2 text-right text-white">{{ user.messageCount }}</td>
@@ -210,7 +265,10 @@
             <!-- Pagination -->
             <div class="flex justify-between items-center mt-4">
               <p class="text-primary-400 text-sm">
-                {{ currentPage() * pageSize + 1 }}-{{ Math.min((currentPage() + 1) * pageSize, list.totalCount) }} sur {{ list.totalCount }}
+                {{ currentPage() * pageSize + 1 }}-{{
+                  Math.min((currentPage() + 1) * pageSize, list.totalCount)
+                }}
+                sur {{ list.totalCount }}
               </p>
               <div class="flex gap-2">
                 <button
@@ -235,4 +293,3 @@
     }
   </div>
 </div>
-

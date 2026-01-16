@@ -1,22 +1,35 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
-import {AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators} from '@angular/forms';
-import {ActivatedRoute, Router, RouterLink} from '@angular/router';
-import {HttpErrorResponse} from '@angular/common/http';
-import {catchError, EMPTY, take, tap} from 'rxjs';
-import {AuthService} from '../../../core/services/auth.service';
-import {AuthStateService} from '../../../core/services/auth-state.service';
-import {ButtonComponent} from '../../../shared/ui/button/button.component';
-import {InputComponent} from '../../../shared/ui/input/input.component';
-import {AlertComponent} from '../../../shared/ui/alert/alert.component';
-import {PasswordStrengthComponent} from '../../../shared/ui/password-strength/password-strength.component';
-import {passwordValidator} from '../../../core/validators/password.validator';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { catchError, EMPTY, take, tap } from 'rxjs';
+import { AuthService } from '../../../core/services/auth.service';
+import { AuthStateService } from '../../../core/services/auth-state.service';
+import { ButtonComponent } from '../../../shared/ui/button/button.component';
+import { InputComponent } from '../../../shared/ui/input/input.component';
+import { AlertComponent } from '../../../shared/ui/alert/alert.component';
+import { PasswordStrengthComponent } from '../../../shared/ui/password-strength/password-strength.component';
+import { passwordValidator } from '../../../core/validators/password.validator';
 
 @Component({
   selector: 'app-reset-password',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink, ButtonComponent, InputComponent, AlertComponent, PasswordStrengthComponent],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    ButtonComponent,
+    InputComponent,
+    AlertComponent,
+    PasswordStrengthComponent,
+  ],
   templateUrl: './reset-password.component.html',
-  styleUrl: './reset-password.component.css'
+  styleUrl: './reset-password.component.css',
 })
 export class ResetPasswordComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
@@ -29,12 +42,15 @@ export class ResetPasswordComponent implements OnInit {
   protected readonly tokenMissing = signal(false);
   private token = '';
 
-  protected readonly form = this.fb.nonNullable.group({
-    newPassword: ['', [Validators.required, passwordValidator()]],
-    confirmPassword: ['', [Validators.required]]
-  }, {
-    validators: [this.passwordMatchValidator]
-  });
+  protected readonly form = this.fb.nonNullable.group(
+    {
+      newPassword: ['', [Validators.required, passwordValidator()]],
+      confirmPassword: ['', [Validators.required]],
+    },
+    {
+      validators: [this.passwordMatchValidator],
+    },
+  );
 
   protected get passwordValue(): string {
     return this.form.get('newPassword')?.value || '';
@@ -50,14 +66,14 @@ export class ResetPasswordComponent implements OnInit {
   private passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
     const password = control.get('newPassword')?.value;
     const confirm = control.get('confirmPassword')?.value;
-    return password === confirm ? null : {passwordMismatch: true};
+    return password === confirm ? null : { passwordMismatch: true };
   }
 
   protected getFieldError(field: 'newPassword' | 'confirmPassword'): string {
     const control = this.form.get(field);
     if (!control?.touched || !control.errors) return '';
     if (control.errors['required']) return 'Ce champ est requis';
-    if (control.errors['passwordPolicy']) return '';  // Géré par le composant password-strength
+    if (control.errors['passwordPolicy']) return ''; // Géré par le composant password-strength
     return '';
   }
 
@@ -74,23 +90,27 @@ export class ResetPasswordComponent implements OnInit {
       return;
     }
     this.errorMessage.set('');
-    this.authService.resetPassword({
-      token: this.token,
-      newPassword: this.form.getRawValue().newPassword
-    }).pipe(
-      take(1),
-      tap(response => {
-        this.successMessage.set(response.message);
-      }),
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 400) {
-          this.errorMessage.set('Le lien de réinitialisation est invalide ou a expiré. Veuillez refaire une demande.');
-        } else {
-          this.errorMessage.set('Une erreur est survenue. Veuillez réessayer.');
-        }
-        return EMPTY;
+    this.authService
+      .resetPassword({
+        token: this.token,
+        newPassword: this.form.getRawValue().newPassword,
       })
-    ).subscribe();
+      .pipe(
+        take(1),
+        tap((response) => {
+          this.successMessage.set(response.message);
+        }),
+        catchError((error: HttpErrorResponse) => {
+          if (error.status === 400) {
+            this.errorMessage.set(
+              'Le lien de réinitialisation est invalide ou a expiré. Veuillez refaire une demande.',
+            );
+          } else {
+            this.errorMessage.set('Une erreur est survenue. Veuillez réessayer.');
+          }
+          return EMPTY;
+        }),
+      )
+      .subscribe();
   }
 }
-

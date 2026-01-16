@@ -13,7 +13,7 @@ describe('TermsOfServiceComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TermsOfServiceComponent]
+      imports: [TermsOfServiceComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TermsOfServiceComponent);
@@ -54,7 +54,7 @@ describe('TermsOfServiceComponent', () => {
 
   it('devrait afficher le titre "Conditions Générales d\'Utilisation" dans le template', () => {
     const titleElement = fixture.nativeElement.querySelector('.terms-header h1');
-    expect(titleElement.textContent).toContain('Conditions Générales d\'Utilisation');
+    expect(titleElement.textContent).toContain("Conditions Générales d'Utilisation");
   });
 
   it('devrait afficher le numéro de crise dans le template', () => {
@@ -81,7 +81,7 @@ describe('TermsOfServiceComponent', () => {
   it('devrait contenir un lien mailto pour le contact', () => {
     const emailLink = fixture.nativeElement.querySelector('a[href^="mailto:"]');
     expect(emailLink).toBeTruthy();
-    expect(emailLink.textContent).toContain('tom1997walker@gmail.com');
+    expect(emailLink.textContent).toContain('contact@serenia.studio');
   });
 
   it('devrait afficher un avertissement sur la non-conformité médicale', () => {
@@ -90,10 +90,9 @@ describe('TermsOfServiceComponent', () => {
     expect(warningSection.textContent).toContain('Important');
   });
 
-  it('devrait afficher une section de crise avec informations d\'urgence', () => {
+  it("devrait afficher une section de crise avec informations d'urgence", () => {
     const crisisSection = fixture.nativeElement.querySelector('.terms-crisis');
     expect(crisisSection).toBeTruthy();
     expect(crisisSection.textContent).toContain('3114');
   });
 });
-

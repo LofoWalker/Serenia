@@ -5,7 +5,7 @@ import { Dashboard, Timeline, UserList, UserDetail } from '../models/admin.model
 import { environment } from '../../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AdminService {
   private readonly http = inject(HttpClient);
@@ -20,20 +20,20 @@ export class AdminService {
   loadDashboard(): Observable<Dashboard> {
     this.loadingSignal.set(true);
     return this.http.get<Dashboard>(`${this.apiUrl}/dashboard`).pipe(
-      tap(data => this.dashboardSignal.set(data)),
-      finalize(() => this.loadingSignal.set(false))
+      tap((data) => this.dashboardSignal.set(data)),
+      finalize(() => this.loadingSignal.set(false)),
     );
   }
 
   getTimeline(metric: string, days: number): Observable<Timeline> {
     return this.http.get<Timeline>(`${this.apiUrl}/timeline`, {
-      params: { metric, days: days.toString() }
+      params: { metric, days: days.toString() },
     });
   }
 
   getUsers(page: number = 0, size: number = 20): Observable<UserList> {
     return this.http.get<UserList>(`${this.apiUrl}/users`, {
-      params: { page: page.toString(), size: size.toString() }
+      params: { page: page.toString(), size: size.toString() },
     });
   }
 
@@ -41,4 +41,3 @@ export class AdminService {
     return this.http.get<UserDetail>(`${this.apiUrl}/users/${encodeURIComponent(email)}`);
   }
 }
-

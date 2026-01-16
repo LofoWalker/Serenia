@@ -6,7 +6,7 @@ import {
   ElementRef,
   viewChild,
   effect,
-  AfterViewInit
+  AfterViewInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -20,7 +20,7 @@ Chart.register(...registerables);
   selector: 'app-admin-dashboard',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './admin-dashboard.component.html'
+  templateUrl: './admin-dashboard.component.html',
 })
 export class AdminDashboardComponent implements OnInit, AfterViewInit {
   private readonly adminService = inject(AdminService);
@@ -54,11 +54,11 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.adminService.loadDashboard().subscribe({
-      next: data => {
+      next: (data) => {
         this.dashboard.set(data);
         this.loading.set(false);
       },
-      error: () => this.loading.set(false)
+      error: () => this.loading.set(false),
     });
     this.loadUsers();
   }
@@ -78,7 +78,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
 
   loadUsers(): void {
     this.adminService.getUsers(this.currentPage(), this.pageSize).subscribe({
-      next: data => this.userList.set(data)
+      next: (data) => this.userList.set(data),
     });
   }
 
@@ -103,11 +103,11 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
 
     this.searchError.set(null);
     this.adminService.getUserByEmail(email).subscribe({
-      next: user => this.selectedUser.set(user),
+      next: (user) => this.selectedUser.set(user),
       error: () => {
         this.searchError.set('Utilisateur non trouvé');
         this.selectedUser.set(null);
-      }
+      },
     });
   }
 
@@ -122,11 +122,11 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
 
   private loadTimeline(metric: string, days: number): void {
     this.adminService.getTimeline(metric, days).subscribe({
-      next: timeline => this.renderChart(timeline),
+      next: (timeline) => this.renderChart(timeline),
       error: (err) => {
         console.error('Failed to load timeline data', err);
         alert('Impossible de charger les statistiques. Veuillez réessayer plus tard.');
-      }
+      },
     });
   }
 
@@ -138,35 +138,37 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
       this.chart.destroy();
     }
 
-    const labels = timeline.data.map(d => this.formatDate(d.date));
-    const values = timeline.data.map(d => d.value);
+    const labels = timeline.data.map((d) => this.formatDate(d.date));
+    const values = timeline.data.map((d) => d.value);
 
     this.chart = new Chart(canvas, {
       type: 'line',
       data: {
         labels,
-        datasets: [{
-          label: timeline.metric === 'users' ? 'Nouveaux utilisateurs' : 'Messages',
-          data: values,
-          borderColor: '#8b5cf6',
-          backgroundColor: 'rgba(139, 92, 246, 0.1)',
-          fill: true,
-          tension: 0.3
-        }]
+        datasets: [
+          {
+            label: timeline.metric === 'users' ? 'Nouveaux utilisateurs' : 'Messages',
+            data: values,
+            borderColor: '#8b5cf6',
+            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+            fill: true,
+            tension: 0.3,
+          },
+        ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { display: false }
+          legend: { display: false },
         },
         scales: {
           y: {
             beginAtZero: true,
-            ticks: { precision: 0 }
-          }
-        }
-      }
+            ticks: { precision: 0 },
+          },
+        },
+      },
     });
   }
 
@@ -179,4 +181,3 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
     return (cents / 100).toFixed(2) + ' €';
   }
 }
-

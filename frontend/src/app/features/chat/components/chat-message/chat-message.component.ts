@@ -1,13 +1,13 @@
-import {ChangeDetectionStrategy, Component, computed, input} from '@angular/core';
-import {DatePipe} from '@angular/common';
-import {ChatMessage} from '../../../../core/models/chat.model';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { ChatMessage } from '../../../../core/models/chat.model';
 
 @Component({
   selector: 'app-chat-message',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DatePipe],
   templateUrl: './chat-message.component.html',
-  styleUrl: './chat-message.component.css'
+  styleUrl: './chat-message.component.css',
 })
 export class ChatMessageComponent {
   readonly message = input.required<ChatMessage>();
