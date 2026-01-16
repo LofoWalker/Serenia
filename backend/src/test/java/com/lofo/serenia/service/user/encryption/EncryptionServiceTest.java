@@ -11,7 +11,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.UUID;
 
@@ -239,7 +246,7 @@ class EncryptionServiceTest {
             byte[] tooShort = new byte[11]; // Less than IV length (12)
             EncryptionException exception = assertThrows(EncryptionException.class,
                     () -> encryptionService.decryptForUser(TEST_USER_ID, tooShort));
-            assertEquals("Invalid encrypted data: too short to contain IV", exception.getMessage());
+            assertEquals("Invalid encrypted data: too short", exception.getMessage());
         }
 
         @Test
@@ -248,7 +255,7 @@ class EncryptionServiceTest {
             byte[] exactIvLength = new byte[12];
             EncryptionException exception = assertThrows(EncryptionException.class,
                     () -> encryptionService.decryptForUser(TEST_USER_ID, exactIvLength));
-            assertEquals("Invalid encrypted data: too short to contain IV", exception.getMessage());
+            assertEquals("Invalid encrypted data: too short", exception.getMessage());
         }
 
         @Test
@@ -484,6 +491,204 @@ class EncryptionServiceTest {
             byte[] encrypted = service.encryptForUser(TEST_USER_ID, TEST_PLAINTEXT);
             String decrypted = service.decryptForUser(TEST_USER_ID, encrypted);
             assertEquals(TEST_PLAINTEXT, decrypted);
+        }
+    }
+
+    @Nested
+    @DisplayName("Per-User HKDF Isolation Tests")
+    class PerUserHkdfIsolationTests {
+
+        private static final UUID USER_A = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
+        private static final UUID USER_B = UUID.fromString("660e8400-e29b-41d4-a716-446655440001");
+
+        @Test
+        @DisplayName("User A cannot decrypt User B's messages")
+        void userACannotDecryptUserBMessages() {
+            String message = "Secret message for User B";
+
+            byte[] encryptedForB = encryptionService.encryptForUser(USER_B, message);
+
+            assertThrows(EncryptionException.class, () ->
+                    encryptionService.decryptForUser(USER_A, encryptedForB),
+                    "Decryption with wrong user key should fail"
+            );
+        }
+
+        @Test
+        @DisplayName("Same message encrypted differently for different users")
+        void sameMessageEncryptedDifferentlyForDifferentUsers() {
+            String message = "Hello World";
+
+            byte[] encryptedForA = encryptionService.encryptForUser(USER_A, message);
+            byte[] encryptedForB = encryptionService.encryptForUser(USER_B, message);
+
+            assertFalse(Arrays.equals(encryptedForA, encryptedForB),
+                    "Same plaintext should produce different ciphertext for different users");
+        }
+
+        @Test
+        @DisplayName("User can decrypt their own messages")
+        void userCanDecryptOwnMessages() {
+            String originalMessage = "My private message";
+
+            byte[] encrypted = encryptionService.encryptForUser(USER_A, originalMessage);
+            String decrypted = encryptionService.decryptForUser(USER_A, encrypted);
+
+            assertEquals(originalMessage, decrypted);
+        }
+
+        @Test
+        @DisplayName("Cross-user decryption fails with GCM authentication")
+        void crossUserDecryptionFailsWithGcmAuthentication() {
+            String message = "Confidential data";
+
+            byte[] encryptedForA = encryptionService.encryptForUser(USER_A, message);
+
+            EncryptionException exception = assertThrows(EncryptionException.class, () ->
+                    encryptionService.decryptForUser(USER_B, encryptedForA)
+            );
+
+            assertTrue(exception.getMessage().contains("Decryption failed"));
+        }
+    }
+
+    @Nested
+    @DisplayName("Versioned Payload Format Tests")
+    class VersionedPayloadFormatTests {
+
+        @Test
+        @DisplayName("New encryption produces versioned payload with version 0x01")
+        void newEncryptionProducesVersionedPayload() {
+            byte[] encrypted = encryptionService.encryptForUser(TEST_USER_ID, "test");
+
+            assertEquals(0x01, encrypted[0], "First byte should be version 0x01");
+        }
+
+        @Test
+        @DisplayName("Payload structure is correct: [version][iv][ciphertext]")
+        void payloadStructureIsCorrect() {
+            byte[] encrypted = encryptionService.encryptForUser(TEST_USER_ID, "test");
+
+            assertTrue(encrypted.length >= 1 + 12 + 1 + 16,
+                    "Payload should contain version (1) + IV (12) + ciphertext + auth tag (16)");
+        }
+
+        @Test
+        @DisplayName("Encrypted payload size increases by 1 byte for version")
+        void encryptedPayloadSizeIncreasesForVersion() {
+            String plaintext = "Test message";
+            byte[] encrypted = encryptionService.encryptForUser(TEST_USER_ID, plaintext);
+
+            int expectedMinSize = 1 + 12 + plaintext.getBytes(StandardCharsets.UTF_8).length + 16;
+            assertTrue(encrypted.length >= expectedMinSize,
+                    "Encrypted size should account for version byte");
+        }
+    }
+
+    @Nested
+    @DisplayName("Legacy Compatibility Tests")
+    class LegacyCompatibilityTests {
+
+        @Test
+        @DisplayName("Should decrypt legacy format (no version byte)")
+        void shouldDecryptLegacyFormat() throws Exception {
+            byte[] legacyEncrypted = createLegacyEncryptedData("Legacy message");
+
+            String decrypted = encryptionService.decryptForUser(TEST_USER_ID, legacyEncrypted);
+
+            assertEquals("Legacy message", decrypted);
+        }
+
+        @Test
+        @DisplayName("Should decrypt legacy format with special characters")
+        void shouldDecryptLegacyFormatWithSpecialCharacters() throws Exception {
+            String specialMessage = "Legacy with émojis 🔒 and üñîcödé";
+            byte[] legacyEncrypted = createLegacyEncryptedData(specialMessage);
+
+            String decrypted = encryptionService.decryptForUser(TEST_USER_ID, legacyEncrypted);
+
+            assertEquals(specialMessage, decrypted);
+        }
+
+        @Test
+        @DisplayName("Should decrypt legacy format with empty string")
+        void shouldDecryptLegacyFormatWithEmptyString() throws Exception {
+            byte[] legacyEncrypted = createLegacyEncryptedData("");
+
+            String decrypted = encryptionService.decryptForUser(TEST_USER_ID, legacyEncrypted);
+
+            assertEquals("", decrypted);
+        }
+
+        private byte[] createLegacyEncryptedData(String plaintext) throws Exception {
+            SecureRandom random = new SecureRandom();
+            byte[] iv = new byte[12];
+            random.nextBytes(iv);
+
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            byte[] masterKeyBytes = Base64.getDecoder().decode(VALID_BASE64_KEY_256);
+            SecretKey key = new SecretKeySpec(masterKeyBytes, "AES");
+            cipher.init(Cipher.ENCRYPT_MODE, key, new GCMParameterSpec(128, iv));
+
+            byte[] ciphertext = cipher.doFinal(plaintext.getBytes(StandardCharsets.UTF_8));
+
+            ByteBuffer buffer = ByteBuffer.allocate(iv.length + ciphertext.length);
+            buffer.put(iv);
+            buffer.put(ciphertext);
+            return buffer.array();
+        }
+    }
+
+    @Nested
+    @DisplayName("HKDF Edge Cases Tests")
+    class HkdfEdgeCasesTests {
+
+        @Test
+        @DisplayName("Should handle UUID with all zeros")
+        void shouldHandleUuidWithAllZeros() {
+            UUID zeroUuid = UUID.fromString("00000000-0000-0000-0000-000000000000");
+
+            byte[] encrypted = encryptionService.encryptForUser(zeroUuid, TEST_PLAINTEXT);
+            String decrypted = encryptionService.decryptForUser(zeroUuid, encrypted);
+
+            assertEquals(TEST_PLAINTEXT, decrypted);
+        }
+
+        @Test
+        @DisplayName("Should handle UUID with all ones")
+        void shouldHandleUuidWithAllOnes() {
+            UUID maxUuid = UUID.fromString("ffffffff-ffff-ffff-ffff-ffffffffffff");
+
+            byte[] encrypted = encryptionService.encryptForUser(maxUuid, TEST_PLAINTEXT);
+            String decrypted = encryptionService.decryptForUser(maxUuid, encrypted);
+
+            assertEquals(TEST_PLAINTEXT, decrypted);
+        }
+
+        @Test
+        @DisplayName("Multiple encryptions of same message produce different ciphertexts")
+        void multipleEncryptionsProduceDifferentCiphertexts() {
+            String message = "Same message";
+
+            byte[] encrypted1 = encryptionService.encryptForUser(TEST_USER_ID, message);
+            byte[] encrypted2 = encryptionService.encryptForUser(TEST_USER_ID, message);
+
+            assertFalse(Arrays.equals(encrypted1, encrypted2),
+                    "Different IVs should produce different ciphertexts");
+
+            assertEquals(message, encryptionService.decryptForUser(TEST_USER_ID, encrypted1));
+            assertEquals(message, encryptionService.decryptForUser(TEST_USER_ID, encrypted2));
+        }
+
+        @Test
+        @DisplayName("Should handle very large messages with HKDF")
+        void shouldHandleVeryLargeMessagesWithHkdf() {
+            String largeMessage = "x".repeat(100_000);
+
+            byte[] encrypted = encryptionService.encryptForUser(TEST_USER_ID, largeMessage);
+            String decrypted = encryptionService.decryptForUser(TEST_USER_ID, encrypted);
+
+            assertEquals(largeMessage, decrypted);
         }
     }
 

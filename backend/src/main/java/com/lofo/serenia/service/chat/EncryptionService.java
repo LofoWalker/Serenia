@@ -16,7 +16,20 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Provides AES-GCM encryption/decryption for user data.
+ * Provides AES-GCM encryption/decryption with per-user key derivation via HKDF.
+ *
+ * <p>Each user has a unique encryption key derived from the master key using HKDF-SHA256.
+ * This ensures cryptographic isolation between users while maintaining a single master secret.</p>
+ *
+ * <h2>Payload Format (v1)</h2>
+ * <pre>
+ * [Version: 1 byte][IV: 12 bytes][Ciphertext + GCM Tag: variable]
+ * </pre>
+ *
+ * <h2>Key Derivation</h2>
+ * <pre>
+ * UserKey = HKDF-SHA256(MasterKey, UserID, "serenia-user-encryption-v1")
+ * </pre>
  */
 @ApplicationScoped
 public class EncryptionService {
@@ -25,6 +38,11 @@ public class EncryptionService {
     private static final String KEY_ALGORITHM = "AES";
     private static final int GCM_IV_LENGTH_BYTES = 12;
     private static final int GCM_TAG_LENGTH_BITS = 128;
+
+    private static final byte PAYLOAD_VERSION_HKDF_V1 = 0x01;
+    private static final byte CURRENT_PAYLOAD_VERSION = PAYLOAD_VERSION_HKDF_V1;
+
+    private static final String HKDF_CONTEXT = "serenia-user-encryption-v1";
 
     private final SecretKey masterKey;
     private final SecureRandom secureRandom = new SecureRandom();
@@ -39,14 +57,14 @@ public class EncryptionService {
         Objects.requireNonNull(userId, "userId must not be null");
         Objects.requireNonNull(plaintext, "plaintext must not be null");
 
-        SecretKey key = getMasterKey();
+        SecretKey userKey = deriveUserKey(userId);
 
         try {
             byte[] iv = generateIv();
-            Cipher cipher = createCipher(Cipher.ENCRYPT_MODE, key, iv);
+            Cipher cipher = createCipher(Cipher.ENCRYPT_MODE, userKey, iv);
             byte[] ciphertext = cipher.doFinal(plaintext.getBytes(StandardCharsets.UTF_8));
 
-            return encodePayload(iv, ciphertext);
+            return encodeVersionedPayload(iv, ciphertext);
 
         } catch (Exception e) {
             throw new EncryptionException("Encryption failed for user " + userId, e);
@@ -58,25 +76,11 @@ public class EncryptionService {
         Objects.requireNonNull(encryptedBytes, "encryptedBytes must not be null");
 
         if (encryptedBytes.length <= GCM_IV_LENGTH_BYTES) {
-            throw new EncryptionException("Invalid encrypted data: too short to contain IV");
+            throw new EncryptionException("Invalid encrypted data: too short");
         }
 
-        SecretKey key = getMasterKey();
-
         try {
-            ByteBuffer buffer = ByteBuffer.wrap(encryptedBytes);
-
-            byte[] iv = new byte[GCM_IV_LENGTH_BYTES];
-            buffer.get(iv);
-
-            byte[] ciphertext = new byte[buffer.remaining()];
-            buffer.get(ciphertext);
-
-            Cipher cipher = createCipher(Cipher.DECRYPT_MODE, key, iv);
-            byte[] plaintextBytes = cipher.doFinal(ciphertext);
-
-            return new String(plaintextBytes, StandardCharsets.UTF_8);
-
+            return decryptWithVersionDetection(userId, encryptedBytes);
         } catch (EncryptionException e) {
             throw e;
         } catch (Exception e) {
@@ -84,7 +88,60 @@ public class EncryptionService {
         }
     }
 
-    private SecretKey getMasterKey() {
+    private SecretKey deriveUserKey(UUID userId) {
+        byte[] derivedKeyBytes = HkdfUtils.deriveUserKey(
+                masterKey.getEncoded(),
+                userId,
+                HKDF_CONTEXT
+        );
+        return new SecretKeySpec(derivedKeyBytes, KEY_ALGORITHM);
+    }
+
+    private String decryptWithVersionDetection(UUID userId, byte[] encryptedBytes) throws Exception {
+        byte versionByte = encryptedBytes[0];
+
+        if (versionByte == PAYLOAD_VERSION_HKDF_V1) {
+            return decryptV1Payload(userId, encryptedBytes);
+        } else {
+            return decryptLegacyPayload(encryptedBytes);
+        }
+    }
+
+    private String decryptV1Payload(UUID userId, byte[] encryptedBytes) throws Exception {
+        ByteBuffer buffer = ByteBuffer.wrap(encryptedBytes);
+
+        buffer.get();
+
+        byte[] iv = new byte[GCM_IV_LENGTH_BYTES];
+        buffer.get(iv);
+
+        byte[] ciphertext = new byte[buffer.remaining()];
+        buffer.get(ciphertext);
+
+        SecretKey userKey = deriveUserKey(userId);
+        Cipher cipher = createCipher(Cipher.DECRYPT_MODE, userKey, iv);
+        byte[] plaintextBytes = cipher.doFinal(ciphertext);
+
+        return new String(plaintextBytes, StandardCharsets.UTF_8);
+    }
+
+    private String decryptLegacyPayload(byte[] encryptedBytes) throws Exception {
+        ByteBuffer buffer = ByteBuffer.wrap(encryptedBytes);
+
+        byte[] iv = new byte[GCM_IV_LENGTH_BYTES];
+        buffer.get(iv);
+
+        byte[] ciphertext = new byte[buffer.remaining()];
+        buffer.get(ciphertext);
+
+        SecretKey key = getMasterKeyForLegacy();
+        Cipher cipher = createCipher(Cipher.DECRYPT_MODE, key, iv);
+        byte[] plaintextBytes = cipher.doFinal(ciphertext);
+
+        return new String(plaintextBytes, StandardCharsets.UTF_8);
+    }
+
+    private SecretKey getMasterKeyForLegacy() {
         if (masterKey == null) {
             throw new EncryptionException("Master encryption key is not initialized");
         }
@@ -108,8 +165,9 @@ public class EncryptionService {
         }
     }
 
-    private byte[] encodePayload(byte[] iv, byte[] ciphertext) {
-        ByteBuffer buffer = ByteBuffer.allocate(iv.length + ciphertext.length);
+    private byte[] encodeVersionedPayload(byte[] iv, byte[] ciphertext) {
+        ByteBuffer buffer = ByteBuffer.allocate(1 + iv.length + ciphertext.length);
+        buffer.put(CURRENT_PAYLOAD_VERSION);
         buffer.put(iv);
         buffer.put(ciphertext);
         return buffer.array();

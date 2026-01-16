@@ -69,7 +69,7 @@ class AdminResourceIT {
         given()
                 .header("Authorization", "Bearer " + token)
                 .when()
-                .get("/api/admin/dashboard")
+                .get("/admin/dashboard")
                 .then()
                 .statusCode(200)
                 .body("users.totalUsers", greaterThanOrEqualTo(0))
@@ -86,7 +86,7 @@ class AdminResourceIT {
         given()
                 .header("Authorization", "Bearer " + token)
                 .when()
-                .get("/api/admin/dashboard")
+                .get("/admin/dashboard")
                 .then()
                 .statusCode(403);
     }
@@ -96,7 +96,7 @@ class AdminResourceIT {
     void should_deny_access_without_authentication() {
         given()
                 .when()
-                .get("/api/admin/dashboard")
+                .get("/admin/dashboard")
                 .then()
                 .statusCode(401);
     }
@@ -111,7 +111,7 @@ class AdminResourceIT {
                 .queryParam("metric", "messages")
                 .queryParam("days", 7)
                 .when()
-                .get("/api/admin/timeline")
+                .get("/admin/timeline")
                 .then()
                 .statusCode(200)
                 .body("metric", equalTo("messages"))
@@ -128,7 +128,7 @@ class AdminResourceIT {
                 .queryParam("metric", "users")
                 .queryParam("days", 30)
                 .when()
-                .get("/api/admin/timeline")
+                .get("/admin/timeline")
                 .then()
                 .statusCode(200)
                 .body("metric", equalTo("users"))
@@ -145,7 +145,7 @@ class AdminResourceIT {
                 .queryParam("page", 0)
                 .queryParam("size", 10)
                 .when()
-                .get("/api/admin/users")
+                .get("/admin/users")
                 .then()
                 .statusCode(200)
                 .body("users", hasSize(greaterThan(0)))
@@ -162,7 +162,7 @@ class AdminResourceIT {
         given()
                 .header("Authorization", "Bearer " + token)
                 .when()
-                .get("/api/admin/users/" + USER_EMAIL)
+                .get("/admin/users/" + USER_EMAIL)
                 .then()
                 .statusCode(200)
                 .body("email", equalTo(USER_EMAIL))
@@ -179,7 +179,7 @@ class AdminResourceIT {
         given()
                 .header("Authorization", "Bearer " + token)
                 .when()
-                .get("/api/admin/users/nonexistent@example.com")
+                .get("/admin/users/nonexistent@example.com")
                 .then()
                 .statusCode(404);
     }
@@ -192,7 +192,7 @@ class AdminResourceIT {
         given()
                 .header("Authorization", "Bearer " + token)
                 .when()
-                .get("/api/admin/users")
+                .get("/admin/users")
                 .then()
                 .statusCode(403);
     }

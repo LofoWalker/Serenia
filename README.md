@@ -32,7 +32,7 @@ Contrairement aux assistants IA traditionnels, Serenia adopte la personnalité d
 - Contexte conversationnel maintenu
 
 ### 🔐 Sécurité Renforcée
-- Chiffrement AES-256-GCM des messages
+- Chiffrement AES-256-GCM avec clé dérivée par utilisateur (HKDF)
 - Authentification JWT (RSA)
 - Transport HTTPS obligatoire
 
@@ -239,7 +239,8 @@ docker compose up -d
 
 ## Sécurité
 
-- **Chiffrement des messages** : AES-256-GCM
+- **Chiffrement des messages** : AES-256-GCM avec dérivation de clé per-user (HKDF-SHA256)
+- **Isolation cryptographique** : Chaque utilisateur possède une clé unique dérivée
 - **Authentification** : JWT avec signature RSA
 - **Transport** : TLS 1.3 via Traefik
 - **Secrets** : Gestion via Docker Secrets
