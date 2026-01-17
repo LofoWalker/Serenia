@@ -114,6 +114,10 @@ public class StripeWebhookResource {
      * @return Event object if signature is valid, null otherwise
      */
     private Event constructAndVerifyEvent(String payload, String sigHeader) {
+        if (sigHeader == null || sigHeader.isEmpty()) {
+            log.warn("Missing Stripe-Signature header");
+            return null;
+        }
         try {
             String webhookSecret = stripeConfig.webhookSecret();
             return Webhook.constructEvent(payload, sigHeader, webhookSecret);

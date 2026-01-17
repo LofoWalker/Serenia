@@ -256,6 +256,31 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.12</version>
+                <configuration>
+                    <excludes>
+                        <!-- DTOs - Records sans logique -->
+                        <exclude>**/rest/dto/in/**</exclude>
+                        <exclude>**/rest/dto/out/**</exclude>
+
+                        <!-- MapStruct generated implementations -->
+                        <exclude>**/*MapperImpl.class</exclude>
+
+                        <!-- Lombok generated builders -->
+                        <exclude>**/*$*Builder.class</exclude>
+                        <exclude>**/*$*Builder$*.class</exclude>
+
+                        <!-- Enums simples -->
+                        <exclude>**/persistence/entity/**/MessageRole.class</exclude>
+                        <exclude>**/persistence/entity/**/Role.class</exclude>
+                        <exclude>**/persistence/entity/**/PlanType.class</exclude>
+                        <exclude>**/persistence/entity/**/SubscriptionStatus.class</exclude>
+
+                        <!-- Config classes (valeurs injectées) -->
+                        <exclude>**/config/OpenAIConfig.class</exclude>
+                        <exclude>**/config/SereniaConfig.class</exclude>
+                        <exclude>**/config/StripeConfig.class</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
