@@ -58,8 +58,8 @@ class UserFinderTest {
         }
 
         @Test
-        @DisplayName("should throw not found when not exists")
-        void should_throw_not_found_when_not_exists() {
+        @DisplayName("should throw not found when not found")
+        void should_throw_not_found_when_not_found() {
             when(userRepository.find("email", TEST_EMAIL)).thenReturn(query);
             when(query.firstResultOptional()).thenReturn(Optional.empty());
 
