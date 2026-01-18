@@ -14,21 +14,17 @@ import java.util.UUID;
  */
 @ApplicationScoped
 public class SubscriptionRepository implements PanacheRepository<Subscription> {
+
     public Optional<Subscription> findByUserId(UUID userId) {
         return find("user.id", userId).firstResultOptional();
     }
+
     public Optional<Subscription> findByUserIdForUpdate(UUID userId) {
         return find("user.id", userId)
                 .withLock(LockModeType.PESSIMISTIC_WRITE)
                 .firstResultOptional();
     }
-    @Transactional
-    public int incrementUsage(UUID subscriptionId, int tokens) {
-        return update("tokensUsedThisMonth = tokensUsedThisMonth + ?1, " +
-                        "messagesSentToday = messagesSentToday + 1, " +
-                        "updatedAt = ?2 WHERE id = ?3",
-                tokens, LocalDateTime.now(), subscriptionId);
-    }
+
     public boolean existsByUserId(UUID userId) {
         return count("user.id", userId) > 0;
     }

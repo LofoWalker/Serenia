@@ -61,7 +61,9 @@ public class SubscriptionOrchestrator {
 
         subscription.setStripeSubscriptionId(stripeSubscription.getId());
         subscription.setStatus(statusMapper.mapStatus(stripeSubscription.getStatus()));
-        subscription.setCancelAtPeriodEnd(stripeSubscription.getCancelAtPeriodEnd());
+
+        Boolean cancelAtPeriodEnd = stripeSubscription.getCancelAtPeriodEnd();
+        subscription.setCancelAtPeriodEnd(cancelAtPeriodEnd != null ? cancelAtPeriodEnd : Boolean.FALSE);
 
         if (stripeSubscription.getCurrentPeriodEnd() != null) {
             subscription.setCurrentPeriodEnd(dateTimeConverter.convertEpochToDateTime(stripeSubscription.getCurrentPeriodEnd()));

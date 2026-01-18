@@ -17,12 +17,7 @@ public class PlanRepository implements PanacheRepository<Plan> {
     public Optional<Plan> findByName(PlanType planType) {
         return find("name", planType).firstResultOptional();
     }
-    /**
-     * Find a plan by its name (String).
-     */
-    public Optional<Plan> findByName(String name) {
-        return find("name", PlanType.valueOf(name)).firstResultOptional();
-    }
+
     /**
      * Get the default FREE plan.
      */

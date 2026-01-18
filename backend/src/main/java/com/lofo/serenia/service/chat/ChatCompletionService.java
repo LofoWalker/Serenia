@@ -63,7 +63,7 @@ public class ChatCompletionService {
         return parseCompletionAndReturnResult(completion);
     }
 
-    private static @NotNull ChatCompletionResult parseCompletionAndReturnResult(ChatCompletion completion) {
+    static @NotNull ChatCompletionResult parseCompletionAndReturnResult(ChatCompletion completion) {
         String content = "";
         int promptTokens = 0;
         int cachedTokens = 0;

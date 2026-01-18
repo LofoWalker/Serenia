@@ -2,7 +2,7 @@ name: CI/CD Serenia
 
 on:
   push:
-    branches: [ "main", "devops" ]
+    branches: [ "main" ]
 
 env:
   REGISTRY: ghcr.io
@@ -25,7 +25,7 @@ jobs:
 
       - name: Check system dependencies
         run: |
-          echo "=== Java ===" 
+          echo "=== Java ==="
           java -version || echo "Java not found"
           echo "=== Maven ==="
           mvn -version || echo "Maven not found"
