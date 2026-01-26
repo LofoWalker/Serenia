@@ -26,7 +26,7 @@
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <lombok.version>1.18.30</lombok.version>
         <openai-java-version>4.7.1</openai-java-version>
-        <assertj.version>3.24.2</assertj.version>
+        <assertj.version>3.27.7</assertj.version>
         <stripe.version>28.2.0</stripe.version>
         <quarkus.native.additional-build-args>-J-Xmx4g</quarkus.native.additional-build-args>
     </properties>
