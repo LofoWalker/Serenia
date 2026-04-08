@@ -9,6 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    # Opt into Node.js 24 to avoid Node.js 20 deprecation warnings on GitHub-hosted actions
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - uses: actions/checkout@v4
@@ -30,10 +33,12 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      # Build & test the backend. The package phase produces target/quarkus-app/ (fast-jar, default in Quarkus 3.x).
+      # Those pre-built artifacts are reused by the Docker CI build to avoid hitting Maven Central from inside Docker.
       - name: Backend - Build & Test
         run: |
           cd backend
-          mvn -B clean verify
+          mvn -B clean verify -Dquarkus.package.type=fast-jar
 
       - uses: actions/setup-node@v4
         with:
@@ -52,14 +57,28 @@ jobs:
           cd frontend
           npm run lint
 
+      # Prepare a minimal Docker build context from the pre-built Quarkus fast-jar artifacts.
+      # This avoids re-downloading all Maven dependencies inside the Docker daemon (which can
+      # fail with 403 / rate-limiting from Maven Central on ephemeral CI containers).
+      - name: Backend - Prepare Docker CI context
+        run: |
+          mkdir -p backend/ci-docker-context
+          cp -r backend/target/quarkus-app backend/ci-docker-context/quarkus-app
+          cp backend/docker-entrypoint.sh   backend/ci-docker-context/docker-entrypoint.sh
+          cp backend/Dockerfile.ci          backend/ci-docker-context/Dockerfile
+
       - name: Backend - Docker Build Check
         uses: docker/build-push-action@v5
         with:
-          context: ./backend
+          context: ./backend/ci-docker-context
           push: false
+          cache-from: type=gha,scope=backend-docker
+          cache-to: type=gha,mode=max,scope=backend-docker
 
       - name: Frontend - Docker Build Check
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
           push: false
+          cache-from: type=gha,scope=frontend-docker
+          cache-to: type=gha,mode=max,scope=frontend-docker

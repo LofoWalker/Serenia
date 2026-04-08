@@ -1,0 +1,24 @@
+# CI-optimized Dockerfile — uses pre-built Quarkus fast-jar artifacts produced by Maven.
+# The build context must expose the following paths:
+#   - quarkus-app/  (output of: mvn package -Dquarkus.package.type=fast-jar)
+#   - docker-entrypoint.sh
+# No Maven/network access is required; the image is assembled from existing artifacts.
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /work
+
+# Create dedicated non-root user for security
+RUN addgroup -g 1000 app && adduser -D -u 1000 -G app app
+
+# Copy the pre-built Quarkus fast-jar structure
+COPY --chown=app:app quarkus-app/app     /work/app
+COPY --chown=app:app quarkus-app/quarkus /work/quarkus
+COPY --chown=app:app quarkus-app/lib     /work/lib
+COPY --chown=app:app quarkus-app/quarkus-run.jar /work/application.jar
+
+COPY docker-entrypoint.sh /work/docker-entrypoint.sh
+RUN chmod 775 /work /work/docker-entrypoint.sh
+
+USER app
+EXPOSE 8080
+ENTRYPOINT ["/work/docker-entrypoint.sh", "java", "-Dquarkus.http.host=0.0.0.0", "-jar", "/work/application.jar"]
+
