@@ -73,10 +73,14 @@ jobs:
           IMG=$(echo "${{ env.BACK_IMAGE }}" | tr '[:upper:]' '[:lower:]')
           echo "image=$IMG" >> $GITHUB_OUTPUT
 
-      - name: Build & push backend (JVM - Fast)
+      - name: Prepare backend Docker context
+        run: cp backend/docker-entrypoint.sh backend/target/
+
+      - name: Build & push backend
         uses: docker/build-push-action@v5
         with:
-          context: ./backend
+          context: ./backend/target
+          file: ./backend/Dockerfile.ci
           push: true
           tags: ${{ steps.prep-backend.outputs.image }}
           cache-from: type=local,src=/tmp/.buildx-backend
