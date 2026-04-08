@@ -1,6 +1,5 @@
 package com.lofo.serenia.resource;
 
-import com.lofo.serenia.TestResourceProfile;
 import com.lofo.serenia.persistence.entity.conversation.Conversation;
 import com.lofo.serenia.persistence.entity.user.Role;
 import com.lofo.serenia.persistence.entity.user.User;
@@ -10,7 +9,6 @@ import com.lofo.serenia.persistence.repository.UserRepository;
 import com.lofo.serenia.rest.dto.in.MessageRequestDTO;
 import com.lofo.serenia.util.JwtTestTokenGenerator;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.TestProfile;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
@@ -30,7 +28,6 @@ import static org.hamcrest.Matchers.notNullValue;
  * Tests cover authenticated message operations, conversation management, and access control.
  */
 @QuarkusTest
-@TestProfile(TestResourceProfile.class)
 class ConversationResourceIT {
 
     @Inject

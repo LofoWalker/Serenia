@@ -1,6 +1,5 @@
 package com.lofo.serenia.resource;
 
-import com.lofo.serenia.TestResourceProfile;
 import com.lofo.serenia.config.StripeConfig;
 import com.lofo.serenia.persistence.entity.subscription.Plan;
 import com.lofo.serenia.persistence.entity.subscription.PlanType;
@@ -12,7 +11,6 @@ import com.lofo.serenia.persistence.repository.PlanRepository;
 import com.lofo.serenia.persistence.repository.SubscriptionRepository;
 import com.lofo.serenia.persistence.repository.UserRepository;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.TestProfile;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
@@ -32,7 +30,6 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
 @QuarkusTest
-@TestProfile(TestResourceProfile.class)
 @DisplayName("StripeWebhookResource Integration Tests")
 class StripeWebhookResourceIT {
 

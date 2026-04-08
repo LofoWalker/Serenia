@@ -1,5 +1,4 @@
 package com.lofo.serenia.service.user;
-import com.lofo.serenia.TestResourceProfile;
 import com.lofo.serenia.persistence.entity.conversation.Conversation;
 import com.lofo.serenia.persistence.entity.conversation.Message;
 import com.lofo.serenia.persistence.entity.conversation.MessageRole;
@@ -11,7 +10,6 @@ import com.lofo.serenia.persistence.repository.UserRepository;
 import com.lofo.serenia.rest.dto.out.UserResponseDTO;
 import com.lofo.serenia.service.user.account.AccountManagementService;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.TestProfile;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
@@ -23,7 +21,6 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @QuarkusTest
-@TestProfile(TestResourceProfile.class)
 class AccountManagementServiceIT {
     @Inject
     AccountManagementService accountManagementService;

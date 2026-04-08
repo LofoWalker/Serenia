@@ -1,10 +1,8 @@
 package com.lofo.serenia.service.user.shared;
-import com.lofo.serenia.TestResourceProfile;
 import com.lofo.serenia.persistence.entity.user.Role;
 import com.lofo.serenia.persistence.entity.user.User;
 import com.lofo.serenia.persistence.repository.UserRepository;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.TestProfile;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
@@ -15,7 +13,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @QuarkusTest
-@TestProfile(TestResourceProfile.class)
 @DisplayName("UserFinder Integration Tests")
 class UserFinderIT {
     @Inject

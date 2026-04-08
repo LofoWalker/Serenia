@@ -1,5 +1,4 @@
 package com.lofo.serenia.resource;
-import com.lofo.serenia.TestResourceProfile;
 import com.lofo.serenia.persistence.entity.user.BaseToken;
 import com.lofo.serenia.persistence.entity.user.Role;
 import com.lofo.serenia.persistence.entity.user.User;
@@ -7,7 +6,6 @@ import com.lofo.serenia.persistence.repository.BaseTokenRepository;
 import com.lofo.serenia.persistence.repository.UserRepository;
 import com.lofo.serenia.rest.dto.in.RegistrationRequestDTO;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.TestProfile;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
@@ -22,7 +20,6 @@ import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 @QuarkusTest
-@TestProfile(TestResourceProfile.class)
 class RegistrationResourceIT {
     @Inject
     UserRepository userRepository;
