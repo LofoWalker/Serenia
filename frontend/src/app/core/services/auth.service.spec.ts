@@ -31,7 +31,7 @@ describe('AuthService', () => {
 
   const authUrl = `${environment.apiUrl}/auth`;
   const profileUrl = `${environment.apiUrl}/profile`;
-  const passwordUrl = `${environment.apiUrl}/password`;
+  const _passwordUrl = `${environment.apiUrl}/password`;
 
   beforeEach(() => {
     authStateSpy = {
