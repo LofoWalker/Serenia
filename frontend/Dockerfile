@@ -2,7 +2,7 @@ FROM node:22-alpine AS build
 LABEL maintainer="Serenia Team"
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json .npmrc ./
 RUN npm ci --prefer-offline --no-audit
 
 COPY . .
