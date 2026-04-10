@@ -15,7 +15,7 @@ export interface PasswordValidationResult {
 
 const MIN_LENGTH = 8;
 const MIN_CRITERIA = 3;
-const SYMBOLS = '!@#$%^&*()_+-=[]{}|;\':\",./<>?`~\\';
+const SYMBOLS = "!@#$%^&*()_+-=[]{}|;':\",./<>?`~\\";
 
 /**
  * Vérifie les critères du mot de passe et retourne le résultat détaillé
