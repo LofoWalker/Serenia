@@ -37,7 +37,9 @@ public class InvoicePaymentSucceededHandler implements StripeEventHandler {
         Invoice invoice = stripeObjectMapper.deserialize(event, Invoice.class);
 
         String customerId = invoice.getCustomer();
-        String subscriptionId = invoice.getSubscription();
+        String subscriptionId = (invoice.getParent() != null && invoice.getParent().getSubscriptionDetails() != null)
+                ? invoice.getParent().getSubscriptionDetails().getSubscription()
+                : null;
 
         log.info("Payment succeeded for customer: {}, subscription: {}", customerId, subscriptionId);
 
