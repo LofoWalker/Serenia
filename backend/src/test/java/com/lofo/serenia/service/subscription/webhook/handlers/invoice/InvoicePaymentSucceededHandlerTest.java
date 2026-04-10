@@ -74,7 +74,12 @@ class InvoicePaymentSucceededHandlerTest {
 
         invoice = new Invoice();
         invoice.setCustomer(CUSTOMER_ID);
-        invoice.setSubscription(SUBSCRIPTION_ID);
+        // In stripe-java 29.x, subscription ID moved to invoice.getParent().getSubscriptionDetails().getSubscription()
+        Invoice.Parent.SubscriptionDetails subscriptionDetails = new Invoice.Parent.SubscriptionDetails();
+        subscriptionDetails.setSubscription(SUBSCRIPTION_ID);
+        Invoice.Parent parent = new Invoice.Parent();
+        parent.setSubscriptionDetails(subscriptionDetails);
+        invoice.setParent(parent);
     }
 
     @Nested
