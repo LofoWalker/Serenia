@@ -65,7 +65,7 @@ public class SubscriptionOrchestrator {
         Boolean cancelAtPeriodEnd = stripeSubscription.getCancelAtPeriodEnd();
         subscription.setCancelAtPeriodEnd(cancelAtPeriodEnd != null ? cancelAtPeriodEnd : Boolean.FALSE);
 
-        if (stripeSubscription.getItems() != null && !stripeSubscription.getItems().getData().isEmpty()) {
+        if (stripeSubscription.getItems() != null && stripeSubscription.getItems().getData() != null && !stripeSubscription.getItems().getData().isEmpty()) {
             Long periodEnd = stripeSubscription.getItems().getData().getFirst().getCurrentPeriodEnd();
             if (periodEnd != null) {
                 subscription.setCurrentPeriodEnd(dateTimeConverter.convertEpochToDateTime(periodEnd));
@@ -86,7 +86,7 @@ public class SubscriptionOrchestrator {
             Subscription subscription,
             com.stripe.model.Subscription stripeSubscription) {
 
-        if (stripeSubscription.getItems() == null || stripeSubscription.getItems().getData().isEmpty()) {
+        if (stripeSubscription.getItems() == null || stripeSubscription.getItems().getData() == null || stripeSubscription.getItems().getData().isEmpty()) {
             log.warn("Stripe subscription {} has no items", stripeSubscription.getId());
             return;
         }
