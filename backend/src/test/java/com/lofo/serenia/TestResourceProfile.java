@@ -32,8 +32,7 @@ public class TestResourceProfile implements QuarkusTestProfile {
                 Map.entry("serenia.tokens.input-limit-default", "8000"),
                 Map.entry("serenia.tokens.output-limit-default", "2000"),
                 Map.entry("serenia.tokens.total-limit-default", "10000"),
-                Map.entry("serenia.security.key", "test-security-key-for-testing"),
-                Map.entry("serenia.system-prompt-path", "classpath:prompt.md"));
+                Map.entry("serenia.security.key", "test-security-key-for-testing"));
     }
 
     @Override

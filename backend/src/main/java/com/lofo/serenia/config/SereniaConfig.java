@@ -77,10 +77,4 @@ public interface SereniaConfig {
     @WithDefault("3600")
     Long tokenExpirationTime();
 
-    /**
-     * Path to the system prompt file. Supports classpath (classpath:prompt.md) or filesystem paths.
-     */
-    @WithName("system-prompt-path")
-    @WithDefault("classpath:prompt.md")
-    String systemPromptPath();
 }
