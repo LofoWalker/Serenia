@@ -76,7 +76,7 @@ public class ConversationResource {
     @Operation(summary = "Rename a conversation")
     @RequestBody(content = @Content(schema = @Schema(implementation = RenameConversationRequestDTO.class)))
     @APIResponse(responseCode = "200", description = "Conversation renamed")
-    @APIResponse(responseCode = "403", description = "Conversation does not belong to user")
+    @APIResponse(responseCode = "404", description = "Conversation not found")
     public Response renameConversation(@PathParam("id") UUID id, RenameConversationRequestDTO request) {
         UUID userId = getAuthenticatedUserId();
         if (request == null || request.name() == null || request.name().isBlank()) {
@@ -93,7 +93,7 @@ public class ConversationResource {
     @Path("/{id}")
     @Operation(summary = "Delete a single conversation")
     @APIResponse(responseCode = "204", description = "Conversation deleted")
-    @APIResponse(responseCode = "403", description = "Conversation does not belong to user")
+    @APIResponse(responseCode = "404", description = "Conversation not found")
     public Response deleteConversation(@PathParam("id") UUID id) {
         UUID userId = getAuthenticatedUserId();
         conversationService.deleteSingleConversation(id, userId);
@@ -105,7 +105,7 @@ public class ConversationResource {
     @Operation(summary = "Get messages for a specific conversation")
     @APIResponse(responseCode = "200", description = "Messages returned",
         content = @Content(schema = @Schema(implementation = ConversationMessagesResponseDTO.class)))
-    @APIResponse(responseCode = "403", description = "Conversation does not belong to user")
+    @APIResponse(responseCode = "404", description = "Conversation not found")
     public Response getConversationMessages(@PathParam("id") UUID id) {
         UUID userId = getAuthenticatedUserId();
         List<ChatMessage> messages = conversationService.getConversationMessages(id, userId);

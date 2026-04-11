@@ -1,6 +1,5 @@
 package com.lofo.serenia.service.chat;
 
-import com.lofo.serenia.exception.exceptions.ForbiddenAccessException;
 import com.lofo.serenia.persistence.entity.conversation.ChatMessage;
 import com.lofo.serenia.persistence.entity.conversation.Conversation;
 import com.lofo.serenia.persistence.entity.conversation.MessageRole;
@@ -80,12 +79,12 @@ class ConversationServiceTest {
     }
 
     @Test
-    @DisplayName("Should throw forbidden when user does not own conversation")
-    void should_throw_forbidden_when_user_not_owner() {
+    @DisplayName("Should throw NotFoundException when user does not own conversation")
+    void should_throw_not_found_when_user_not_owner() {
         UUID otherUser = UUID.randomUUID();
         when(conversationRepository.findByIdAndUser(FIXED_CONV_ID, otherUser)).thenReturn(Optional.empty());
 
-        assertThrows(ForbiddenAccessException.class,
+        assertThrows(NotFoundException.class,
             () -> conversationService.getConversationMessages(FIXED_CONV_ID, otherUser));
     }
 
@@ -212,13 +211,13 @@ class ConversationServiceTest {
     }
 
     @Test
-    @DisplayName("Should throw forbidden when deleting non-owned conversation")
-    void should_throw_forbidden_when_deleting_non_owned_conversation() {
+    @DisplayName("Should throw NotFoundException when deleting non-owned conversation")
+    void should_throw_not_found_when_deleting_non_owned_conversation() {
         UUID otherUser = UUID.randomUUID();
         when(conversationRepository.findByIdAndUser(FIXED_CONV_ID, otherUser))
             .thenReturn(Optional.empty());
 
-        assertThrows(ForbiddenAccessException.class,
+        assertThrows(NotFoundException.class,
             () -> conversationService.deleteSingleConversation(FIXED_CONV_ID, otherUser));
     }
 

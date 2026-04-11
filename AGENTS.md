@@ -36,7 +36,7 @@ docker compose up -d        # Production: Traefik + PostgreSQL + Backend + Front
 - **DI**: Constructor injection via Lombok `@AllArgsConstructor` on `@ApplicationScoped` beans. No field `@Inject` except in tests.
 - **DTOs**: Java records in `rest/dto/in/` and `rest/dto/out/`. Never reuse entities in REST responses.
 - **Exceptions**: Global handler via `GlobalExceptionHandler` (JAX-RS `@Provider`). Delegates to `ExceptionHandlerService`. Custom exceptions in `exception/exceptions/`. Each error response includes a `traceId`.
-- **Tests**: Integration tests use `@QuarkusTest` + `@TestProfile(TestResourceProfile.class)` with H2 in PostgreSQL compatibility mode. REST tests use RestAssured against port `8081`. JWT tokens generated via `JwtTestTokenGenerator`. Test names use `should_describe_behavior` snake_case with `@DisplayName`.
+- **Tests**: Integration tests use `@QuarkusTest` with H2 in PostgreSQL compatibility mode (config in `src/test/resources/application.properties`). REST tests use RestAssured against port `8081`. JWT tokens generated via `JwtTestTokenGenerator`. Test names use `should_describe_behavior` snake_case with `@DisplayName`.
 - **DB migrations**: Liquibase YAML changelogs in `src/main/resources/db/changelog/`, numbered sequentially (`01-init-datamodel.yaml`, `02-plans-subscriptions.yaml`, etc.), registered in `changelog.xml`.
 - **Style**: Google Java Style via checkstyle (`checkstyle.xml`), max 100 char line length, 2-space indent. Lombok + MapStruct annotation processors configured in `pom.xml`.
 - **Security**: `@Authenticated` on resource classes. User ID extracted from JWT subject (`jwt.getSubject()` → UUID). Roles: `USER`, `ADMIN`.
@@ -56,7 +56,7 @@ docker compose up -d        # Production: Traefik + PostgreSQL + Backend + Front
 | Purpose | Path |
 |---|---|
 | Backend entry config | `backend/src/main/resources/application.properties` |
-| Test config overrides | `backend/src/test/java/.../TestResourceProfile.java` |
+| Test config overrides | `backend/src/test/resources/application.properties` |
 | AI persona prompt | `backend/src/main/resources/prompt.md` |
 | Encryption (AES-GCM + HKDF) | `backend/.../service/chat/EncryptionService.java` |
 | Chat orchestration | `backend/.../service/chat/ChatOrchestrator.java` |

@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { finalize, Observable, tap } from 'rxjs';
 import {
   ConversationSummary,
   CreateConversationRequest,
@@ -29,8 +29,8 @@ export class ConversationListService {
     return this.http.get<ConversationSummary[]>(this.apiUrl).pipe(
       tap((conversations) => {
         this.conversationsSignal.set(conversations);
-        this.loadingSignal.set(false);
       }),
+      finalize(() => this.loadingSignal.set(false)),
     );
   }
 

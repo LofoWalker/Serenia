@@ -334,8 +334,8 @@ class ConversationResourceIT {
     }
 
     @Test
-    @DisplayName("should_return_403_when_renaming_non_owned_conversation")
-    void should_return_403_when_renaming_non_owned_conversation() {
+    @DisplayName("should_return_404_when_renaming_non_owned_conversation")
+    void should_return_404_when_renaming_non_owned_conversation() {
         User user = createAndPersistUser(TEST_EMAIL);
         User otherUser = createAndPersistUser("other@example.com");
         String token = JwtTestTokenGenerator.generateToken(TEST_EMAIL, user.getId(), "USER");
@@ -348,7 +348,7 @@ class ConversationResourceIT {
             .when()
             .put(CONVERSATIONS_PATH + "/" + conversation.getId() + "/name")
             .then()
-            .statusCode(403);
+            .statusCode(404);
     }
 
     // ============== DELETE SINGLE CONVERSATION TESTS ==============
@@ -379,8 +379,8 @@ class ConversationResourceIT {
     }
 
     @Test
-    @DisplayName("should_return_403_when_deleting_non_owned_conversation")
-    void should_return_403_when_deleting_non_owned_conversation() {
+    @DisplayName("should_return_404_when_deleting_non_owned_conversation")
+    void should_return_404_when_deleting_non_owned_conversation() {
         User user = createAndPersistUser(TEST_EMAIL);
         User otherUser = createAndPersistUser("other@example.com");
         String token = JwtTestTokenGenerator.generateToken(TEST_EMAIL, user.getId(), "USER");
@@ -392,7 +392,7 @@ class ConversationResourceIT {
             .when()
             .delete(CONVERSATIONS_PATH + "/" + conversation.getId())
             .then()
-            .statusCode(403);
+            .statusCode(404);
     }
 
     // ============== GET CONVERSATION MESSAGES TESTS ==============
@@ -416,8 +416,8 @@ class ConversationResourceIT {
     }
 
     @Test
-    @DisplayName("should_return_403_when_getting_messages_of_non_owned_conversation")
-    void should_return_403_when_getting_messages_of_non_owned_conversation() {
+    @DisplayName("should_return_404_when_getting_messages_of_non_owned_conversation")
+    void should_return_404_when_getting_messages_of_non_owned_conversation() {
         User user = createAndPersistUser(TEST_EMAIL);
         User otherUser = createAndPersistUser("other@example.com");
         String token = JwtTestTokenGenerator.generateToken(TEST_EMAIL, user.getId(), "USER");
@@ -429,7 +429,7 @@ class ConversationResourceIT {
             .when()
             .get(CONVERSATIONS_PATH + "/" + conversation.getId() + "/messages")
             .then()
-            .statusCode(403);
+            .statusCode(404);
     }
 
     // ============== HELPER METHODS ==============

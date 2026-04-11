@@ -2,12 +2,12 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  EventEmitter,
   inject,
   input,
-  Output,
+  output,
   signal,
 } from '@angular/core';
+import { catchError, EMPTY, take } from 'rxjs';
 import { ConversationListService } from '../../../../core/services/conversation-list.service';
 import { ConversationSummary } from '../../../../core/models/chat.model';
 import { FormsModule } from '@angular/forms';
@@ -23,10 +23,10 @@ export class ConversationSidebarComponent {
 
   readonly mobileOpen = input(false);
 
-  @Output() conversationSelected = new EventEmitter<string>();
-  @Output() conversationCreated = new EventEmitter<void>();
-  @Output() conversationDeleted = new EventEmitter<string>();
-  @Output() sidebarClosed = new EventEmitter<void>();
+  readonly conversationSelected = output<string>();
+  readonly conversationCreated = output<void>();
+  readonly conversationDeleted = output<string>();
+  readonly sidebarClosed = output<void>();
 
   protected readonly editingId = signal<string | null>(null);
   protected readonly editingName = signal('');
@@ -67,7 +67,16 @@ export class ConversationSidebarComponent {
   protected confirmRename(conv: ConversationSummary): void {
     const newName = this.editingName().trim();
     if (newName && newName !== conv.name) {
-      this.conversationList.renameConversation(conv.id, newName).subscribe();
+      this.conversationList
+        .renameConversation(conv.id, newName)
+        .pipe(
+          take(1),
+          catchError(() => {
+            this.editingName.set(conv.name);
+            return EMPTY;
+          }),
+        )
+        .subscribe();
     }
     this.editingId.set(null);
   }

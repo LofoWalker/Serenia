@@ -52,7 +52,6 @@ describe('ConversationSidebarComponent', () => {
   it('should_emit_conversation_selected_on_click', () => {
     const spy = vi.spyOn(component.conversationSelected, 'emit');
     const items = fixture.nativeElement.querySelectorAll('[class*="group"]');
-    // conv-2 is first (sorted by lastActivityAt DESC)
     items[0].click();
     expect(spy).toHaveBeenCalledWith('conv-2');
   });

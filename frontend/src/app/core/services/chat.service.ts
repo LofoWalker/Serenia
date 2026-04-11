@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map, Observable, tap } from 'rxjs';
+import { finalize, map, Observable, tap } from 'rxjs';
 import {
   ChatMessage,
   ConversationMessagesResponse,
@@ -111,8 +111,8 @@ export class ChatService {
           this.conversationIdSignal.set(response.conversationId);
           this.allMessagesSignal.set(response.messages);
           this.visibleCountSignal.set(MESSAGES_PER_PAGE);
-          this.loadingSignal.set(false);
         }),
+        finalize(() => this.loadingSignal.set(false)),
       );
   }
 
@@ -138,8 +138,8 @@ export class ChatService {
         };
         this.allMessagesSignal.update((messages) => [...messages, assistantMessage]);
         this.visibleCountSignal.update((count) => count + 1);
-        this.loadingSignal.set(false);
       }),
+      finalize(() => this.loadingSignal.set(false)),
     );
   }
 

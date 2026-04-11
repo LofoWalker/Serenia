@@ -10,10 +10,9 @@
 <aside
   class="flex flex-col bg-primary-900 border-r border-primary-800 transition-all duration-300
     fixed inset-y-0 left-0 z-50 w-72
-    md:relative md:z-auto"
+    md:relative md:z-auto md:translate-x-0"
   [class.-translate-x-full]="!mobileOpen()"
   [class.translate-x-0]="mobileOpen()"
-  [class.md:translate-x-0]="true"
   [class.md:w-72]="!collapsed()"
   [class.md:w-12]="collapsed()"
 >

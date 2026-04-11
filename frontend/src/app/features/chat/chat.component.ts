@@ -136,16 +136,19 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   protected onConversationDeleted(conversationId: string): void {
+    const wasActive = this.conversationList.activeConversationId() === conversationId;
     this.conversationList
       .deleteConversation(conversationId)
       .pipe(
         take(1),
         tap(() => {
-          const activeId = this.conversationList.activeConversationId();
-          if (activeId) {
-            this.loadConversationMessages(activeId);
-          } else {
-            this.chatService.clearConversation();
+          if (wasActive) {
+            const activeId = this.conversationList.activeConversationId();
+            if (activeId) {
+              this.loadConversationMessages(activeId);
+            } else {
+              this.chatService.clearConversation();
+            }
           }
         }),
         catchError(() => {

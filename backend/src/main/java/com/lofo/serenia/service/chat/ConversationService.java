@@ -1,6 +1,5 @@
 package com.lofo.serenia.service.chat;
 
-import com.lofo.serenia.exception.exceptions.ForbiddenAccessException;
 import com.lofo.serenia.persistence.entity.conversation.ChatMessage;
 import com.lofo.serenia.persistence.entity.conversation.Conversation;
 import com.lofo.serenia.persistence.repository.ConversationRepository;
@@ -97,7 +96,7 @@ public class ConversationService {
 
     private Conversation getOwnedConversation(UUID conversationId, UUID userId) {
         return conversationRepository.findByIdAndUser(conversationId, userId)
-            .orElseThrow(() -> new ForbiddenAccessException("Conversation does not belong to user"));
+            .orElseThrow(() -> new NotFoundException("Conversation not found"));
     }
 
     private void assertConversationOwnership(UUID conversationId, UUID userId) {
