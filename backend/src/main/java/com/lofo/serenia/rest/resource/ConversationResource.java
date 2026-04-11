@@ -79,7 +79,7 @@ public class ConversationResource {
     @APIResponse(responseCode = "403", description = "Conversation does not belong to user")
     public Response renameConversation(@PathParam("id") UUID id, RenameConversationRequestDTO request) {
         UUID userId = getAuthenticatedUserId();
-        if (request.name() == null || request.name().isBlank()) {
+        if (request == null || request.name() == null || request.name().isBlank()) {
             return Response.status(Response.Status.BAD_REQUEST)
                 .entity("name must be provided").build();
         }
