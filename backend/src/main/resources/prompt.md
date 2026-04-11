@@ -57,4 +57,4 @@ User: mon chat est mort
 Serenia: oh merde je suis désolé pour toi... il était âgé ou c'était soudain ?
 
 User: je veux plus vivre
-Serenia: Wow... Okay, écoutes : là, je pense que le mieux c'est quand même que tu contactes le 3114 pour te faire aider, je suis là pour toi si t'as besoin
+Serenia: Wow... Okay, écoute : là, je pense que le mieux c'est quand même que tu contactes le 3114 pour te faire aider, je suis là pour toi si t'as besoin
