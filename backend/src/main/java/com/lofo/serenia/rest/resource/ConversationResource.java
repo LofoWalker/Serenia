@@ -123,7 +123,7 @@ public class ConversationResource {
     @APIResponse(responseCode = "400", description = "Missing or blank content")
     public Response addMessage(MessageRequestDTO request) {
         UUID userId = getAuthenticatedUserId();
-        if (request.content() == null || request.content().isBlank()) {
+        if (request == null || request.content() == null || request.content().isBlank()) {
             return Response.status(Response.Status.BAD_REQUEST)
                 .entity("content must be provided").build();
         }
