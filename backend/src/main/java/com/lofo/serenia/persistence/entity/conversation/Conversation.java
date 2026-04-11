@@ -27,7 +27,7 @@ public class Conversation {
     @Column(name = "user_id", nullable = false)
     private UUID userId;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name = "Nouvelle conversation";
 
     @Column(name = "created_at", nullable = false)
