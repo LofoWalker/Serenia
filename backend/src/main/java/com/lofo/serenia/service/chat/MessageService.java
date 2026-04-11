@@ -8,13 +8,13 @@ import com.lofo.serenia.persistence.repository.ConversationRepository;
 import com.lofo.serenia.persistence.repository.MessageRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @ApplicationScoped
 public class MessageService {
 

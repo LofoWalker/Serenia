@@ -5,8 +5,8 @@ import com.lofo.serenia.persistence.repository.UserRepository;
 import com.lofo.serenia.service.mail.MailSender;
 import com.lofo.serenia.service.mail.provider.EmailTemplateProvider;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -15,23 +15,13 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @ApplicationScoped
+@RequiredArgsConstructor
 public class AccountActivationService {
 
     private final ActivationTokenService activationTokenService;
     private final UserRepository userRepository;
     private final EmailTemplateProvider emailTemplateProvider;
     private final MailSender mailSender;
-
-    @Inject
-    public AccountActivationService(ActivationTokenService activationTokenService,
-                                     UserRepository userRepository,
-                                     EmailTemplateProvider emailTemplateProvider,
-                                     MailSender mailSender) {
-        this.activationTokenService = activationTokenService;
-        this.userRepository = userRepository;
-        this.emailTemplateProvider = emailTemplateProvider;
-        this.mailSender = mailSender;
-    }
 
     /**
      * Activates a user account using the provided activation token.
@@ -78,4 +68,3 @@ public class AccountActivationService {
         mailSender.sendHtml(user.getEmail(), subject, htmlContent);
     }
 }
-

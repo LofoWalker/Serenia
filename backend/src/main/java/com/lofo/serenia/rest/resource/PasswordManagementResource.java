@@ -3,8 +3,8 @@ package com.lofo.serenia.rest.resource;
 import com.lofo.serenia.rest.dto.in.ForgotPasswordRequest;
 import com.lofo.serenia.rest.dto.in.ResetPasswordRequest;
 import com.lofo.serenia.rest.dto.out.ApiMessageResponse;
+import com.lofo.serenia.rest.util.LogUtils;
 import com.lofo.serenia.service.user.password.PasswordResetService;
-import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -12,6 +12,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -28,14 +29,10 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 @Path("/password")
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "Password Management")
+@RequiredArgsConstructor
 public class PasswordManagementResource {
 
     private final PasswordResetService passwordResetService;
-
-    @Inject
-    public PasswordManagementResource(PasswordResetService passwordResetService) {
-        this.passwordResetService = passwordResetService;
-    }
 
     /**
      * Requests a password reset by sending a reset email to the user.
@@ -60,7 +57,7 @@ public class PasswordManagementResource {
             description = "Invalid payload"
     )
     public Response requestPasswordReset(@Valid ForgotPasswordRequest request) {
-        log.info("Password reset requested for email=%s", request.email());
+        log.info("Password reset requested for email={}", request.email());
         passwordResetService.requestPasswordReset(request.email());
         return Response.ok()
                 .entity(new ApiMessageResponse(
@@ -91,25 +88,11 @@ public class PasswordManagementResource {
             description = "Invalid or expired reset token"
     )
     public Response resetPassword(@Valid ResetPasswordRequest request) {
-        log.info("Password reset initiated with token=%s", maskToken(request.token()));
+        log.info("Password reset initiated with token={}", LogUtils.maskToken(request.token()));
         passwordResetService.resetPassword(request.token(), request.newPassword());
         return Response.ok()
                 .entity(new ApiMessageResponse(
                         "Mot de passe réinitialisé avec succès. Vous pouvez maintenant vous connecter."))
                 .build();
     }
-
-    /**
-     * Masks a token for logging purposes (shows only first 4 and last 4 characters).
-     *
-     * @param token the token to mask
-     * @return masked token representation
-     */
-    private String maskToken(String token) {
-        if (token == null || token.length() < 8) {
-            return "***";
-        }
-        return token.substring(0, 4) + "***" + token.substring(token.length() - 4);
-    }
 }
-

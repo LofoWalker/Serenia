@@ -9,13 +9,13 @@ import com.lofo.serenia.service.user.shared.UserFinder;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @ApplicationScoped
 @Transactional
 public class ConversationService {
@@ -62,10 +62,6 @@ public class ConversationService {
         conversationRepository.delete(conversation);
     }
 
-    public Conversation getMostRecentConversation(UUID userId) {
-        return conversationRepository.findActiveByUser(userId).orElse(null);
-    }
-
     public List<ChatMessage> getConversationMessages(UUID conversationId, UUID userId) {
         assertConversationOwnership(conversationId, userId);
         return messageService.decryptConversationMessages(userId, conversationId);
@@ -76,6 +72,7 @@ public class ConversationService {
     }
 
     public void deleteUserConversations(UUID userId) {
+        messageRepository.deleteByUserId(userId);
         conversationRepository.deleteByUserId(userId);
     }
 

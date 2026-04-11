@@ -1,5 +1,6 @@
 package com.lofo.serenia.service.user.password;
 
+import com.lofo.serenia.config.SereniaConfig;
 import com.lofo.serenia.exception.exceptions.InvalidTokenException;
 import com.lofo.serenia.persistence.entity.user.BaseToken;
 import com.lofo.serenia.persistence.entity.user.User;
@@ -10,10 +11,9 @@ import com.lofo.serenia.service.mail.provider.EmailTemplateProvider;
 import com.lofo.serenia.service.user.shared.UserFinder;
 import io.quarkus.elytron.security.common.BcryptUtil;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -26,6 +26,7 @@ import java.util.UUID;
  */
 @Slf4j
 @ApplicationScoped
+@RequiredArgsConstructor
 public class PasswordResetService {
 
     private static final int PASSWORD_TOKEN_EXPIRATION_MINUTES = 15;
@@ -36,21 +37,7 @@ public class PasswordResetService {
     private final EmailTemplateProvider emailTemplateProvider;
     private final MailSender mailSender;
     private final UserFinder userFinder;
-    private final String frontendUrl;
-
-    @Inject
-    public PasswordResetService(BaseTokenRepository baseTokenRepository, UserRepository userRepository,
-                                EmailTemplateProvider emailTemplateProvider, MailSender mailSender,
-                                UserFinder userFinder,
-                                @ConfigProperty(name = "app.frontend.url", defaultValue = "http://localhost:4200")
-                                String frontendUrl) {
-        this.baseTokenRepository = baseTokenRepository;
-        this.userRepository = userRepository;
-        this.emailTemplateProvider = emailTemplateProvider;
-        this.mailSender = mailSender;
-        this.userFinder = userFinder;
-        this.frontendUrl = frontendUrl;
-    }
+    private final SereniaConfig sereniaConfig;
 
     /**
      * Initiates password reset by generating token and sending email.
@@ -174,7 +161,7 @@ public class PasswordResetService {
      * @return the complete reset link
      */
     private String buildPasswordResetLink(String token) {
-        return frontendUrl + "/reset-password?token=" + token;
+        return sereniaConfig.frontUrl() + "/reset-password?token=" + token;
     }
 
     /**
@@ -186,4 +173,3 @@ public class PasswordResetService {
         return Instant.now().plus(PASSWORD_TOKEN_EXPIRATION_MINUTES, ChronoUnit.MINUTES);
     }
 }
-

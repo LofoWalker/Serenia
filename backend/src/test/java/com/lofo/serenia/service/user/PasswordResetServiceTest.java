@@ -1,5 +1,6 @@
 package com.lofo.serenia.service.user;
 
+import com.lofo.serenia.config.SereniaConfig;
 import com.lofo.serenia.exception.exceptions.InvalidTokenException;
 import com.lofo.serenia.persistence.entity.user.BaseToken;
 import com.lofo.serenia.persistence.entity.user.Role;
@@ -46,16 +47,19 @@ class PasswordResetServiceTest {
     private MailSender mailSender;
     @Mock
     private UserFinder userFinder;
+    @Mock
+    private SereniaConfig sereniaConfig;
     private PasswordResetService passwordResetService;
     @BeforeEach
     void setUp() {
+        lenient().when(sereniaConfig.frontUrl()).thenReturn(FRONTEND_URL);
         passwordResetService = new PasswordResetService(
                 baseTokenRepository,
                 userRepository,
                 emailTemplateProvider,
                 mailSender,
                 userFinder,
-                FRONTEND_URL
+                sereniaConfig
         );
     }
     @Test

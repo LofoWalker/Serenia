@@ -15,7 +15,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -138,7 +138,7 @@ public class SubscriptionService {
     }
 
     private Subscription buildSubscription(User user, Plan plan) {
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
         return Subscription.builder()
                 .user(user)
                 .plan(plan)
@@ -157,8 +157,10 @@ public class SubscriptionService {
         int messagesRemaining = Math.max(0,
                 plan.getDailyMessageLimit() - subscription.getMessagesSentToday());
 
-        LocalDateTime monthlyResetDate = subscription.getMonthlyPeriodStart().plusMonths(1);
-        LocalDateTime dailyResetDate = subscription.getDailyPeriodStart().plusDays(1);
+        Instant monthlyResetDate = subscription.getMonthlyPeriodStart()
+                .atZone(java.time.ZoneOffset.UTC).plusMonths(1).toInstant();
+        Instant dailyResetDate = subscription.getDailyPeriodStart()
+                .atZone(java.time.ZoneOffset.UTC).plusDays(1).toInstant();
 
         boolean hasStripeSubscription = subscription.getStripeSubscriptionId() != null
                 && !subscription.getStripeSubscriptionId().isEmpty();

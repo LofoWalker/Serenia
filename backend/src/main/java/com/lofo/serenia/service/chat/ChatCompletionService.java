@@ -11,7 +11,6 @@ import com.openai.models.chat.completions.ChatCompletionMessageParam;
 import com.openai.models.chat.completions.ChatCompletionSystemMessageParam;
 import com.openai.models.completions.CompletionUsage;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,13 +24,12 @@ import java.util.List;
 @ApplicationScoped
 public class ChatCompletionService {
 
-    private final OpenAIClient client;
     private final OpenAIConfig config;
     private final ChatMessageMapper chatMessageMapper;
+    private final OpenAIClient client;
 
     public record ChatCompletionResult(String content, int promptTokens, int cachedTokens, int completionTokens) {}
 
-    @Inject
     public ChatCompletionService(OpenAIConfig config, ChatMessageMapper chatMessageMapper) {
         this.config = config;
         this.chatMessageMapper = chatMessageMapper;
@@ -114,4 +112,3 @@ public class ChatCompletionService {
         }
     }
 }
-

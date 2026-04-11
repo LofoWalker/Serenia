@@ -8,11 +8,10 @@ import com.lofo.serenia.rest.dto.in.LoginRequestDTO;
 import com.lofo.serenia.rest.dto.out.UserResponseDTO;
 import com.lofo.serenia.service.user.shared.UserFinder;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.NotFoundException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.mindrot.jbcrypt.BCrypt;
+import io.quarkus.elytron.security.common.BcryptUtil;
 
 /**
  * Service for user authentication and login operations.
@@ -20,18 +19,13 @@ import org.mindrot.jbcrypt.BCrypt;
  */
 @Slf4j
 @ApplicationScoped
+@RequiredArgsConstructor
 public class AuthenticationService {
 
     private static final String ERROR_INVALID_CREDENTIALS = "Invalid credentials";
 
     private final UserFinder userFinder;
     private final UserMapper userMapper;
-
-    @Inject
-    public AuthenticationService(UserFinder userFinder, UserMapper userMapper) {
-        this.userFinder = userFinder;
-        this.userMapper = userMapper;
-    }
 
     /**
      * Authenticates a user with provided credentials.
@@ -64,7 +58,7 @@ public class AuthenticationService {
      * @throws AuthenticationFailedException if passwords do not match
      */
     private void validatePassword(String providedPassword, String storedPassword) {
-        if (!BCrypt.checkpw(providedPassword, storedPassword)) {
+        if (!BcryptUtil.matches(providedPassword, storedPassword)) {
             throw new AuthenticationFailedException(ERROR_INVALID_CREDENTIALS);
         }
     }
@@ -82,4 +76,3 @@ public class AuthenticationService {
         }
     }
 }
-

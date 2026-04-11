@@ -5,8 +5,8 @@ import com.lofo.serenia.persistence.entity.user.BaseToken;
 import com.lofo.serenia.persistence.entity.user.User;
 import com.lofo.serenia.persistence.repository.BaseTokenRepository;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
@@ -19,17 +19,13 @@ import java.util.UUID;
  */
 @Slf4j
 @ApplicationScoped
+@RequiredArgsConstructor
 public class ActivationTokenService {
 
     private static final int ACTIVATION_TOKEN_EXPIRATION_MINUTES = 1440; // 24 hours
     private static final String ERROR_INVALID_TOKEN = "Invalid or expired token";
 
     private final BaseTokenRepository baseTokenRepository;
-
-    @Inject
-    public ActivationTokenService(BaseTokenRepository baseTokenRepository) {
-        this.baseTokenRepository = baseTokenRepository;
-    }
 
     /**
      * Generates and persists an activation token for a user.
@@ -94,4 +90,3 @@ public class ActivationTokenService {
         return Instant.now().plus(expirationMinutes, ChronoUnit.MINUTES);
     }
 }
-

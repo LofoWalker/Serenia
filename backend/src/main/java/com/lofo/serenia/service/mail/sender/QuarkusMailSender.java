@@ -4,7 +4,7 @@ import com.lofo.serenia.service.mail.MailSender;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.Mailer;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -13,14 +13,10 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @ApplicationScoped
+@RequiredArgsConstructor
 public class QuarkusMailSender implements MailSender {
 
     private final Mailer mailer;
-
-    @Inject
-    public QuarkusMailSender(Mailer mailer) {
-        this.mailer = mailer;
-    }
 
     @Override
     public void sendHtml(String to, String subject, String htmlContent) {
@@ -30,4 +26,3 @@ public class QuarkusMailSender implements MailSender {
         log.info("Email sent successfully to {}", to);
     }
 }
-

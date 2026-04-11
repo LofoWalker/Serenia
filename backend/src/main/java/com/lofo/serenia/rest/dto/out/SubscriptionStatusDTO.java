@@ -1,6 +1,6 @@
 package com.lofo.serenia.rest.dto.out;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * DTO representing a user's subscription status.
@@ -14,10 +14,10 @@ public record SubscriptionStatusDTO(
         int dailyMessageLimit,
         int tokensUsedThisMonth,
         int messagesSentToday,
-        LocalDateTime monthlyResetDate,
-        LocalDateTime dailyResetDate,
+        Instant monthlyResetDate,
+        Instant dailyResetDate,
         String status,
-        LocalDateTime currentPeriodEnd,
+        Instant currentPeriodEnd,
         boolean cancelAtPeriodEnd,
         Integer priceCents,
         String currency,

@@ -7,13 +7,14 @@ import com.lofo.serenia.rest.dto.in.RegistrationRequestDTO;
 import com.lofo.serenia.service.subscription.SubscriptionService;
 import com.lofo.serenia.service.user.activation.AccountActivationService;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.mindrot.jbcrypt.BCrypt;
+import io.quarkus.elytron.security.common.BcryptUtil;
 
 @Slf4j
 @ApplicationScoped
+@RequiredArgsConstructor
 public class RegistrationService {
 
     private static final String ERROR_EMAIL_EXISTS = "Email already exists";
@@ -22,17 +23,6 @@ public class RegistrationService {
     private final SereniaConfig sereniaConfig;
     private final AccountActivationService accountActivationService;
     private final SubscriptionService subscriptionService;
-
-    @Inject
-    public RegistrationService(UserRepository userRepository,
-                               SereniaConfig sereniaConfig,
-                               AccountActivationService accountActivationService,
-                               SubscriptionService subscriptionService) {
-        this.userRepository = userRepository;
-        this.sereniaConfig = sereniaConfig;
-        this.accountActivationService = accountActivationService;
-        this.subscriptionService = subscriptionService;
-    }
 
     public void register(RegistrationRequestDTO dto) {
         log.info("Registering user with email={}", dto.email());
@@ -72,7 +62,7 @@ public class RegistrationService {
     private User createUser(RegistrationRequestDTO dto) {
         return User.builder()
                 .email(dto.email())
-                .password(BCrypt.hashpw(dto.password(), BCrypt.gensalt()))
+                .password(BcryptUtil.bcryptHash(dto.password()))
                 .lastName(dto.lastName())
                 .firstName(dto.firstName())
                 .accountActivated(false)

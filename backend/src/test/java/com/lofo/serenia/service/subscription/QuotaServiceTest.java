@@ -14,7 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
@@ -52,8 +53,8 @@ class QuotaServiceTest {
                 .plan(freePlan)
                 .tokensUsedThisMonth(0)
                 .messagesSentToday(0)
-                .monthlyPeriodStart(LocalDateTime.now())
-                .dailyPeriodStart(LocalDateTime.now())
+                .monthlyPeriodStart(Instant.now())
+                .dailyPeriodStart(Instant.now())
                 .build();
     }
 
@@ -108,7 +109,7 @@ class QuotaServiceTest {
         @DisplayName("should reset daily counter when period expired")
         void should_reset_daily_counter_when_period_expired() {
             subscription.setMessagesSentToday(10);
-            subscription.setDailyPeriodStart(LocalDateTime.now().minusDays(2));
+            subscription.setDailyPeriodStart(Instant.now().minus(2, ChronoUnit.DAYS));
             when(subscriptionRepository.findByUserIdForUpdate(USER_ID))
                     .thenReturn(Optional.of(subscription));
             assertDoesNotThrow(() -> quotaService.checkQuotaBeforeCall(USER_ID));
@@ -119,7 +120,7 @@ class QuotaServiceTest {
         @DisplayName("should reset monthly counter when period expired")
         void should_reset_monthly_counter_when_period_expired() {
             subscription.setTokensUsedThisMonth(10000);
-            subscription.setMonthlyPeriodStart(LocalDateTime.now().minusMonths(2));
+            subscription.setMonthlyPeriodStart(Instant.now().minus(62, ChronoUnit.DAYS)); // ~2 months ago
             when(subscriptionRepository.findByUserIdForUpdate(USER_ID))
                     .thenReturn(Optional.of(subscription));
             assertDoesNotThrow(() -> quotaService.checkQuotaBeforeCall(USER_ID));

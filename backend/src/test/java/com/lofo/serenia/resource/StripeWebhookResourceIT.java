@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
@@ -77,8 +77,8 @@ class StripeWebhookResourceIT {
                 .stripeCustomerId(stripeCustomerId)
                 .tokensUsedThisMonth(0)
                 .messagesSentToday(0)
-                .monthlyPeriodStart(LocalDateTime.now())
-                .dailyPeriodStart(LocalDateTime.now())
+                .monthlyPeriodStart(Instant.now())
+                .dailyPeriodStart(Instant.now())
                 .build();
         subscriptionRepository.persist(subscription);
     }

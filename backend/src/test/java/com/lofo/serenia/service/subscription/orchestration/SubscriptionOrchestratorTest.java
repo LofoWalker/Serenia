@@ -21,7 +21,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -117,7 +118,7 @@ class SubscriptionOrchestratorTest {
         void should_synchronize_basic_data() {
             when(statusMapper.mapStatus("active")).thenReturn(SubscriptionStatus.ACTIVE);
             when(dateTimeConverter.convertEpochToDateTime(anyLong()))
-                    .thenReturn(LocalDateTime.now().plusDays(30));
+                    .thenReturn(Instant.now().plus(30, ChronoUnit.DAYS));
             when(planRepository.find("stripePriceId", "price_test123")).thenReturn(planQuery);
             when(planQuery.firstResultOptional()).thenReturn(Optional.of(planPlus));
 
@@ -139,7 +140,7 @@ class SubscriptionOrchestratorTest {
 
             when(statusMapper.mapStatus("active")).thenReturn(SubscriptionStatus.ACTIVE);
             when(dateTimeConverter.convertEpochToDateTime(anyLong()))
-                    .thenReturn(LocalDateTime.now().plusDays(30));
+                    .thenReturn(Instant.now().plus(30, ChronoUnit.DAYS));
             when(planRepository.find("stripePriceId", "price_test123")).thenReturn(planQuery);
             when(planQuery.firstResultOptional()).thenReturn(Optional.of(planPlus));
 
