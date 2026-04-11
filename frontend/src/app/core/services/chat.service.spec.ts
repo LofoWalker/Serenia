@@ -184,8 +184,72 @@ describe('ChatService', () => {
 
       const req = httpMock.expectOne(`${apiUrl}/add-message`);
       expect(req.request.method).toBe('POST');
-      expect(req.request.body).toEqual({ content: 'Test message' });
+      expect(req.request.body).toEqual({ content: 'Test message', conversationId: undefined });
       req.flush(response);
+    });
+
+    it('should_send_conversation_id_when_provided', () => {
+      const response = {
+        conversationId: 'conv-123',
+        role: 'assistant' as const,
+        content: 'Response',
+      };
+
+      service.sendMessage('Test message', 'conv-123').subscribe();
+
+      const req = httpMock.expectOne(`${apiUrl}/add-message`);
+      expect(req.request.body).toEqual({ content: 'Test message', conversationId: 'conv-123' });
+      req.flush(response);
+    });
+  });
+
+  describe('loadMessages', () => {
+    it('should_load_messages_by_conversation_id', () => {
+      const backendResponse = {
+        conversationId: 'conv-456',
+        messages: [
+          { role: 'USER', content: 'Hello' },
+          { role: 'ASSISTANT', content: 'Hi there!' },
+        ],
+      };
+
+      service.loadMessages('conv-456').subscribe((result) => {
+        expect(result.conversationId).toBe('conv-456');
+        expect(result.messages.length).toBe(2);
+      });
+
+      const req = httpMock.expectOne(`${apiUrl}/conv-456/messages`);
+      expect(req.request.method).toBe('GET');
+      req.flush(backendResponse);
+
+      expect(service.conversationId()).toBe('conv-456');
+      expect(service.hasMessages()).toBe(true);
+    });
+  });
+
+  describe('switchConversation', () => {
+    it('should_clear_and_load_new_conversation', () => {
+      const firstResponse = {
+        conversationId: 'conv-1',
+        messages: [{ role: 'USER', content: 'First' }],
+      };
+
+      service.loadMyMessages().subscribe();
+      httpMock.expectOne(`${apiUrl}/my-messages`).flush(firstResponse);
+
+      expect(service.conversationId()).toBe('conv-1');
+
+      const secondResponse = {
+        conversationId: 'conv-2',
+        messages: [{ role: 'ASSISTANT', content: 'Second' }],
+      };
+
+      service.switchConversation('conv-2').subscribe();
+      httpMock.expectOne(`${apiUrl}/conv-2/messages`).flush(secondResponse);
+
+      expect(service.conversationId()).toBe('conv-2');
+      expect(service.messages().length).toBe(1);
+      expect(service.messages()[0].content).toBe('Second');
     });
   });
 

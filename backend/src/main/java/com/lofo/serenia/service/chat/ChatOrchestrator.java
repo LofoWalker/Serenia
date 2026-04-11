@@ -25,8 +25,8 @@ public class ChatOrchestrator {
     private final QuotaService quotaService;
 
     @Transactional
-    public ProcessedMessageResult processUserMessage(UUID userId, String content) {
-        Conversation conv = conversationService.getOrCreateActiveConversation(userId);
+    public ProcessedMessageResult processUserMessage(UUID userId, String content, UUID conversationId) {
+        Conversation conv = conversationService.getOrCreateActiveConversation(userId, conversationId);
 
         quotaService.checkQuotaBeforeCall(userId);
 

@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map, Observable, tap } from 'rxjs';
+import { finalize, map, Observable, tap } from 'rxjs';
 import {
   ChatMessage,
   ConversationMessagesResponse,
@@ -98,7 +98,25 @@ export class ChatService {
     );
   }
 
-  sendMessage(content: string): Observable<MessageResponse> {
+  loadMessages(conversationId: string): Observable<ConversationMessagesResponse> {
+    this.loadingSignal.set(true);
+    return this.http
+      .get<BackendConversationResponse>(`${this.apiUrl}/${conversationId}/messages`)
+      .pipe(
+        map((response) => ({
+          conversationId: response.conversationId,
+          messages: this.mapMessages(response.messages),
+        })),
+        tap((response) => {
+          this.conversationIdSignal.set(response.conversationId);
+          this.allMessagesSignal.set(response.messages);
+          this.visibleCountSignal.set(MESSAGES_PER_PAGE);
+        }),
+        finalize(() => this.loadingSignal.set(false)),
+      );
+  }
+
+  sendMessage(content: string, conversationId?: string): Observable<MessageResponse> {
     this.loadingSignal.set(true);
 
     const userMessage: ChatMessage = {
@@ -109,7 +127,7 @@ export class ChatService {
     this.allMessagesSignal.update((messages) => [...messages, userMessage]);
     this.visibleCountSignal.update((count) => count + 1);
 
-    const request: MessageRequest = { content };
+    const request: MessageRequest = { content, conversationId };
     return this.http.post<MessageResponse>(`${this.apiUrl}/add-message`, request).pipe(
       tap((response) => {
         this.conversationIdSignal.set(response.conversationId);
@@ -120,8 +138,8 @@ export class ChatService {
         };
         this.allMessagesSignal.update((messages) => [...messages, assistantMessage]);
         this.visibleCountSignal.update((count) => count + 1);
-        this.loadingSignal.set(false);
       }),
+      finalize(() => this.loadingSignal.set(false)),
     );
   }
 
@@ -129,6 +147,11 @@ export class ChatService {
     this.allMessagesSignal.set([]);
     this.visibleCountSignal.set(MESSAGES_PER_PAGE);
     this.conversationIdSignal.set(null);
+  }
+
+  switchConversation(conversationId: string): Observable<ConversationMessagesResponse> {
+    this.clearConversation();
+    return this.loadMessages(conversationId);
   }
 
   deleteMyConversations(): Observable<void> {

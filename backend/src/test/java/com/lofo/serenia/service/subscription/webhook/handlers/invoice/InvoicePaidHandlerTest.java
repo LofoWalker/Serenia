@@ -8,6 +8,8 @@ import com.lofo.serenia.persistence.entity.user.User;
 import com.lofo.serenia.persistence.repository.SubscriptionRepository;
 import com.lofo.serenia.service.subscription.StripeEventType;
 import com.lofo.serenia.service.subscription.mapper.StripeObjectMapper;
+import com.stripe.model.Event;
+import com.stripe.model.Invoice;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,14 +18,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import com.stripe.model.Event;
-import com.stripe.model.Invoice;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)

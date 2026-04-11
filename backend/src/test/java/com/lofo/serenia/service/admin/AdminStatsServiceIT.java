@@ -1,6 +1,5 @@
 package com.lofo.serenia.service.admin;
 
-import com.lofo.serenia.TestResourceProfile;
 import com.lofo.serenia.persistence.entity.conversation.Message;
 import com.lofo.serenia.persistence.entity.conversation.MessageRole;
 import com.lofo.serenia.persistence.entity.subscription.Plan;
@@ -14,7 +13,6 @@ import com.lofo.serenia.persistence.repository.SubscriptionRepository;
 import com.lofo.serenia.persistence.repository.UserRepository;
 import com.lofo.serenia.rest.dto.out.admin.*;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.TestProfile;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +26,6 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
-@TestProfile(TestResourceProfile.class)
 @DisplayName("AdminStatsService Integration Tests")
 class AdminStatsServiceIT {
 

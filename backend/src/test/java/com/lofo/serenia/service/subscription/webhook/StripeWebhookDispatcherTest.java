@@ -4,6 +4,7 @@ import com.lofo.serenia.exception.exceptions.WebhookHandlerNotFoundException;
 import com.lofo.serenia.service.subscription.StripeEventType;
 import com.lofo.serenia.service.subscription.webhook.handlers.StripeEventHandler;
 import com.stripe.model.Event;
+import jakarta.enterprise.inject.Instance;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -12,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import jakarta.enterprise.inject.Instance;
 import java.util.ArrayList;
 import java.util.List;
 
