@@ -1,12 +1,13 @@
 package com.lofo.serenia.service.user;
+
 import com.lofo.serenia.exception.exceptions.InvalidTokenException;
 import com.lofo.serenia.persistence.entity.user.BaseToken;
 import com.lofo.serenia.persistence.entity.user.Role;
 import com.lofo.serenia.persistence.entity.user.User;
 import com.lofo.serenia.persistence.repository.BaseTokenRepository;
 import com.lofo.serenia.persistence.repository.UserRepository;
-import com.lofo.serenia.service.mail.provider.EmailTemplateProvider;
 import com.lofo.serenia.service.mail.MailSender;
+import com.lofo.serenia.service.mail.provider.EmailTemplateProvider;
 import com.lofo.serenia.service.user.password.PasswordResetService;
 import com.lofo.serenia.service.user.shared.UserFinder;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,15 +17,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 @DisplayName("PasswordResetService Tests")
 class PasswordResetServiceTest {

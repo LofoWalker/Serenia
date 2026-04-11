@@ -1,8 +1,13 @@
 package com.lofo.serenia.rest.dto.in;
 
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 
-/**
- * Single user utterance posted to the conversation resource.
- */
-public record MessageRequestDTO(@NotBlank String content) {}
+import java.util.UUID;
+
+public record MessageRequestDTO(@NotBlank String content, @Nullable UUID conversationId) {
+
+    public MessageRequestDTO(String content) {
+        this(content, null);
+    }
+}

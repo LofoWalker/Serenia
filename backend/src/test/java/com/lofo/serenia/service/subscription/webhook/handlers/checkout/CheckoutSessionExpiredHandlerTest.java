@@ -2,6 +2,8 @@ package com.lofo.serenia.service.subscription.webhook.handlers.checkout;
 
 import com.lofo.serenia.service.subscription.StripeEventType;
 import com.lofo.serenia.service.subscription.mapper.StripeObjectMapper;
+import com.stripe.model.Event;
+import com.stripe.model.checkout.Session;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -9,11 +11,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import com.stripe.model.Event;
-import com.stripe.model.checkout.Session;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("CheckoutSessionExpiredHandler Tests")

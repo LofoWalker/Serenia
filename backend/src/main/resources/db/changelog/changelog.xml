@@ -10,4 +10,5 @@
     <include file="db/changelog/03-stripe-integration.yaml"/>
     <include file="db/changelog/04-remove-per-message-token-limit.yaml"/>
     <include file="db/changelog/05-add-user-created-at.yaml"/>
+    <include file="db/changelog/06-add-conversation-name.yaml"/>
 </databaseChangeLog>

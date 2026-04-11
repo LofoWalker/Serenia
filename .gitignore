@@ -29,8 +29,6 @@ backend/.env.*
 
 traefik/acme.json
 
-.github/agents
-
 .env
 
 # Cryptographic keys - NEVER commit

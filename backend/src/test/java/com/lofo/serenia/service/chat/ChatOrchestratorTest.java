@@ -63,7 +63,7 @@ class ChatOrchestratorTest {
         ChatCompletionService.ChatCompletionResult completionResult =
                 new ChatCompletionService.ChatCompletionResult("Assistant reply", 500, 100, 50);
 
-        when(conversationService.getOrCreateActiveConversation(FIXED_USER_ID)).thenReturn(conv);
+        when(conversationService.getOrCreateActiveConversation(FIXED_USER_ID, null)).thenReturn(conv);
         when(systemPromptProvider.getSystemPrompt()).thenReturn("System prompt");
         when(messageService.decryptConversationMessages(FIXED_USER_ID, FIXED_CONV_ID))
                 .thenReturn(Collections.emptyList());
@@ -72,7 +72,7 @@ class ChatOrchestratorTest {
         when(chatCompletionService.generateReply(anyString(), anyList()))
                 .thenReturn(completionResult);
 
-        ProcessedMessageResult result = chatOrchestrator.processUserMessage(FIXED_USER_ID, "Hello world");
+        ProcessedMessageResult result = chatOrchestrator.processUserMessage(FIXED_USER_ID, "Hello world", null);
 
         assertNotNull(result);
         assertEquals(FIXED_CONV_ID, result.conversationId());
@@ -84,6 +84,31 @@ class ChatOrchestratorTest {
         verify(messageService).persistAssistantMessage(FIXED_USER_ID, FIXED_CONV_ID, "Assistant reply");
         verify(chatCompletionService).generateReply(eq("System prompt"), anyList());
         verify(quotaService).recordUsage(FIXED_USER_ID, 500, 100, 50);
+    }
+
+    @Test
+    @DisplayName("Should process message targeting a specific conversation")
+    void should_process_message_with_specific_conversation_id() {
+        UUID targetConvId = UUID.randomUUID();
+        Conversation conv = new Conversation();
+        conv.setId(targetConvId);
+
+        ChatCompletionService.ChatCompletionResult completionResult =
+                new ChatCompletionService.ChatCompletionResult("Reply", 200, 50, 25);
+
+        when(conversationService.getOrCreateActiveConversation(FIXED_USER_ID, targetConvId)).thenReturn(conv);
+        when(systemPromptProvider.getSystemPrompt()).thenReturn("System prompt");
+        when(messageService.decryptConversationMessages(FIXED_USER_ID, targetConvId))
+                .thenReturn(Collections.emptyList());
+        when(messageService.persistAssistantMessage(eq(FIXED_USER_ID), eq(targetConvId), nullable(String.class)))
+                .thenReturn(messageWithRole(MessageRole.ASSISTANT));
+        when(chatCompletionService.generateReply(anyString(), anyList()))
+                .thenReturn(completionResult);
+
+        ProcessedMessageResult result = chatOrchestrator.processUserMessage(FIXED_USER_ID, "Hi", targetConvId);
+
+        assertEquals(targetConvId, result.conversationId());
+        verify(conversationService).getOrCreateActiveConversation(FIXED_USER_ID, targetConvId);
     }
 
     private Message messageWithRole(MessageRole role) {

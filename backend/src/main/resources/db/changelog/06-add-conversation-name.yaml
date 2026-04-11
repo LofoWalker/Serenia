@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 06-add-conversation-name
+      author: serenia
+      changes:
+        - addColumn:
+            tableName: conversations
+            columns:
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  defaultValue: 'Nouvelle conversation'
+
