@@ -3,7 +3,6 @@ package com.lofo.serenia.service.chat;
 import com.lofo.serenia.config.SereniaConfig;
 import com.lofo.serenia.exception.exceptions.EncryptionException;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -44,12 +43,13 @@ public class EncryptionService {
 
     private static final String HKDF_CONTEXT = "serenia-user-encryption-v1";
 
+    private final SereniaConfig sereniaConfig;
     private final SecretKey masterKey;
     private final SecureRandom secureRandom = new SecureRandom();
 
-    @Inject
     public EncryptionService(SereniaConfig sereniaConfig) {
         Objects.requireNonNull(sereniaConfig, "sereniaConfig must not be null");
+        this.sereniaConfig = sereniaConfig;
         this.masterKey = initMasterKey(sereniaConfig.securityKey());
     }
 

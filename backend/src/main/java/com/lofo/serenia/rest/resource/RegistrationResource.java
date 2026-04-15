@@ -3,13 +3,14 @@ package com.lofo.serenia.rest.resource;
 import com.lofo.serenia.rest.dto.in.RegistrationRequestDTO;
 import com.lofo.serenia.rest.dto.out.ActivationResponseDTO;
 import com.lofo.serenia.rest.dto.out.ApiMessageResponse;
+import com.lofo.serenia.rest.util.LogUtils;
 import com.lofo.serenia.service.user.activation.AccountActivationService;
 import com.lofo.serenia.service.user.registration.RegistrationService;
-import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -27,16 +28,11 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 @Path("/auth")
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "Registration")
+@RequiredArgsConstructor
 public class RegistrationResource {
 
     private final RegistrationService registrationService;
     private final AccountActivationService accountActivationService;
-
-    @Inject
-    public RegistrationResource(RegistrationService registrationService, AccountActivationService accountActivationService) {
-        this.registrationService = registrationService;
-        this.accountActivationService = accountActivationService;
-    }
 
     @POST
     @Path("/register")
@@ -54,7 +50,7 @@ public class RegistrationResource {
             description = "Invalid payload or user already exists"
     )
     public Response register(@Valid RegistrationRequestDTO dto) {
-        log.info("User registration requested for email=%s", dto.email());
+        log.info("User registration requested for email={}", dto.email());
         registrationService.register(dto);
         return Response.status(Response.Status.CREATED)
                 .entity(new ApiMessageResponse(
@@ -84,7 +80,7 @@ public class RegistrationResource {
     public Response activate(@QueryParam("token")
                             @Parameter(description = "Activation token from email", required = true)
                             String token) {
-        log.info("Account activation requested with token=%s", maskToken(token));
+        log.info("Account activation requested with token={}", LogUtils.maskToken(token));
 
         if (token == null || token.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
@@ -97,18 +93,4 @@ public class RegistrationResource {
                 "Compte activé avec succès. Vous pouvez maintenant vous connecter."))
                 .build();
     }
-
-    /**
-     * Masks a token for logging purposes (shows only first 4 and last 4 characters).
-     *
-     * @param token the token to mask
-     * @return masked token representation
-     */
-    private String maskToken(String token) {
-        if (token == null || token.length() < 8) {
-            return "***";
-        }
-        return token.substring(0, 4) + "***" + token.substring(token.length() - 4);
-    }
 }
-

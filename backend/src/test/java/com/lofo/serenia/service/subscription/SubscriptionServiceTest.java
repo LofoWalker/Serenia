@@ -20,7 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -248,8 +248,8 @@ class SubscriptionServiceTest {
         subscription.setTokensUsedThisMonth(0);
         subscription.setMessagesSentToday(0);
         subscription.setStatus(SubscriptionStatus.ACTIVE);
-        subscription.setMonthlyPeriodStart(LocalDateTime.now());
-        subscription.setDailyPeriodStart(LocalDateTime.now());
+        subscription.setMonthlyPeriodStart(Instant.now());
+        subscription.setDailyPeriodStart(Instant.now());
         return subscription;
     }
 }

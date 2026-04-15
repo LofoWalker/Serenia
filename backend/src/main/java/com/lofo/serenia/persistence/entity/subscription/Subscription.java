@@ -6,7 +6,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -47,10 +47,10 @@ public class Subscription {
     private Integer messagesSentToday = 0;
 
     @Column(name = "monthly_period_start", nullable = false)
-    private LocalDateTime monthlyPeriodStart;
+    private Instant monthlyPeriodStart;
 
     @Column(name = "daily_period_start", nullable = false)
-    private LocalDateTime dailyPeriodStart;
+    private Instant dailyPeriodStart;
 
     @Column(name = "stripe_customer_id", length = 255)
     private String stripeCustomerId;
@@ -64,7 +64,7 @@ public class Subscription {
     private SubscriptionStatus status = SubscriptionStatus.ACTIVE;
 
     @Column(name = "current_period_end")
-    private LocalDateTime currentPeriodEnd;
+    private Instant currentPeriodEnd;
 
     @Builder.Default
     @Column(name = "cancel_at_period_end", nullable = false)
@@ -73,24 +73,29 @@ public class Subscription {
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     /**
      * Vérifie si la période mensuelle est expirée.
+     * Uses UTC-based month calculation via ZonedDateTime to handle variable-length months correctly.
      */
     public boolean isMonthlyPeriodExpired() {
-        return LocalDateTime.now().isAfter(monthlyPeriodStart.plusMonths(1));
+        return Instant.now().isAfter(
+            monthlyPeriodStart.atZone(java.time.ZoneOffset.UTC).plusMonths(1).toInstant()
+        );
     }
 
     /**
      * Vérifie si la période journalière est expirée.
      */
     public boolean isDailyPeriodExpired() {
-        return LocalDateTime.now().isAfter(dailyPeriodStart.plusDays(1));
+        return Instant.now().isAfter(
+            dailyPeriodStart.atZone(java.time.ZoneOffset.UTC).plusDays(1).toInstant()
+        );
     }
 
     /**
@@ -98,7 +103,7 @@ public class Subscription {
      */
     public void resetMonthlyPeriod() {
         this.tokensUsedThisMonth = 0;
-        this.monthlyPeriodStart = LocalDateTime.now();
+        this.monthlyPeriodStart = Instant.now();
     }
 
     /**
@@ -106,6 +111,6 @@ public class Subscription {
      */
     public void resetDailyPeriod() {
         this.messagesSentToday = 0;
-        this.dailyPeriodStart = LocalDateTime.now();
+        this.dailyPeriodStart = Instant.now();
     }
 }

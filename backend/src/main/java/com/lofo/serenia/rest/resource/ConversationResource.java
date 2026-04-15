@@ -8,6 +8,7 @@ import com.lofo.serenia.rest.dto.in.RenameConversationRequestDTO;
 import com.lofo.serenia.rest.dto.out.ConversationMessagesResponseDTO;
 import com.lofo.serenia.rest.dto.out.ConversationSummaryDTO;
 import com.lofo.serenia.rest.dto.out.MessageResponseDTO;
+import com.lofo.serenia.rest.util.AuthUtils;
 import com.lofo.serenia.service.chat.ChatOrchestrator;
 import com.lofo.serenia.service.chat.ConversationService;
 import com.lofo.serenia.service.chat.ProcessedMessageResult;
@@ -16,6 +17,7 @@ import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import lombok.RequiredArgsConstructor;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -32,20 +34,13 @@ import java.util.UUID;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Tag(name = "Conversations", description = "Manage chat conversations and messages")
+@RequiredArgsConstructor
 public class ConversationResource {
 
     private final ConversationService conversationService;
     private final ChatOrchestrator chatOrchestrator;
     private final SecurityIdentity securityIdentity;
     private final JsonWebToken jwt;
-
-    public ConversationResource(ConversationService conversationService, ChatOrchestrator chatOrchestrator,
-                                SecurityIdentity securityIdentity, JsonWebToken jwt) {
-        this.conversationService = conversationService;
-        this.chatOrchestrator = chatOrchestrator;
-        this.securityIdentity = securityIdentity;
-        this.jwt = jwt;
-    }
 
     @GET
     @Operation(summary = "List user conversations",
@@ -164,12 +159,6 @@ public class ConversationResource {
     }
 
     private UUID getAuthenticatedUserId() {
-        if (jwt != null && jwt.getSubject() != null && !jwt.getSubject().isBlank()) {
-            return UUID.fromString(jwt.getSubject());
-        }
-
-        String principalName = securityIdentity.getPrincipal().getName();
-        return UUID.fromString(principalName);
+        return AuthUtils.getAuthenticatedUserId(jwt, securityIdentity);
     }
 }
-

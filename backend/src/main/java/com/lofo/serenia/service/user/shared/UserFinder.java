@@ -3,8 +3,8 @@ package com.lofo.serenia.service.user.shared;
 import com.lofo.serenia.persistence.entity.user.User;
 import com.lofo.serenia.persistence.repository.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.NotFoundException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
@@ -16,16 +16,12 @@ import java.util.UUID;
  */
 @Slf4j
 @ApplicationScoped
+@RequiredArgsConstructor
 public class UserFinder {
 
     private static final String ERROR_USER_NOT_FOUND = "User not found";
 
     private final UserRepository userRepository;
-
-    @Inject
-    public UserFinder(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     /**
      * Finds a user by email or throws NotFoundException.
@@ -76,4 +72,3 @@ public class UserFinder {
                 .orElseThrow(() -> new NotFoundException(ERROR_USER_NOT_FOUND));
     }
 }
-

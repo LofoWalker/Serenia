@@ -5,14 +5,14 @@ import com.lofo.serenia.mapper.UserMapper;
 import com.lofo.serenia.rest.dto.out.UserResponseDTO;
 import io.smallrye.jwt.build.Jwt;
 import jakarta.enterprise.context.ApplicationScoped;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.time.Duration;
 
 /**
  * Responsible for issuing JWTs for authenticated users.
  */
-@AllArgsConstructor
+@RequiredArgsConstructor
 @ApplicationScoped
 public class JwtService {
 
@@ -25,7 +25,7 @@ public class JwtService {
     public String generateToken(UserResponseDTO user) {
         return buildToken(user);
     }
-    
+
     private String buildToken(UserResponseDTO userView) {
         return Jwt.issuer(sereniaConfig.jwtIssuer())
                 .upn(userView.email())

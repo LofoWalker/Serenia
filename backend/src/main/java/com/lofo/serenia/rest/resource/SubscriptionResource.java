@@ -6,14 +6,17 @@ import com.lofo.serenia.rest.dto.out.CheckoutSessionDTO;
 import com.lofo.serenia.rest.dto.out.PlanDTO;
 import com.lofo.serenia.rest.dto.out.PortalSessionDTO;
 import com.lofo.serenia.rest.dto.out.SubscriptionStatusDTO;
+import com.lofo.serenia.rest.util.AuthUtils;
 import com.lofo.serenia.service.subscription.StripeService;
 import com.lofo.serenia.service.subscription.SubscriptionService;
 import io.quarkus.security.Authenticated;
+import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import lombok.RequiredArgsConstructor;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -32,19 +35,13 @@ import java.util.UUID;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Tag(name = "Subscription", description = "Manage subscription and view quota status")
+@RequiredArgsConstructor
 public class SubscriptionResource {
 
     private final SubscriptionService subscriptionService;
     private final StripeService stripeService;
     private final JsonWebToken jwt;
-
-    public SubscriptionResource(SubscriptionService subscriptionService,
-                                 StripeService stripeService,
-                                 JsonWebToken jwt) {
-        this.subscriptionService = subscriptionService;
-        this.stripeService = stripeService;
-        this.jwt = jwt;
-    }
+    private final SecurityIdentity securityIdentity;
 
     @GET
     @Path("/plans")
@@ -168,8 +165,6 @@ public class SubscriptionResource {
     }
 
     private UUID getAuthenticatedUserId() {
-        String subject = jwt.getSubject();
-        return UUID.fromString(subject);
+        return AuthUtils.getAuthenticatedUserId(jwt, securityIdentity);
     }
 }
-

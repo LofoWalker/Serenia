@@ -20,7 +20,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -173,8 +172,8 @@ class AdminStatsServiceIT {
                 .plan(plan)
                 .tokensUsedThisMonth(0)
                 .messagesSentToday(0)
-                .monthlyPeriodStart(LocalDateTime.now())
-                .dailyPeriodStart(LocalDateTime.now())
+                .monthlyPeriodStart(Instant.now())
+                .dailyPeriodStart(Instant.now())
                 .build();
         subscriptionRepository.persist(subscription);
     }

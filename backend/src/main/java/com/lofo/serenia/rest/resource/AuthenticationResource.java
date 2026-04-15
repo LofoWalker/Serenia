@@ -5,7 +5,6 @@ import com.lofo.serenia.rest.dto.out.AuthResponseDTO;
 import com.lofo.serenia.rest.dto.out.UserResponseDTO;
 import com.lofo.serenia.service.user.authentication.AuthenticationService;
 import com.lofo.serenia.service.user.jwt.JwtService;
-import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -13,6 +12,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -29,16 +29,11 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 @Path("/auth/login")
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "Authentication")
+@RequiredArgsConstructor
 public class AuthenticationResource {
 
     private final AuthenticationService authenticationService;
     private final JwtService jwtService;
-
-    @Inject
-    public AuthenticationResource(AuthenticationService authenticationService, JwtService jwtService) {
-        this.authenticationService = authenticationService;
-        this.jwtService = jwtService;
-    }
 
     /**
      * Authenticates a user with email and password credentials.
@@ -66,13 +61,12 @@ public class AuthenticationResource {
             description = "Account not activated or locked"
     )
     public Response login(@Valid LoginRequestDTO dto) {
-        log.info("User login attempted for email=%s", dto.email());
+        log.info("User login attempted for email={}", dto.email());
 
         UserResponseDTO userProfile = authenticationService.login(dto);
         String token = jwtService.generateToken(userProfile);
 
-        log.debug("JWT token successfully generated for email=%s", dto.email());
+        log.debug("JWT token successfully generated for email={}", dto.email());
         return Response.ok(new AuthResponseDTO(userProfile, token)).build();
     }
 }
-

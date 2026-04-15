@@ -3,10 +3,9 @@ package com.lofo.serenia.service.user;
 import com.lofo.serenia.mapper.UserMapper;
 import com.lofo.serenia.persistence.entity.user.Role;
 import com.lofo.serenia.persistence.entity.user.User;
-import com.lofo.serenia.persistence.repository.ConversationRepository;
-import com.lofo.serenia.persistence.repository.MessageRepository;
 import com.lofo.serenia.persistence.repository.UserRepository;
 import com.lofo.serenia.rest.dto.out.UserResponseDTO;
+import com.lofo.serenia.service.chat.ConversationService;
 import com.lofo.serenia.service.user.account.AccountManagementService;
 import com.lofo.serenia.service.user.shared.UserFinder;
 import jakarta.ws.rs.NotFoundException;
@@ -34,10 +33,7 @@ class AccountManagementServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private ConversationRepository conversationRepository;
-
-    @Mock
-    private MessageRepository messageRepository;
+    private ConversationService conversationService;
 
     @Mock
     private UserMapper userMapper;
@@ -56,8 +52,7 @@ class AccountManagementServiceTest {
     void setUp() {
         accountManagementService = new AccountManagementService(
                 userRepository,
-                conversationRepository,
-                messageRepository,
+                conversationService,
                 userMapper,
                 userFinder
         );
@@ -110,8 +105,7 @@ class AccountManagementServiceTest {
 
             accountManagementService.deleteAccountAndAssociatedData(USER_EMAIL);
 
-            verify(messageRepository).deleteByUserId(USER_ID);
-            verify(conversationRepository).deleteByUserId(USER_ID);
+            verify(conversationService).deleteUserConversations(USER_ID);
             verify(userRepository).deleteById(USER_ID);
         }
 
@@ -129,8 +123,8 @@ class AccountManagementServiceTest {
         }
 
         @Test
-        @DisplayName("should delete messages before conversations")
-        void should_delete_messages_before_conversations() {
+        @DisplayName("should delete conversations before user record")
+        void should_delete_conversations_before_user_record() {
             User user = createUser();
 
             when(userFinder.findByEmailOrThrow(USER_EMAIL)).thenReturn(user);
@@ -138,9 +132,8 @@ class AccountManagementServiceTest {
 
             accountManagementService.deleteAccountAndAssociatedData(USER_EMAIL);
 
-            InOrder inOrder = inOrder(messageRepository, conversationRepository, userRepository);
-            inOrder.verify(messageRepository).deleteByUserId(USER_ID);
-            inOrder.verify(conversationRepository).deleteByUserId(USER_ID);
+            InOrder inOrder = inOrder(conversationService, userRepository);
+            inOrder.verify(conversationService).deleteUserConversations(USER_ID);
             inOrder.verify(userRepository).deleteById(USER_ID);
         }
     }

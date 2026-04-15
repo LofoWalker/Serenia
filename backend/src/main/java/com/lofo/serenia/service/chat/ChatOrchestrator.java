@@ -7,14 +7,14 @@ import com.lofo.serenia.persistence.entity.conversation.Message;
 import com.lofo.serenia.service.subscription.QuotaService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.UUID;
 
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 @ApplicationScoped
 public class ChatOrchestrator {
 

@@ -2,17 +2,15 @@ package com.lofo.serenia.service.user.account;
 
 import com.lofo.serenia.mapper.UserMapper;
 import com.lofo.serenia.persistence.entity.user.User;
-import com.lofo.serenia.persistence.repository.ConversationRepository;
-import com.lofo.serenia.persistence.repository.MessageRepository;
 import com.lofo.serenia.persistence.repository.UserRepository;
 import com.lofo.serenia.rest.dto.out.UserResponseDTO;
+import com.lofo.serenia.service.chat.ConversationService;
 import com.lofo.serenia.service.user.shared.UserFinder;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.UUID;
@@ -23,25 +21,15 @@ import java.util.UUID;
  */
 @Slf4j
 @ApplicationScoped
+@RequiredArgsConstructor
 public class AccountManagementService {
 
     private static final String ERROR_ACCOUNT_DELETION_FAILED = "Unable to delete account";
 
     private final UserRepository userRepository;
-    private final ConversationRepository conversationRepository;
-    private final MessageRepository messageRepository;
+    private final ConversationService conversationService;
     private final UserMapper userMapper;
     private final UserFinder userFinder;
-
-    @Inject
-    public AccountManagementService(UserRepository userRepository, ConversationRepository conversationRepository,
-                                    MessageRepository messageRepository, UserMapper userMapper, UserFinder userFinder) {
-        this.userRepository = userRepository;
-        this.conversationRepository = conversationRepository;
-        this.messageRepository = messageRepository;
-        this.userMapper = userMapper;
-        this.userFinder = userFinder;
-    }
 
     /**
      * Retrieves user profile information by email.
@@ -51,7 +39,7 @@ public class AccountManagementService {
      * @throws NotFoundException if user does not exist
      */
     public UserResponseDTO getUserProfile(String email) {
-        log.debug("Fetching user profile by email=%s", email);
+        log.debug("Fetching user profile by email={}", email);
         return userMapper.toView(userFinder.findByEmailOrThrow(email));
     }
 
@@ -65,20 +53,18 @@ public class AccountManagementService {
      */
     @Transactional
     public void deleteAccountAndAssociatedData(String email) {
-        log.info("Deleting account for email=%s", email);
+        log.info("Deleting account for email={}", email);
         User user = userFinder.findByEmailOrThrow(email);
         UUID userId = user.getId();
 
-        messageRepository.deleteByUserId(userId);
-        conversationRepository.deleteByUserId(userId);
+        conversationService.deleteUserConversations(userId);
         long deletedUsers = userRepository.deleteById(userId);
 
         if (deletedUsers != 1) {
-            log.error("Unexpected delete result for user %s: %d rows", email, deletedUsers);
+            log.error("Unexpected delete result for user {}: {} rows", email, deletedUsers);
             throw new WebApplicationException(ERROR_ACCOUNT_DELETION_FAILED, Response.Status.INTERNAL_SERVER_ERROR);
         }
 
-        log.info("User %s and related data deleted", email);
+        log.info("User {} and related data deleted", email);
     }
 }
-
