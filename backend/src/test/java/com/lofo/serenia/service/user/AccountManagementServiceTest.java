@@ -124,7 +124,7 @@ class AccountManagementServiceTest {
 
         @Test
         @DisplayName("should delete conversations before user record")
-        void should_delete_messages_before_conversations() {
+        void should_delete_conversations_before_user_record() {
             User user = createUser();
 
             when(userFinder.findByEmailOrThrow(USER_EMAIL)).thenReturn(user);

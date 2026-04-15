@@ -6,23 +6,26 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import java.util.UUID;
 
 /**
- * Utility for extracting the authenticated user ID from request context.
- * Prefers the JWT subject claim; falls back to the SecurityIdentity principal name.
+ * Utility for extracting the authenticated user ID from the JWT subject claim.
  */
 public final class AuthUtils {
 
     private AuthUtils() {}
 
     /**
-     * Returns the UUID of the authenticated user.
-     * Falls back to {@code securityIdentity} principal when the JWT subject is absent,
-     * which can happen with alternative authentication mechanisms.
+     * Returns the UUID of the authenticated user from the JWT {@code sub} claim.
+     *
+     * @throws IllegalStateException if the JWT subject is missing, blank, or not a valid UUID
      */
     public static UUID getAuthenticatedUserId(JsonWebToken jwt, SecurityIdentity securityIdentity) {
-        if (jwt != null && jwt.getSubject() != null && !jwt.getSubject().isBlank()) {
-            return UUID.fromString(jwt.getSubject());
+        if (jwt == null || jwt.getSubject() == null || jwt.getSubject().isBlank()) {
+            throw new IllegalStateException("Authenticated user ID is missing from JWT subject");
         }
-        return UUID.fromString(securityIdentity.getPrincipal().getName());
+        try {
+            return UUID.fromString(jwt.getSubject());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalStateException("JWT subject is not a valid UUID: " + jwt.getSubject(), e);
+        }
     }
 }
 

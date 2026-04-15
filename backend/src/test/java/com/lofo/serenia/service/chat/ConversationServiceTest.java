@@ -223,7 +223,7 @@ class ConversationServiceTest {
 
     @Test
     @DisplayName("Should get active conversation by user id")
-    void should_get_most_recent_conversation() {
+    void should_get_active_conversation_by_user_id() {
         Conversation conv = conversationWithId(FIXED_CONV_ID, FIXED_USER_ID);
         when(conversationRepository.findActiveByUser(FIXED_USER_ID))
             .thenReturn(Optional.of(conv));
